@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+
+<svg
+   width="800px"
+   height="800px"
+   viewBox="0 0 24 24"
+   id="Layer_1"
+   data-name="Layer 1"
+   version="1.1"
+   sodipodi:docname="eyedropper.svg"
+   inkscape:version="1.4.3 (0d15f75042, 2025-12-25)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview3"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="0.74"
+     inkscape:cx="400"
+     inkscape:cy="400"
+     inkscape:window-width="1536"
+     inkscape:window-height="800"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="Layer_1" />
+  <defs
+     id="defs1">
+    <style
+       id="style1">.cls-1{fill:none;stroke:#000000;stroke-miterlimit:10;stroke-width:1.91px;}</style>
+  </defs>
+  <path
+     class="cls-1"
+     d="M6.34,17.73h0a6.9,6.9,0,0,1,2-4.89L14,7.23l2.86,2.86L11.23,15.7A6.92,6.92,0,0,1,6.34,17.73Z"
+     id="path1" />
+  <path
+     class="cls-1"
+     d="M17.32,10.57,13.5,6.75,18,2.29a2.69,2.69,0,0,1,1.91-.79h0a2.7,2.7,0,0,1,2.7,2.7h0a2.73,2.73,0,0,1-.79,1.91Z"
+     id="path2" />
+  <line
+     class="cls-1"
+     x1="12.07"
+     y1="5.32"
+     x2="18.75"
+     y2="12"
+     id="line2" />
+  <path
+     class="cls-1"
+     d="M6.34,21.55a1,1,0,0,1-1.91,0,6.27,6.27,0,0,1,1-1.91A6.29,6.29,0,0,1,6.34,21.55Z"
+     id="path3" />
+</svg>

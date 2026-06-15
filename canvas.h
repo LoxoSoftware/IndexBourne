@@ -1,0 +1,80 @@
+#ifndef CANVAS_H
+#define CANVAS_H
+
+#include <QObject>
+#include <QAction>
+#include <QGraphicsScene>
+#include <QGraphicsView>
+#include <QGraphicsWidget>
+#include <QMouseEvent>
+#include <QOpenGLWidget>
+
+struct Tool;
+class Frame;
+
+QT_BEGIN_NAMESPACE
+namespace Ui {
+class ImageCanvas;
+}
+QT_END_NAMESPACE
+
+class ImageCanvas : public QOpenGLWidget
+{
+    Q_OBJECT
+
+    //NOTE: parent must be a QScrollArea!
+
+private:
+    Ui::ImageCanvas* ui;
+    int scaling= 5;
+    QGraphicsScene scene;
+    QBrush brush;
+    QPen pen;
+    QMenu* context_menu= nullptr;
+    Qt::MouseButton mouse_down_button= Qt::NoButton;
+    bool mouse_has_moved= false;
+    QPointF mouse_last_pos;
+    QPointF mouse_last_global_pos;
+    QImage* image;
+    Frame* current_frame= nullptr;
+    int current_layer_index= 0;
+    Tool* current_tool;
+    QSize tilegrid_size= QSize(8, 8);
+
+    const int max_scaling= 32;
+
+    bool show_tilegrid= true;
+    bool show_pixelgrid= false;
+
+    void mousePressEvent(QMouseEvent* event);
+    void mouseMoveEvent(QMouseEvent* event);
+    void mouseReleaseEvent(QMouseEvent* event);
+    void wheelEvent(QWheelEvent* event);
+    void paintEvent(QPaintEvent* event);
+
+    void PanToMouse(QPoint mouse_global_pos);
+    void PaintGrid(QPainter* painter);
+
+public:
+    ImageCanvas(QScrollArea* parent, Frame* frame);
+
+    void Redraw();
+    void ZoomIn();
+    void ZoomOut();
+
+    void Plot(int x, int y, int color, int radius=1);
+    void DrawPencil(QPoint pos, bool primary= true);
+    void PickColor(QPoint pos, bool primary= true);
+
+    const QImage* Image() const { return image; }
+    QWidget* Widget() { return this->Widget(); }
+
+    //void SetImage(QImage* image);
+    void SetFrame(Frame* frame);
+    void SetCurrentLayerIndex(int index);
+    void SetTileGridSize(QSize size) { tilegrid_size= size; }
+    void EnableTileGrid(bool enable) { show_tilegrid= enable; Redraw(); }
+    void EnablePixelGrid(bool enable) { show_pixelgrid= enable; Redraw(); }
+};
+
+#endif // CANVAS_H

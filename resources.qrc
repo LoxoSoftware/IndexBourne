@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/icons/scalable">
+        <file alias="rectangle-select">res/icons/rectangle-select.svg</file>
+        <file alias="eyedropper">res/icons/eyedropper.svg</file>
+        <file alias="line">res/icons/line.svg</file>
+        <file alias="fill">res/icons/fill.svg</file>
+        <file alias="rectangle-filled">res/icons/rectangle-filled.svg</file>
+        <file alias="ellipse-filled">res/icons/ellipse-filled.svg</file>
+        <file alias="pencil">res/icons/pencil.svg</file>
+        <file alias="ellipse">res/icons/ellipse.svg</file>
+        <file alias="rectangle">res/icons/rectangle.svg</file>
+    </qresource>
+</RCC>
