@@ -19,13 +19,12 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    dckPaletteEdit= new PalettePanel(this->CentralWidget(), this);
+    addDockWidget(Qt::RightDockWidgetArea, dckPaletteEdit);
+    dckToolPanel= new ToolPanel(this->CentralWidget(), this);
+    addDockWidget(Qt::LeftDockWidgetArea, dckToolPanel);
 
     NewProject(this);
-
-    dckPaletteEdit= current_project->SpawnPalettePanel();
-    addDockWidget(Qt::RightDockWidgetArea, dckPaletteEdit);
-    dckToolPanel= current_project->SpawnToolPanel();
-    addDockWidget(Qt::LeftDockWidgetArea, dckToolPanel);
 }
 
 MainWindow::~MainWindow()

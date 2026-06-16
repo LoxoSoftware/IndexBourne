@@ -114,6 +114,9 @@ Project::Project(MainWindow* parent, QSize size, QRgb bit_depth)
 
     this->main_window= parent;
     this->canvas= new ImageCanvas(main_window->CanvasContainer(), CurrentFrame());
+
+    this->dckPaletteEdit= parent->PalettePanelPtr();
+    this->dckToolPanel= parent->ToolPanelPtr();
 }
 
 bool Project::ImportBitmap(QImage img, consent_t canvas_resize, consent_t import_palette)
@@ -204,8 +207,8 @@ void Project::SetPalette(const palette_t new_palette, bool recursive)
         }
     }
 
-    if (dckPaletteEdit)
-        dckPaletteEdit->Update();
+    if (UiPalettePanel())
+        UiPalettePanel()->Update();
     if (Canvas())
         Canvas()->Redraw();
 }
@@ -213,8 +216,8 @@ void Project::SetPalette(const palette_t new_palette, bool recursive)
 void Project::SetPaletteFast(palette_t new_palette)
 {
     this->palette= new_palette;
-    if (dckPaletteEdit)
-        dckPaletteEdit->Update();
+    if (UiPalettePanel())
+        UiPalettePanel()->Update();
 }
 
 void Project::SetImageSize(QSize size)
@@ -230,7 +233,7 @@ void Project::SetPaltableAPosition(QPoint pos)
     if (pos == paltable_Bpos) //Swap indexes if the selection ends up in the same place
         paltable_Bpos= paltable_Apos;
     paltable_Apos= pos;
-    dckPaletteEdit->on_UpdateAPosition(pos);
+    UiPalettePanel()->on_UpdateAPosition(pos);
 }
 
 void Project::SetPaltableBPosition(QPoint pos)
@@ -238,7 +241,7 @@ void Project::SetPaltableBPosition(QPoint pos)
     if (pos == paltable_Apos) //Swap indexes if the selection ends up in the same place
         paltable_Apos= paltable_Bpos;
     paltable_Bpos= pos;
-    dckPaletteEdit->on_UpdateBPosition(pos);
+    UiPalettePanel()->on_UpdateBPosition(pos);
 }
 
 void Project::InsertFrameAt(int pos)
@@ -300,25 +303,4 @@ void Project::FillPaletteRect(QPoint pos_a, QPoint pos_b, QRgb color)
             palette[ix+iy*PALETTE_W]= color;
         }
     SetPalette();
-}
-
-PalettePanel* Project::SpawnPalettePanel()
-{
-    if (dckPaletteEdit)
-        delete dckPaletteEdit;
-
-    dckPaletteEdit= new PalettePanel(this->main_window->CentralWidget(), this->main_window);
-    dckPaletteEdit->Update();
-
-    return dckPaletteEdit;
-}
-
-ToolPanel* Project::SpawnToolPanel()
-{
-    if (dckToolPanel)
-        delete dckToolPanel;
-
-    dckToolPanel= new ToolPanel(this->main_window->CentralWidget(), this->main_window);
-
-    return dckToolPanel;
 }

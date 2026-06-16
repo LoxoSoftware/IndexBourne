@@ -33,6 +33,8 @@ public:
 
     QScrollArea* CanvasContainer() { return ui->scr_canvas; }
     QWidget* CentralWidget() { return ui->centralwidget; }
+    PalettePanel** PalettePanelPtr() { return &dckPaletteEdit; }
+    ToolPanel** ToolPanelPtr() { return &dckToolPanel; }
 
     static QIcon ColorizeIcon(QString filename, QString color);
 

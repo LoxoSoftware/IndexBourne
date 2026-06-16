@@ -112,9 +112,12 @@ protected:
     bppformat_t image_bpp= Format_8bpp;
     MainWindow* main_window= nullptr;
     ImageCanvas* canvas= nullptr;
-    PalettePanel* dckPaletteEdit= nullptr;
-    ToolPanel* dckToolPanel= nullptr;
+    PalettePanel** dckPaletteEdit= nullptr;
+    ToolPanel** dckToolPanel= nullptr;
     QString filename= "";
+
+    PalettePanel* UiPalettePanel() { return dckPaletteEdit ? *dckPaletteEdit : nullptr; }
+    ToolPanel* UiToolPanel() { return dckToolPanel ? *dckToolPanel : nullptr; }
 
 public:
     Project(MainWindow* parent, QSize size= QSize(64,64), QRgb bit_depth= QRgb(0x050505));
@@ -141,7 +144,7 @@ public:
     const QPoint PaltableBPosition() const { return paltable_Bpos; }
     const int PaltableAIndex() const { return paltable_Apos.x()+paltable_Apos.y()*PALETTE_W; }
     const int PaltableBIndex() const { return paltable_Bpos.x()+paltable_Bpos.y()*PALETTE_W; }
-    const Tool CurrentTool() const { return dckToolPanel->GetCurrentTool(); }
+    Tool CurrentTool() { return UiToolPanel()->GetCurrentTool(); }
 
     void SetCurrentFrameIndex(int frame);
     void SetCurrentLayerIndex(int layer);
@@ -158,9 +161,6 @@ public:
     void SwapColorIndex(int index_a, int index_b);
     void FillPaletteLinear(int index_a, int index_b, QRgb color);
     void FillPaletteRect(QPoint pos_a, QPoint pos_b, QRgb color);
-
-    PalettePanel* SpawnPalettePanel();
-    ToolPanel* SpawnToolPanel();
 };
 
 #endif // PROJECT_H
