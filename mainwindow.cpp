@@ -25,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent)
     addDockWidget(Qt::LeftDockWidgetArea, dckToolPanel);
 
     NewProject(this);
+    dckPaletteEdit->Update();
 }
 
 MainWindow::~MainWindow()
