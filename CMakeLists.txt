@@ -14,10 +14,13 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets OpenGLWidgets)
 
 set(PROJECT_SOURCES
         main.cpp
+        resources.qrc
         mainwindow.cpp mainwindow.h mainwindow.ui
         project.h project.cpp
         canvas.h canvas.cpp
         palette_panel.cpp palette_panel.h palette_panel.ui
+        tool_panel.h tool_panel.cpp tool_panel.ui
+        newprojectdialog.h newprojectdialog.cpp newprojectdialog.ui
 )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
@@ -26,8 +29,6 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(ezgfx
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        tool_panel.h tool_panel.cpp tool_panel.ui
-        resources.qrc
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET ezgfx APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

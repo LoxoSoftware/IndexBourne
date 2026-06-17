@@ -3,6 +3,7 @@
 #include "project.h"
 #include <QMessageBox>
 #include <QFileDialog>
+#include "newprojectdialog.h"
 
 QList<Project> open_projects;
 Project* current_project= nullptr;
@@ -70,7 +71,12 @@ void MainWindow::on_actionQuit_triggered()
 
 void MainWindow::on_actionNewProject_triggered()
 {
-    NewProject(this);
+    NewProjectDialog dial= NewProjectDialog(this);
+
+    if (dial.GetAccepted())
+    {
+        NewProject(this, dial.CanvasSize());
+    }
 }
 
 void MainWindow::on_actionOpenProject_triggered()
