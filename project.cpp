@@ -92,7 +92,7 @@ void Frame::ClearHistory()
     history.clear();
 }
 
-Project::Project(MainWindow* parent, QSize size, QRgb bit_depth)
+Project::Project(MainWindow* parent, QSize size)
 {
     if (!parent)
         throw "Project::Project -- parent is null";

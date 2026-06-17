@@ -65,25 +65,6 @@ typedef struct Tool
     QRect rect= QRect(0,0,1,1);
 } Tool;
 
-// class Tool
-// {
-// private:
-//     tooltype_t type= Tool_Pencil;
-//     int diameter= 1;
-//     QRect rect= QRect(0,0,1,1);
-
-// public:
-//     Tool();
-
-//     void SetType(tooltype_t type);
-//     void SetDiameter(int diameter);
-//     void SetRect(QRect rect);
-
-//     tooltype_t Type() { return type; }
-//     int Diameter() { return diameter; }
-//     QRect Rect() { return rect; }
-// };
-
 typedef enum
 {
     Consent_No = 0,
@@ -108,7 +89,6 @@ protected:
     int current_frame= 0;
     QPoint paltable_Apos= QPoint(1,0);
     QPoint paltable_Bpos= QPoint(0,0);
-    QRgb bitdepth;
     bppformat_t image_bpp= Format_8bpp;
     MainWindow* main_window= nullptr;
     ImageCanvas* canvas= nullptr;
@@ -120,7 +100,7 @@ protected:
     ToolPanel* UiToolPanel() { return dckToolPanel ? *dckToolPanel : nullptr; }
 
 public:
-    Project(MainWindow* parent, QSize size= QSize(64,64), QRgb bit_depth= QRgb(0x050505));
+    Project(MainWindow* parent, QSize size= QSize(64,64));
     bool LoadProject(QString filename); //Returns true on success
     bool SaveProject(QString filename); //Returns true on success
     bool ImportBitmap(QImage img, consent_t canvas_resize=Consent_Ask, consent_t import_palette=Consent_Ask); //Returns true on success
@@ -134,7 +114,6 @@ public:
     const int CurrentLayerIndex() const { return current_layer; }
     const int Frames() const { return timeline.size(); }
     const QSize ImageSize() const { return image_size; }
-    const QRgb Bitdepth() const { return bitdepth; }
     const palette_t Palette() const { return palette; }
     const bppformat_t BppFormat() const { return image_bpp; }
     const QString FileName() const { return filename; }
