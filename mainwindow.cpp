@@ -4,6 +4,7 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include "newprojectdialog.h"
+#include "resizedialog.h"
 
 QList<Project> open_projects;
 Project* current_project= nullptr;
@@ -203,5 +204,18 @@ void MainWindow::on_actionTogglePixelGrid_triggered(bool checked)
 void MainWindow::on_actionToggleTileGrid_triggered(bool checked)
 {
     current_project->Canvas()->EnableTileGrid(checked);
+}
+
+void MainWindow::on_actionResize_triggered()
+{
+    if (!current_project)
+        return;
+
+    ResizeDialog dial= ResizeDialog(this, current_project->ImageSize());
+
+    if (dial.GetAccepted())
+    {
+        current_project->SetImageSize(dial.NewSize());
+    }
 }
 

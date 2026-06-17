@@ -80,7 +80,7 @@
    </widget>
    <widget class="QMenu" name="menuImage">
     <property name="enabled">
-     <bool>false</bool>
+     <bool>true</bool>
     </property>
     <property name="toolTip">
      <string>Coming soon</string>
@@ -89,6 +89,9 @@
      <string>Image</string>
     </property>
     <widget class="QMenu" name="menuSet_mode">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="title">
       <string>Set mode</string>
      </property>
@@ -96,6 +99,7 @@
      <addaction name="actionMode4bpp"/>
     </widget>
     <addaction name="menuSet_mode"/>
+    <addaction name="actionResize"/>
     <addaction name="actionExportBitmap"/>
     <addaction name="actionExportToGRIT"/>
    </widget>
@@ -205,11 +209,17 @@
    </property>
   </action>
   <action name="actionImportPalette">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Import</string>
    </property>
   </action>
   <action name="actionExportPalette">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Export</string>
    </property>
@@ -263,6 +273,9 @@
    </property>
   </action>
   <action name="actionExportBitmap">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset theme="media-eject"/>
    </property>
@@ -274,6 +287,9 @@
    </property>
   </action>
   <action name="actionExportToGRIT">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset theme="media-eject"/>
    </property>
@@ -341,11 +357,19 @@
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Shared file...</string>
    </property>
    <property name="toolTip">
     <string>Use a shared palette</string>
+   </property>
+  </action>
+  <action name="actionResize">
+   <property name="text">
+    <string>Resize canvas</string>
    </property>
   </action>
  </widget>

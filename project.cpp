@@ -231,6 +231,9 @@ void Project::SetImageSize(QSize size)
         timeline[ifr].SetImageSize(size);
 
     this->image_size= size;
+
+    if (Canvas())
+        Canvas()->Redraw();
 }
 
 void Project::SetPaltableAPosition(QPoint pos)

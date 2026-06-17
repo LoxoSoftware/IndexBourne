@@ -54,6 +54,7 @@ private slots:
     void on_actionRedo_triggered();
     void on_actionTogglePixelGrid_triggered(bool checked);
     void on_actionToggleTileGrid_triggered(bool checked);
+    void on_actionResize_triggered();
 };
 
 #endif // MAINWINDOW_H
