@@ -15,7 +15,7 @@ Frame::Frame(Project* parent, QSize size)
         current_project= parent;
     InsertLayer();
     ClearHistory();
-    //PushNewSnapshot();
+    PushNewSnapshot();
 }
 
 void Frame::InsertLayerAt(int pos)
@@ -35,6 +35,7 @@ void Frame::SetImageSize(QSize size)
     }
 
     this->image_size= size;
+    ClearHistory();
     PushNewSnapshot();
 }
 
@@ -117,6 +118,9 @@ Project::Project(MainWindow* parent, QSize size, QRgb bit_depth)
 
     this->dckPaletteEdit= parent->PalettePanelPtr();
     this->dckToolPanel= parent->ToolPanelPtr();
+
+    if (!current_project)
+        current_project= this;
 }
 
 bool Project::ImportBitmap(QImage img, consent_t canvas_resize, consent_t import_palette)
@@ -156,6 +160,7 @@ bool Project::ImportBitmap(QImage img, consent_t canvas_resize, consent_t import
     else
         SetPalette(old_palette);
 
+    CurrentFrame()->PushNewSnapshot();
     Canvas()->Redraw();
 
     return true;

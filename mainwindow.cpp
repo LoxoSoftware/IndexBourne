@@ -10,6 +10,7 @@ Project* current_project= nullptr;
 void NewProject(MainWindow* parent, QSize size = QSize(64,64))
 {
     open_projects.clear();
+    current_project= nullptr;
     open_projects += Project(parent, size);
     current_project= &open_projects.last();
 }
