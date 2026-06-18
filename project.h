@@ -95,6 +95,8 @@ protected:
     PalettePanel** dckPaletteEdit= nullptr;
     ToolPanel** dckToolPanel= nullptr;
     QString filename= "";
+    QString shared_palette_filename= "";
+    bool is_saved= true;
 
     PalettePanel* UiPalettePanel() { return dckPaletteEdit ? *dckPaletteEdit : nullptr; }
     ToolPanel* UiToolPanel() { return dckToolPanel ? *dckToolPanel : nullptr; }
