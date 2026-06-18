@@ -22,6 +22,7 @@ set(PROJECT_SOURCES
         tool_panel.h tool_panel.cpp tool_panel.ui
         newprojectdialog.h newprojectdialog.cpp newprojectdialog.ui
         resizedialog.h resizedialog.cpp resizedialog.ui
+        layer_panel.h layer_panel.cpp layer_panel.ui
 )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})

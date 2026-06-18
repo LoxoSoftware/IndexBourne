@@ -24,6 +24,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     dckPaletteEdit= new PalettePanel(this->CentralWidget(), this);
     addDockWidget(Qt::RightDockWidgetArea, dckPaletteEdit);
+    dckLayerPanel= new LayerPanel(this->CentralWidget(), this);
+    addDockWidget(Qt::RightDockWidgetArea, dckLayerPanel);
     dckToolPanel= new ToolPanel(this->CentralWidget(), this);
     addDockWidget(Qt::LeftDockWidgetArea, dckToolPanel);
 

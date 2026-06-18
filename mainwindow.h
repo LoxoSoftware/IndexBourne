@@ -5,6 +5,7 @@
 #include <QScrollArea>
 #include "palette_panel.h"
 #include "tool_panel.h"
+#include "layer_panel.h"
 #include "ui_mainwindow.h"
 
 #define IS_DARK_THEME       (this->palette().window().color().black() >= 128)
@@ -24,6 +25,7 @@ private:
 
     PalettePanel* dckPaletteEdit= nullptr;
     ToolPanel* dckToolPanel= nullptr;
+    LayerPanel* dckLayerPanel= nullptr;
 
     bool _QuickSaveBitmap(QString new_fname);
 
@@ -35,6 +37,7 @@ public:
     QWidget* CentralWidget() { return ui->centralwidget; }
     PalettePanel** PalettePanelPtr() { return &dckPaletteEdit; }
     ToolPanel** ToolPanelPtr() { return &dckToolPanel; }
+    LayerPanel** LayerPanelPtr() { return &dckLayerPanel; }
 
     static QIcon ColorizeIcon(QString filename, QString color);
 
