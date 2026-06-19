@@ -23,15 +23,37 @@ void Frame::InsertLayerAt(int pos)
     QImage new_layer= QImage(this->image_size, QImage::Format_Indexed8);
     new_layer.setColorTable(current_project->Palette());
     new_layer.fill(0);
+
+    for (int ih=0; ih<HistorySize(); ih++)
+        history[ih].insert(pos, new_layer);
+
     this->insert(pos, new_layer);
+
     PushNewSnapshot();
+}
+
+void Frame::RemoveLayer(int pos)
+{
+    if (this->size() < 2)
+    {
+        Layer(0)->fill(0);
+        return;
+    }
+
+    for (int ih=0; ih<HistorySize(); ih++)
+        history[ih].remove(pos);
+
+    this->remove(pos);
+
+    if (pos >= this->size())
+        current_project->SetCurrentLayerIndex(this->size()-1);
 }
 
 void Frame::SetImageSize(QSize size)
 {
     for (int i=0; i<this->size(); i++)
     {
-        this->replace(i, this->at(i).copy(0 ,0, size.width(), size.height()));
+        this->replace(i, this->at(i).copy(0, 0, size.width(), size.height()));
     }
 
     this->image_size= size;
@@ -92,6 +114,19 @@ void Frame::ClearHistory()
     history.clear();
 }
 
+QImage* Frame::Layer(int layer)
+{
+    QImage* img= (QImage*)&this->at(layer);
+    palette_t pal= current_project->Palette();
+
+    if (layer != 0)
+        pal[0]= qRgba(0,0,0,0);
+
+    img->setColorTable(pal);
+
+    return img;
+}
+
 Project::Project(MainWindow* parent, QSize size)
 {
     if (!parent)
@@ -118,6 +153,7 @@ Project::Project(MainWindow* parent, QSize size)
 
     this->dckPaletteEdit= parent->PalettePanelPtr();
     this->dckToolPanel= parent->ToolPanelPtr();
+    this->dckLayerPanel= parent->LayerPanelPtr();
 
     if (!current_project)
         current_project= this;
@@ -186,13 +222,19 @@ QImage Project::RenderBitmap()
     return result;
 }
 
+void Project::SetCurrentLayerIndex(int layer)
+{
+    current_layer= layer;
+    this->Canvas()->SetCurrentLayerIndex(layer);
+}
+
 void Project::SetCurrentFrameIndex(int frame)
 {
     this->current_frame= frame;
     SetPalette(palette_t(), false);
 }
 
-void Project::SetPalette(const palette_t new_palette, bool recursive)
+void Project::SetPalette(palette_t new_palette, bool recursive)
 {
     if (new_palette != palette_t())
     {
@@ -208,7 +250,12 @@ void Project::SetPalette(const palette_t new_palette, bool recursive)
         for (int il=0; il<timeline[ifr].LayerCount(); il++)
         {
             QImage* layer= timeline[ifr].Layer(il);
-            layer->setColorTable(palette);
+            palette_t temp_pal= this->palette;
+
+            if (il != 0)
+                temp_pal[0]= qRgba(0,0,0,0);
+
+            layer->setColorTable(temp_pal);
         }
     }
 

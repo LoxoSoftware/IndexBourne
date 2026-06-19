@@ -6,6 +6,7 @@
 #include "canvas.h"
 #include "palette_panel.h"
 #include "tool_panel.h"
+#include "layer_panel.h"
 
 #define PALETTE_W   16
 #define PALETTE_H   16
@@ -34,7 +35,7 @@ public:
     void ClearHistory();
     void PushNewSnapshot();
 
-    QImage* Layer(int layer) { return (QImage*)&this->at(layer); }
+    QImage* Layer(int layer);
     const QSize ImageSize() const { return image_size; }
     const int LayerCount() const { return this->size(); };
     int HistorySize() { return history.size(); }
@@ -94,12 +95,14 @@ protected:
     ImageCanvas* canvas= nullptr;
     PalettePanel** dckPaletteEdit= nullptr;
     ToolPanel** dckToolPanel= nullptr;
+    LayerPanel** dckLayerPanel= nullptr;
     QString filename= "";
     QString shared_palette_filename= "";
     bool is_saved= true;
 
     PalettePanel* UiPalettePanel() { return dckPaletteEdit ? *dckPaletteEdit : nullptr; }
     ToolPanel* UiToolPanel() { return dckToolPanel ? *dckToolPanel : nullptr; }
+    LayerPanel* UiLayerPanel() { return dckLayerPanel ? *dckLayerPanel : nullptr; }
 
 public:
     Project(MainWindow* parent, QSize size= QSize(64,64));
@@ -132,7 +135,7 @@ public:
     void SetPaltableAPosition(QPoint pos);
     void SetPaltableBPosition(QPoint pos);
     void SetImageSize(QSize size);
-    void SetPalette(const palette_t palette= palette_t(), bool recursive= false);
+    void SetPalette(palette_t palette= palette_t(), bool recursive= false);
     void SetPaletteFast(const palette_t palette);
     void SetBppFormat(bppformat_t fmt);
     void SetFileName(QString filename) { this->filename= filename; }

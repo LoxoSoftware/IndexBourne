@@ -40,10 +40,13 @@ void ImageCanvas::Redraw()
     setMaximumSize(this->minimumSize());
     scene.setSceneRect(this->rect());
 
-    QPixmap pix= QPixmap::fromImage(*image);
-    QGraphicsPixmapItem* item= new QGraphicsPixmapItem(pix);
-    item->setScale(scaling);
-    scene.addItem(item);
+    for (int il=0; il<current_frame->LayerCount(); il++)
+    {
+        QPixmap pix= QPixmap::fromImage(*current_frame->Layer(il));
+        QGraphicsPixmapItem* item= new QGraphicsPixmapItem(pix);
+        item->setScale(scaling);
+        scene.addItem(item);
+    }
 
     this->repaint();
 }

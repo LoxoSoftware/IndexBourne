@@ -1,6 +1,9 @@
 #include "layer_panel.h"
 #include "ui_layer_panel.h"
 #include <QMessageBox>
+#include "project.h"
+
+extern Project* current_project;
 
 LayerPanel::LayerPanel(QWidget *parent, MainWindow* main_window)
     : QDockWidget(parent)
@@ -9,6 +12,8 @@ LayerPanel::LayerPanel(QWidget *parent, MainWindow* main_window)
     ui->setupUi(this);
 
     this->main_window= main_window;
+
+    Update();
 }
 
 LayerPanel::~LayerPanel()
@@ -16,9 +21,54 @@ LayerPanel::~LayerPanel()
     delete ui;
 }
 
+void LayerPanel::Update()
+{
+    block_index_updates= true;
+
+    ui->lstLayers->clear();
+
+    if (!current_project)
+        return;
+
+    Frame* frame= current_project->CurrentFrame();
+
+    for (int il=frame->LayerCount()-1; il>=0; il--)
+    {
+        QListWidgetItem* item= new QListWidgetItem("Layer "+QString::number(il), ui->lstLayers);
+        item->setIcon(QIcon(QPixmap::fromImage(frame->Layer(il)->copy())));
+
+        ui->lstLayers->addItem(item);
+    }
+
+    ui->lstLayers->setCurrentRow(LayerIndex(current_project->CurrentLayerIndex()));
+
+    block_index_updates= false;
+}
+
+int LayerPanel::LayerIndex(int row)
+{
+    if (row < 0)
+        return - 1;
+
+    return ui->lstLayers->count() - row - 1;
+}
+
+int LayerPanel::CurrentLayerIndex()
+{
+    return LayerIndex(ui->lstLayers->currentRow());
+}
+
 void LayerPanel::on_lstLayers_currentRowChanged(int currentRow)
 {
+    if (block_index_updates)
+        return;
+    if (!current_project)
+        return;
+    if (currentRow < 0)
+        return;
 
+    current_project->SetCurrentLayerIndex(CurrentLayerIndex());
+    Update();
 }
 
 void LayerPanel::on_lstLayers_currentTextChanged(const QString &currentText)
@@ -28,12 +78,22 @@ void LayerPanel::on_lstLayers_currentTextChanged(const QString &currentText)
 
 void LayerPanel::on_btnNew_clicked()
 {
+    if (!current_project)
+        return;
 
+    current_project->CurrentFrame()->InsertLayerAt(0);
+
+    Update();
 }
 
 void LayerPanel::on_btnDelete_clicked()
 {
+    if (!current_project)
+        return;
 
+    current_project->CurrentFrame()->RemoveLayerAt(CurrentLayerIndex());
+
+    Update();
 }
 
 void LayerPanel::on_btnMergeDown_clicked()

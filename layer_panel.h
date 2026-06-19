@@ -18,6 +18,8 @@ public:
     explicit LayerPanel(QWidget *parent, MainWindow* main_window);
     ~LayerPanel();
 
+    void Update();
+
 private slots:
     void on_lstLayers_currentRowChanged(int currentRow);
     void on_lstLayers_currentTextChanged(const QString &currentText);
@@ -29,6 +31,10 @@ private:
     Ui::LayerPanel *ui;
 
     MainWindow* main_window;
+    bool block_index_updates= false;
+
+    int LayerIndex(int row);
+    int CurrentLayerIndex();
 };
 
 #endif // LAYER_PANEL_H
