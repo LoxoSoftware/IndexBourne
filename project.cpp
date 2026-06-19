@@ -13,55 +13,62 @@ Frame::Frame(Project* parent, QSize size)
     this->image_size= size;
     if (!current_project)
         current_project= parent;
-    InsertLayer();
+
+    QImage* new_layer= InsertLayer();
     ClearHistory();
-    PushNewSnapshot();
+    PushNewSnapshot(new UndoSnapshot(Undocmd_AddLayer, 0, new_layer));
 }
 
-void Frame::InsertLayerAt(int pos)
+QImage* Frame::InsertLayerAt(int pos, bool record)
 {
     QImage new_layer= QImage(this->image_size, QImage::Format_Indexed8);
     new_layer.setColorTable(current_project->Palette());
     new_layer.fill(0);
 
-    for (int ih=0; ih<HistorySize(); ih++)
-        history[ih].insert(pos, new_layer);
-
     this->insert(pos, new_layer);
 
-    PushNewSnapshot();
+    if (record)
+        PushNewSnapshot(new UndoSnapshot(Undocmd_AddLayer, pos, &new_layer));
+
+    return (QImage*)&this->at(pos);
 }
 
-void Frame::RemoveLayer(int pos)
+void Frame::RemoveLayer(int pos, bool record)
 {
+    QImage old_layer;
+
     if (this->size() < 2)
     {
+        old_layer= *Layer(0);
         Layer(0)->fill(0);
         return;
     }
 
-    for (int ih=0; ih<HistorySize(); ih++)
-        history[ih].remove(pos);
+    old_layer= *Layer(pos);
 
     this->remove(pos);
 
-    if (pos >= this->size())
+    if (record)
+        PushNewSnapshot(new UndoSnapshot(Undocmd_RmLayer, pos, &old_layer));
+
+    if (current_project->CurrentLayerIndex() >= this->size())
         current_project->SetCurrentLayerIndex(this->size()-1);
 }
 
 void Frame::SetImageSize(QSize size)
 {
-    for (int i=0; i<this->size(); i++)
-    {
-        this->replace(i, this->at(i).copy(0, 0, size.width(), size.height()));
-    }
-
     this->image_size= size;
     ClearHistory();
-    PushNewSnapshot();
+
+    for (int il=0; il<this->size(); il++)
+    {
+        QImage new_layer= this->at(il).copy(0, 0, size.width(), size.height());
+        this->replace(il, new_layer);
+    }
+    PushNewSnapshot(new UndoSnapshot(Undocmd_DiffImage, 0, Layer(0)));
 }
 
-void Frame::PushNewSnapshot()
+void Frame::PushNewSnapshot(UndoSnapshot* snap)
 {
     if (history_index < HISTORY_MAX)
     {
@@ -78,14 +85,9 @@ void Frame::PushNewSnapshot()
         history_index= HISTORY_MAX;
     }
 
-    layergroup_t layers;
-    for (QImage il : *this)
-    {
-        il.setColorTable(current_project->Palette());
-        layers+= il;
-    }
+    snap->image.setColorTable(current_project->Palette());
 
-    history.insert(history_index-1, layers);
+    history.insert(history_index-1, *snap);
 }
 
 void Frame::Undo()
@@ -93,9 +95,28 @@ void Frame::Undo()
     if (history_index <= 1)
         return;
     history_index--;
-    for (int i=0; i<this->size(); i++)
-        this->replace(i, history[history_index-1].at(i));
-    current_project->SetPalette(this->first().colorTable(), false);
+    UndoSnapshot* snap= &history[history_index-1];
+
+    QImage* restored_layer;
+    switch (snap->cmd)
+    {
+    case Undocmd_DiffImage:
+        this->replace(snap->layer, snap->image);
+        current_project->SetPalette(snap->image.colorTable(), false);
+        break;
+    case Undocmd_AddLayer:
+        this->RemoveLayer(snap->layer, false);
+        break;
+    case Undocmd_RmLayer:
+        restored_layer= this->InsertLayerAt(snap->layer, false);
+        *restored_layer= snap->image; //Restore last image before removal
+        break;
+    default:
+        break;
+    }
+
+    current_project->Canvas()->Redraw();
+    current_project->UpdateLayerPanel();
 }
 
 void Frame::Redo()
@@ -103,9 +124,30 @@ void Frame::Redo()
     if (history_index >= history.size())
         return;
     history_index++;
-    for (int i=0; i<this->size(); i++)
-        this->replace(i, history[history_index-1].at(i));
-    current_project->SetPalette(this->first().colorTable(), false);
+    UndoSnapshot* snap= &history[history_index-1];
+
+    QImage* restored_layer;
+    switch (snap->cmd)
+    {
+    case Undocmd_DiffImage:
+        this->replace(snap->layer, snap->image);
+        current_project->SetPalette(snap->image.colorTable(), false);
+        current_project->SetCurrentLayerIndex(snap->layer);
+        break;
+    case Undocmd_AddLayer:
+        restored_layer= this->InsertLayerAt(snap->layer, false);
+        *restored_layer= snap->image;
+        current_project->SetCurrentLayerIndex(snap->layer);
+        break;
+    case Undocmd_RmLayer:
+        this->RemoveLayer(snap->layer, false);
+        current_project->SetCurrentLayerIndex(snap->layer);
+        break;
+    default:
+        break;
+    }
+
+    current_project->Canvas()->Redraw();
 }
 
 void Frame::ClearHistory()
@@ -196,7 +238,7 @@ bool Project::ImportBitmap(QImage img, consent_t canvas_resize, consent_t import
     else
         SetPalette(old_palette);
 
-    CurrentFrame()->PushNewSnapshot();
+    CurrentFrame()->PushNewSnapshot(new UndoSnapshot(Undocmd_AddLayer, CurrentLayerIndex(), CurrentLayer()));
     Canvas()->Redraw();
 
     return true;
@@ -215,7 +257,8 @@ QImage Project::RenderBitmap()
             unsigned char* sl_dest= result.scanLine(iy);
 
             for (int ix=0; ix<ImageSize().width(); ix++)
-                sl_dest[ix]= sl_src[ix];
+                if (sl_src[ix] != 0 || il == 0)
+                    sl_dest[ix]= sl_src[ix];
         }
     }
 
@@ -226,6 +269,7 @@ void Project::SetCurrentLayerIndex(int layer)
 {
     current_layer= layer;
     this->Canvas()->SetCurrentLayerIndex(layer);
+    UpdateLayerPanel();
 }
 
 void Project::SetCurrentFrameIndex(int frame)

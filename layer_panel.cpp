@@ -23,12 +23,12 @@ LayerPanel::~LayerPanel()
 
 void LayerPanel::Update()
 {
-    block_index_updates= true;
-
     ui->lstLayers->clear();
 
     if (!current_project)
         return;
+
+    block_index_updates= true;
 
     Frame* frame= current_project->CurrentFrame();
 
@@ -81,7 +81,8 @@ void LayerPanel::on_btnNew_clicked()
     if (!current_project)
         return;
 
-    current_project->CurrentFrame()->InsertLayerAt(0);
+    current_project->CurrentFrame()->InsertLayerAt(CurrentLayerIndex()+1);
+    current_project->SetCurrentLayerIndex(CurrentLayerIndex()+1);
 
     Update();
 }
@@ -91,7 +92,11 @@ void LayerPanel::on_btnDelete_clicked()
     if (!current_project)
         return;
 
-    current_project->CurrentFrame()->RemoveLayerAt(CurrentLayerIndex());
+    current_project->CurrentFrame()->RemoveLayer(CurrentLayerIndex());
+    if (CurrentLayerIndex()-1 > 0)
+        current_project->SetCurrentLayerIndex(CurrentLayerIndex()-1);
+    else
+        current_project->SetCurrentLayerIndex(0);
 
     Update();
 }

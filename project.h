@@ -17,27 +17,49 @@ typedef QList<QRgb> palette_t;
 
 class Project;
 
+typedef enum
+{
+    Undocmd_DiffImage,
+    Undocmd_AddLayer,
+    Undocmd_RmLayer,
+} undocommand_t;
+
+class UndoSnapshot
+{
+public:
+    UndoSnapshot(undocommand_t cmd, int layer, QImage* image= nullptr)
+    {
+        this->cmd= cmd;
+        this->layer= layer;
+        this->image= image? *image : QImage();
+    };
+
+    QImage image;
+    undocommand_t cmd;
+    int layer;
+};
+
 class Frame : protected layergroup_t
 {
 private:
     QSize image_size;
-    QList<layergroup_t> history;
+    QList<UndoSnapshot> history;
     int history_index= 0;
 
 public:
     Frame(Project* parent, QSize size);
 
-    void InsertLayerAt(int pos);
-    void InsertLayer() { InsertLayerAt(this->size()); }
-    void RemoveLayer(int layer);
+    QImage* InsertLayerAt(int pos, bool record= true);
+    QImage* InsertLayer(bool record= true) { return InsertLayerAt(this->size(), record); }
+    void RemoveLayer(int layer, bool record= true);
     void Undo();
     void Redo();
     void ClearHistory();
-    void PushNewSnapshot();
+    void PushNewSnapshot(UndoSnapshot* snapshot);
 
     QImage* Layer(int layer);
     const QSize ImageSize() const { return image_size; }
-    const int LayerCount() const { return this->size(); };
+    const int LayerCount() const { return this->size(); }
     int HistorySize() { return history.size(); }
     int HistoryIndex() { return history_index; }
 
@@ -145,6 +167,7 @@ public:
     void SwapColorIndex(int index_a, int index_b);
     void FillPaletteLinear(int index_a, int index_b, QRgb color);
     void FillPaletteRect(QPoint pos_a, QPoint pos_b, QRgb color);
+    void UpdateLayerPanel() { UiLayerPanel()->Update(); }
 };
 
 #endif // PROJECT_H

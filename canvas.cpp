@@ -203,7 +203,7 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent* event)
     if (mouse_down_button | (Qt::LeftButton | Qt::RightButton))
     {
         if (current_tool->type == Tool_Pencil)
-            current_project->CurrentFrame()->PushNewSnapshot();
+            current_project->CurrentFrame()->PushNewSnapshot(new UndoSnapshot(Undocmd_DiffImage, current_layer_index, image));
     }
 
     mouse_down_button= Qt::NoButton;
