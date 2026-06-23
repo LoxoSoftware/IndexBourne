@@ -14,9 +14,9 @@ Frame::Frame(Project* parent, QSize size)
     if (!current_project)
         current_project= parent;
 
-    QImage* new_layer= InsertLayer();
+    //QImage* new_layer= InsertLayer();
     ClearHistory();
-    PushNewSnapshot(new UndoSnapshot(Undocmd_AddLayer, 0, new_layer));
+    //PushNewSnapshot(new UndoSnapshot(Undocmd_AddLayer, 0, new_layer));
 }
 
 QImage* Frame::InsertLayerAt(int pos, bool record)
@@ -189,6 +189,7 @@ Project::Project(MainWindow* parent, QSize size)
 
     InsertFrame();
     SetCurrentFrameIndex(0);
+    CurrentFrame()->InsertLayer();
 
     this->main_window= parent;
     this->canvas= new ImageCanvas(main_window->CanvasContainer(), CurrentFrame());
@@ -275,7 +276,11 @@ void Project::SetCurrentLayerIndex(int layer)
 void Project::SetCurrentFrameIndex(int frame)
 {
     this->current_frame= frame;
+    if (!CurrentFrame())
+        return;
     SetPalette(palette_t(), false);
+    if (Canvas())
+        this->Canvas()->SetFrame(CurrentFrame());
 }
 
 void Project::SetPalette(palette_t new_palette, bool recursive)

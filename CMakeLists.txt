@@ -11,12 +11,17 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets OpenGLWidgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets OpenGLWidgets)
+if(${QT_VERSION_MAJOR} EQUAL 6)
+    find_package(QuaZip-Qt6)
+else()
+    find_package(QuaZip-Qt5)
+endif()
 
 set(PROJECT_SOURCES
         main.cpp
         resources.qrc
         mainwindow.cpp mainwindow.h mainwindow.ui
-        project.h project.cpp
+        project.h project.cpp projectio.cpp
         canvas.h canvas.cpp
         palette_panel.cpp palette_panel.h palette_panel.ui
         tool_panel.h tool_panel.cpp tool_panel.ui
@@ -52,6 +57,7 @@ endif()
 
 target_link_libraries(ezgfx PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(ezgfx PRIVATE Qt${QT_VERSION_MAJOR}::OpenGLWidgets)
+target_link_libraries(ezgfx PRIVATE QuaZip::QuaZip)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an

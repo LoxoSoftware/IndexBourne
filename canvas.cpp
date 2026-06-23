@@ -20,7 +20,10 @@ ImageCanvas::ImageCanvas(QScrollArea* parent, Frame* frame)
     if (current_layer_index >= frame->LayerCount())
         current_layer_index= 0;
 
-    this->image= frame->Layer(current_layer_index);
+    if (frame->LayerCount() > 0)
+        this->image= frame->Layer(current_layer_index);
+    else
+        this->image= nullptr;
     this->current_frame= frame;
     this->current_tool= new Tool();
 
@@ -92,12 +95,22 @@ void ImageCanvas::PaintGrid(QPainter* painter)
 
 void ImageCanvas::SetFrame(Frame* frame)
 {
-    this->current_frame= frame;
+    if (!frame)
+    {
+        this->image= nullptr;
+        return;
+    }
+    if (frame->LayerCount() <= 0)
+    {
+        this->image= nullptr;
+        return;
+    }
 
     if (current_layer_index >= frame->LayerCount())
         current_layer_index= 0;
 
     this->image= frame->Layer(current_layer_index);
+    this->current_frame= frame;
 }
 
 void ImageCanvas::SetCurrentLayerIndex(int index)

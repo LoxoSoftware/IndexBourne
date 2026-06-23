@@ -88,27 +88,32 @@ void MainWindow::on_actionOpenProject_triggered()
     if (!current_project)
         NewProject(this);
 
-    QString ifile_name= QFileDialog::getOpenFileName(this, "Open project or import bitmap", "", "Supported formats ("/**.gfx */"*.bmp *.png)");
+    QString ifile_name= QFileDialog::getOpenFileName(this, "Open project or import bitmap", "", "Supported formats (*.ora *.gfx *.bmp *.png)");
 
     if (ifile_name == "")
         return;
 
-    QImage imported_image= QImage(ifile_name);
-
-    if (imported_image == QImage())
+    if (ifile_name.endsWith(".bmp", Qt::CaseInsensitive) || ifile_name.endsWith(".png", Qt::CaseInsensitive))
     {
-        //Open project file
-        QMessageBox::critical(this, "Error", "File format is unsupported");
-        return;
+        if (!current_project->ImportBitmap(QImage(ifile_name), Consent_Force, Consent_Force))
+            return;
+        current_project->SetFileName(ifile_name);
+    }
+    else if (ifile_name.endsWith(".gfx", Qt::CaseSensitive) || ifile_name.endsWith(".ora", Qt::CaseSensitive))
+    {
+        if (current_project->LoadProject(ifile_name))
+            current_project->SetFileName(ifile_name);
+        else
+        {
+            QMessageBox::critical(this, "Error", "An error occoured while opening the project");
+            return;
+        }
     }
     else
     {
-        //Import image in new project
-        if (!current_project->ImportBitmap(imported_image, Consent_Force, Consent_Force))
-            return; //Error
+        QMessageBox::critical(this, "Error", "Input format is not supported");
+        return;
     }
-
-    current_project->SetFileName(ifile_name);
 }
 
 void MainWindow::on_actionSaveProject_triggered()
@@ -121,8 +126,17 @@ void MainWindow::on_actionSaveProject_triggered()
         return;
     }
 
-    if (!_QuickSaveBitmap(current_project->FileName()))
-        return; //Error
+    if (current_project->FileName().endsWith(".png", Qt::CaseInsensitive) ||
+        current_project->FileName().endsWith(".bmp", Qt::CaseInsensitive))
+    {
+        _QuickSaveBitmap(current_project->FileName());
+    }
+    else
+    if (!current_project->SaveProject(current_project->FileName()))
+    {
+        QMessageBox::critical(this, "Error", "An error occoured while saving the project");
+        return;
+    }
 }
 
 void MainWindow::on_actionSaveProjectAs_triggered()
@@ -131,17 +145,23 @@ void MainWindow::on_actionSaveProjectAs_triggered()
         return;
 
     //QString ofile_name= QFileDialog::getSaveFileName(this, "Save project or bitmap", "", "Supported formats ("/**.gfx */"*.bmp *.png)");
-    QString ofile_name= QFileDialog::getSaveFileName(this, "Save project or bitmap", "", "Windows bitmap (*.bmp);;Portable Network Graphics (*.png)");
+    QString ofile_name= QFileDialog::getSaveFileName(this, "Save project or bitmap", "",
+                            "EZGFX project (*.ora *.gfx);;Windows bitmap (*.bmp);;Indexed PNG (*.png)");
 
     if (ofile_name == "")
         return;
 
     if (ofile_name.endsWith(".bmp", Qt::CaseInsensitive) || ofile_name.endsWith(".png", Qt::CaseInsensitive))
         _QuickSaveBitmap(ofile_name);
-    else if (ofile_name.endsWith(".gfx", Qt::CaseSensitive))
+    else if (ofile_name.endsWith(".gfx", Qt::CaseSensitive) || ofile_name.endsWith(".ora", Qt::CaseSensitive))
     {
-        QMessageBox::critical(this, "Not implemented", "Saving projects is not currently implemented");
-        return;
+        if (current_project->SaveProject(ofile_name))
+            current_project->SetFileName(ofile_name);
+        else
+        {
+            QMessageBox::critical(this, "Error", "An error occoured while saving the project");
+            return;
+        }
     }
     else
     {
