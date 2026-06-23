@@ -171,7 +171,13 @@ void ImageCanvas::PickColor(QPoint pos, bool primary)
         || tiley < 0 || tiley >= image->height())
         return;
 
-    int color_picked= image->pixelIndex(tilex, tiley);
+    int color_picked= 0, tcol;
+    for (int il=0; il<current_frame->LayerCount(); il++)
+    {
+        tcol= current_frame->Layer(il)->pixelIndex(tilex, tiley);
+        if (tcol)
+            color_picked= tcol;
+    }
 
     if (primary)
         current_project->SetPaltableAPosition(QPoint(color_picked%PALETTE_W, color_picked/PALETTE_W));
