@@ -158,7 +158,6 @@ public:
     void SetPaltableBPosition(QPoint pos);
     void SetImageSize(QSize size);
     void SetPalette(palette_t palette= palette_t(), bool recursive= false);
-    void SetPaletteFast(const palette_t palette);
     void SetBppFormat(bppformat_t fmt);
     void SetFileName(QString filename) { this->filename= filename; }
     void InsertFrameAt(int pos);

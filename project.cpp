@@ -314,13 +314,6 @@ void Project::SetPalette(palette_t new_palette, bool recursive)
         Canvas()->Redraw();
 }
 
-void Project::SetPaletteFast(palette_t new_palette)
-{
-    this->palette= new_palette;
-    if (UiPalettePanel())
-        UiPalettePanel()->Update();
-}
-
 void Project::SetImageSize(QSize size)
 {
     for (int ifr=0; ifr<timeline.size(); ifr++)
@@ -365,6 +358,7 @@ void Project::SwapColorIndex(int index_a, int index_b)
     palette[index_a]= palette[index_b];
     palette[index_b]= tempcol;
 
+    if (index_a && index_b) //Swapping color 0 would break the transparency
     for (int ifr=0; ifr<timeline.size(); ifr++)
     {
         for (int il=0; il<timeline[ifr].LayerCount(); il++)
@@ -382,8 +376,6 @@ void Project::SwapColorIndex(int index_a, int index_b)
                         layer->setPixel(ix, iy, index_a);
                 }
             }
-
-            layer->setColorTable(palette);
         }
     }
 
