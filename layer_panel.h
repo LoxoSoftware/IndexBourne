@@ -21,8 +21,7 @@ public:
     void Update();
 
 private slots:
-    void on_lstLayers_currentRowChanged(int currentRow);
-    void on_lstLayers_currentTextChanged(const QString &currentText);
+    void on_lstLayers_currentCellChanged(int, int, int, int);
     void on_btnNew_clicked();
     void on_btnDelete_clicked();
     void on_btnMergeDown_clicked();
@@ -32,6 +31,7 @@ private:
 
     MainWindow* main_window;
     bool block_index_updates= false;
+    bool block_redraw= false;
 
     int LayerIndex(int row);
     int CurrentLayerIndex();
