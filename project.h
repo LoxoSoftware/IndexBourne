@@ -64,7 +64,7 @@ public:
     int HistoryIndex() { return history_index; }
 
     void SetImageSize(QSize size);
-    void ReplaceCurrentLayer(QImage img);
+    void ReplaceLayer(QImage img, int index);
 };
 
 typedef enum
@@ -167,6 +167,7 @@ public:
     void FillPaletteLinear(int index_a, int index_b, QRgb color);
     void FillPaletteRect(QPoint pos_a, QPoint pos_b, QRgb color);
     void UpdateLayerPanel() { UiLayerPanel()->Update(); }
+    void SwapLayerIndex(int index_a, int index_b);
 };
 
 #endif // PROJECT_H

@@ -64,7 +64,7 @@
      </widget>
     </item>
     <item row="0" column="0" colspan="3">
-     <widget class="QTableWidget" name="lstLayers">
+     <widget class="LayerTable" name="lstLayers">
       <property name="frameShape">
        <enum>QFrame::Shape::WinPanel</enum>
       </property>
@@ -147,6 +147,13 @@
    </layout>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>LayerTable</class>
+   <extends>QTableWidget</extends>
+   <header>layer_panel.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

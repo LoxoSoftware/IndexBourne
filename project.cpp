@@ -55,6 +55,11 @@ void Frame::RemoveLayer(int pos, bool record)
         current_project->SetCurrentLayerIndex(this->size()-1);
 }
 
+void Frame::ReplaceLayer(QImage img, int index)
+{
+    this->replace(index, img);
+}
+
 void Frame::SetImageSize(QSize size)
 {
     this->image_size= size;
@@ -399,4 +404,22 @@ void Project::FillPaletteRect(QPoint pos_a, QPoint pos_b, QRgb color)
             palette[ix+iy*PALETTE_W]= color;
         }
     SetPalette();
+}
+
+void Project::SwapLayerIndex(int index_a, int index_b)
+{
+    if (index_a >= CurrentFrame()->LayerCount() || index_b >= CurrentFrame()->LayerCount())
+    {
+        QMessageBox::critical(main_window, "Error", "Selected index A or B is out of bounds");
+        return;
+    }
+
+    for (int ifr=0; ifr<timeline.size(); ifr++)
+    {
+        QImage templayer= *FrameAt(ifr)->Layer(index_a);
+        FrameAt(ifr)->ReplaceLayer(*FrameAt(ifr)->Layer(index_b), index_a);
+        FrameAt(ifr)->ReplaceLayer(templayer, index_b);
+    }
+
+    SetPalette(palette_t(), false);
 }
