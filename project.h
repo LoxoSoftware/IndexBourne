@@ -18,13 +18,6 @@ class Layer;
 typedef QList<Layer> layergroup_t;
 typedef QList<QRgb> palette_t;
 
-typedef enum
-{
-    Undocmd_DiffImage,
-    Undocmd_AddLayer,
-    Undocmd_RmLayer,
-} undocommand_t;
-
 class Layer
 {
 public:
@@ -49,19 +42,26 @@ public:
     uchar opacity= 255;
 };
 
+typedef enum
+{
+    Undocmd_DiffImage,
+    Undocmd_AddLayer,
+    Undocmd_RmLayer,
+} undocommand_t;
+
 class UndoSnapshot
 {
 public:
-    UndoSnapshot(undocommand_t cmd, int layer, Layer* image= nullptr)
+    UndoSnapshot(undocommand_t cmd, int layer_ind, Layer* layer_data= nullptr)
     {
         this->cmd= cmd;
-        this->layer= layer;
-        this->image= image? *image : Layer(QSize(8,8));
+        this->layer_ind= layer_ind;
+        this->layer_data= layer_data? *layer_data : Layer(QSize(8,8));
     };
 
-    Layer image= Layer(QSize(8,8));
+    Layer layer_data= Layer(QSize(8,8));
     undocommand_t cmd;
-    int layer;
+    int layer_ind;
 };
 
 class Frame : protected layergroup_t

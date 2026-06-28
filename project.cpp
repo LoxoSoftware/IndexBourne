@@ -90,7 +90,7 @@ void Frame::PushNewSnapshot(UndoSnapshot* snap)
         history_index= HISTORY_MAX;
     }
 
-    snap->image.image.setColorTable(current_project->Palette());
+    snap->layer_data.image.setColorTable(current_project->Palette());
 
     history.insert(history_index-1, *snap);
 }
@@ -106,15 +106,15 @@ void Frame::Undo()
     switch (snap->cmd)
     {
     case Undocmd_DiffImage:
-        this->replace(snap->layer, snap->image);
-        current_project->SetPalette(snap->image.image.colorTable(), false);
+        this->replace(snap->layer_ind, snap->layer_data);
+        current_project->SetPalette(snap->layer_data.image.colorTable(), false);
         break;
     case Undocmd_AddLayer:
-        this->RemoveLayer(snap->layer, false);
+        this->RemoveLayer(snap->layer_ind, false);
         break;
     case Undocmd_RmLayer:
-        restored_layer= this->InsertLayerAt(snap->layer, false);
-        *restored_layer= snap->image; //Restore last image before removal
+        restored_layer= this->InsertLayerAt(snap->layer_ind, false);
+        *restored_layer= snap->layer_data; //Restore last image before removal
         break;
     default:
         break;
@@ -135,18 +135,18 @@ void Frame::Redo()
     switch (snap->cmd)
     {
     case Undocmd_DiffImage:
-        this->replace(snap->layer, snap->image);
-        current_project->SetPalette(snap->image.image.colorTable(), false);
-        current_project->SetCurrentLayerIndex(snap->layer);
+        this->replace(snap->layer_ind, snap->layer_data);
+        current_project->SetPalette(snap->layer_data.image.colorTable(), false);
+        current_project->SetCurrentLayerIndex(snap->layer_ind);
         break;
     case Undocmd_AddLayer:
-        restored_layer= this->InsertLayerAt(snap->layer, false);
-        *restored_layer= snap->image;
-        current_project->SetCurrentLayerIndex(snap->layer);
+        restored_layer= this->InsertLayerAt(snap->layer_ind, false);
+        *restored_layer= snap->layer_data;
+        current_project->SetCurrentLayerIndex(snap->layer_ind);
         break;
     case Undocmd_RmLayer:
-        this->RemoveLayer(snap->layer, false);
-        current_project->SetCurrentLayerIndex(snap->layer);
+        this->RemoveLayer(snap->layer_ind, false);
+        current_project->SetCurrentLayerIndex(snap->layer_ind);
         break;
     default:
         break;
