@@ -20,8 +20,9 @@ ImageCanvas::ImageCanvas(QScrollArea* parent, Frame* frame)
     if (current_layer_index >= frame->LayerCount())
         current_layer_index= 0;
 
+    this->current_layer= frame->LayerAt(current_layer_index);
     if (frame->LayerCount() > 0)
-        this->image= frame->Layer(current_layer_index);
+        this->image= &current_layer->image;
     else
         this->image= nullptr;
     this->current_frame= frame;
@@ -45,7 +46,7 @@ void ImageCanvas::Redraw()
 
     for (int il=0; il<current_frame->LayerCount(); il++)
     {
-        QPixmap pix= QPixmap::fromImage(*current_frame->Layer(il));
+        QPixmap pix= QPixmap::fromImage(current_frame->LayerAt(il)->image);
         QGraphicsPixmapItem* item= new QGraphicsPixmapItem(pix);
         item->setScale(scaling);
         scene.addItem(item);
@@ -109,13 +110,15 @@ void ImageCanvas::SetFrame(Frame* frame)
     if (current_layer_index >= frame->LayerCount())
         current_layer_index= 0;
 
-    this->image= frame->Layer(current_layer_index);
+    this->current_layer= frame->LayerAt(current_layer_index);
+    this->image= &current_layer->image;
     this->current_frame= frame;
 }
 
 void ImageCanvas::SetCurrentLayerIndex(int index)
 {
-    this->image= current_frame->Layer(index);
+    this->current_layer= current_frame->LayerAt(index);
+    this->image= &current_layer->image;
     this->current_layer_index= index;
 }
 
@@ -174,7 +177,7 @@ void ImageCanvas::PickColor(QPoint pos, bool primary)
     int color_picked= 0, tcol;
     for (int il=0; il<current_frame->LayerCount(); il++)
     {
-        tcol= current_frame->Layer(il)->pixelIndex(tilex, tiley);
+        tcol= current_frame->LayerAt(il)->image.pixelIndex(tilex, tiley);
         if (tcol)
             color_picked= tcol;
     }
@@ -222,7 +225,7 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent* event)
     if (mouse_down_button | (Qt::LeftButton | Qt::RightButton))
     {
         if (current_tool->type == Tool_Pencil)
-            current_project->CurrentFrame()->PushNewSnapshot(new UndoSnapshot(Undocmd_DiffImage, current_layer_index, image));
+            current_project->CurrentFrame()->PushNewSnapshot(new UndoSnapshot(Undocmd_DiffImage, current_layer_index, current_layer));
     }
 
     mouse_down_button= Qt::NoButton;

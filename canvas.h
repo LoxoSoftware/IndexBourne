@@ -11,6 +11,7 @@
 
 struct Tool;
 class Frame;
+class Layer;
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -35,6 +36,7 @@ private:
     bool mouse_has_moved= false;
     QPointF mouse_last_pos;
     QPointF mouse_last_global_pos;
+    Layer* current_layer;
     QImage* image;
     Frame* current_frame= nullptr;
     int current_layer_index= 0;

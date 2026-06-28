@@ -19,32 +19,32 @@ Frame::Frame(Project* parent, QSize size)
     //PushNewSnapshot(new UndoSnapshot(Undocmd_AddLayer, 0, new_layer));
 }
 
-QImage* Frame::InsertLayerAt(int pos, bool record)
+Layer* Frame::InsertLayerAt(int pos, bool record)
 {
-    QImage new_layer= QImage(this->image_size, QImage::Format_Indexed8);
-    new_layer.setColorTable(current_project->Palette());
-    new_layer.fill(0);
+    Layer new_layer= Layer(this->image_size);
+    new_layer.image.setColorTable(current_project->Palette());
+    new_layer.image.fill(0);
 
     this->insert(pos, new_layer);
 
     if (record)
         PushNewSnapshot(new UndoSnapshot(Undocmd_AddLayer, pos, &new_layer));
 
-    return (QImage*)&this->at(pos);
+    return (Layer*)&this->at(pos);
 }
 
 void Frame::RemoveLayer(int pos, bool record)
 {
-    QImage old_layer;
+    Layer old_layer;
 
     if (this->size() < 2)
     {
-        old_layer= *Layer(0);
-        Layer(0)->fill(0);
+        old_layer= *LayerAt(0);
+        LayerAt(0)->image.fill(0);
         return;
     }
 
-    old_layer= *Layer(pos);
+    old_layer= *LayerAt(pos);
 
     this->remove(pos);
 
@@ -55,7 +55,7 @@ void Frame::RemoveLayer(int pos, bool record)
         current_project->SetCurrentLayerIndex(this->size()-1);
 }
 
-void Frame::ReplaceLayer(QImage img, int index)
+void Frame::ReplaceLayer(Layer img, int index)
 {
     this->replace(index, img);
 }
@@ -67,10 +67,10 @@ void Frame::SetImageSize(QSize size)
 
     for (int il=0; il<this->size(); il++)
     {
-        QImage new_layer= this->at(il).copy(0, 0, size.width(), size.height());
+        Layer new_layer= Layer(this->at(il).image.copy(0, 0, size.width(), size.height()));
         this->replace(il, new_layer);
     }
-    PushNewSnapshot(new UndoSnapshot(Undocmd_DiffImage, 0, Layer(0)));
+    PushNewSnapshot(new UndoSnapshot(Undocmd_DiffImage, 0, LayerAt(0)));
 }
 
 void Frame::PushNewSnapshot(UndoSnapshot* snap)
@@ -90,7 +90,7 @@ void Frame::PushNewSnapshot(UndoSnapshot* snap)
         history_index= HISTORY_MAX;
     }
 
-    snap->image.setColorTable(current_project->Palette());
+    snap->image.image.setColorTable(current_project->Palette());
 
     history.insert(history_index-1, *snap);
 }
@@ -102,12 +102,12 @@ void Frame::Undo()
     history_index--;
     UndoSnapshot* snap= &history[history_index-1];
 
-    QImage* restored_layer;
+    Layer* restored_layer;
     switch (snap->cmd)
     {
     case Undocmd_DiffImage:
         this->replace(snap->layer, snap->image);
-        current_project->SetPalette(snap->image.colorTable(), false);
+        current_project->SetPalette(snap->image.image.colorTable(), false);
         break;
     case Undocmd_AddLayer:
         this->RemoveLayer(snap->layer, false);
@@ -131,12 +131,12 @@ void Frame::Redo()
     history_index++;
     UndoSnapshot* snap= &history[history_index-1];
 
-    QImage* restored_layer;
+    Layer* restored_layer;
     switch (snap->cmd)
     {
     case Undocmd_DiffImage:
         this->replace(snap->layer, snap->image);
-        current_project->SetPalette(snap->image.colorTable(), false);
+        current_project->SetPalette(snap->image.image.colorTable(), false);
         current_project->SetCurrentLayerIndex(snap->layer);
         break;
     case Undocmd_AddLayer:
@@ -161,15 +161,15 @@ void Frame::ClearHistory()
     history.clear();
 }
 
-QImage* Frame::Layer(int layer)
+Layer* Frame::LayerAt(int layer)
 {
-    QImage* img= (QImage*)&this->at(layer);
+    Layer* img= (Layer*)&this->at(layer);
     palette_t pal= current_project->Palette();
 
     if (layer != 0)
         pal[0]= qRgba(0,0,0,0);
 
-    img->setColorTable(pal);
+    img->image.setColorTable(pal);
 
     return img;
 }
@@ -228,7 +228,7 @@ bool Project::ImportBitmap(QImage img, consent_t canvas_resize, consent_t import
 
     palette_t old_palette= this->Palette();
 
-    *(CurrentLayer())= img.copy(0, 0, CurrentLayer()->width(), CurrentLayer()->height());
+    CurrentLayer()->image= img.copy(0, 0, CurrentLayer()->image.width(), CurrentLayer()->image.height());
 
     if (import_palette != Consent_No)
     {
@@ -259,7 +259,7 @@ QImage Project::RenderBitmap()
     {
         for (int iy=0; iy<ImageSize().height(); iy++)
         {
-            unsigned char* sl_src= CurrentFrame()->Layer(il)->scanLine(iy);
+            unsigned char* sl_src= CurrentFrame()->LayerAt(il)->image.scanLine(iy);
             unsigned char* sl_dest= result.scanLine(iy);
 
             for (int ix=0; ix<ImageSize().width(); ix++)
@@ -303,13 +303,13 @@ void Project::SetPalette(palette_t new_palette, bool recursive)
     {
         for (int il=0; il<timeline[ifr].LayerCount(); il++)
         {
-            QImage* layer= timeline[ifr].Layer(il);
+            Layer* layer= timeline[ifr].LayerAt(il);
             palette_t temp_pal= this->palette;
 
             if (il != 0)
                 temp_pal[0]= qRgba(0,0,0,0);
 
-            layer->setColorTable(temp_pal);
+            layer->image.setColorTable(temp_pal);
         }
     }
 
@@ -368,7 +368,7 @@ void Project::SwapColorIndex(int index_a, int index_b)
     {
         for (int il=0; il<timeline[ifr].LayerCount(); il++)
         {
-            QImage* layer= timeline[ifr].Layer(il);
+            QImage* layer= &(timeline[ifr].LayerAt(il)->image);
             QImage old_image= *layer;
 
             for (int iy=0; iy<layer->height(); iy++)
@@ -416,8 +416,8 @@ void Project::SwapLayerIndex(int index_a, int index_b)
 
     for (int ifr=0; ifr<timeline.size(); ifr++)
     {
-        QImage templayer= *FrameAt(ifr)->Layer(index_a);
-        FrameAt(ifr)->ReplaceLayer(*FrameAt(ifr)->Layer(index_b), index_a);
+        Layer templayer= *FrameAt(ifr)->LayerAt(index_a);
+        FrameAt(ifr)->ReplaceLayer(*FrameAt(ifr)->LayerAt(index_b), index_a);
         FrameAt(ifr)->ReplaceLayer(templayer, index_b);
     }
 

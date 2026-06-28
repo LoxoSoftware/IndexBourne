@@ -81,7 +81,7 @@ void LayerTable::Redraw()
         btn_visible->setChecked(true);
         btn_visible->setToolTip("Visible?");
         QLabel* lbl_name= new QLabel("layer "+QString::number(il));
-        QIcon icn_preview= QIcon(QPixmap::fromImage(frame->Layer(il)->copy().transformed(QTransform::fromScale(48,48))));
+        QIcon icn_preview= QIcon(QPixmap::fromImage(frame->LayerAt(il)->image.copy().transformed(QTransform::fromScale(48,48))));
         //item->setIcon(QIcon(QPixmap::fromImage(frame->Layer(il)->copy())));
         setCellWidget(irow, 0, btn_visible);
         setCellWidget(irow, 2, lbl_name);

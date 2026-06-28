@@ -44,7 +44,7 @@ bool Project::SaveProject(QString filename)
                 "data/frame"+QString::number(ifr)+
                 "/layer"+QString::number(il)+".png"
             ));
-            FrameAt(ifr)->Layer(il)->save(&ofile, "png", 100);
+            FrameAt(ifr)->LayerAt(il)->image.save(&ofile, "png", 100);
             ofile.close();
         }
     }
@@ -205,7 +205,7 @@ bool Project::LoadProject(QString filename)
                         xstream.readNextStartElement(); //Ignore the element end
                     }
 
-                    tframe.PushNewSnapshot(new UndoSnapshot(Undocmd_AddLayer, 0, tframe.Layer(0)));
+                    tframe.PushNewSnapshot(new UndoSnapshot(Undocmd_AddLayer, 0, tframe.LayerAt(0)));
                     new_frames += tframe;
                 }
             }

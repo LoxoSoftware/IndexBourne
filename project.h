@@ -12,10 +12,11 @@
 #define PALETTE_H   16
 #define HISTORY_MAX 32
 
-typedef QList<QImage> layergroup_t;
-typedef QList<QRgb> palette_t;
-
 class Project;
+class Layer;
+
+typedef QList<Layer> layergroup_t;
+typedef QList<QRgb> palette_t;
 
 typedef enum
 {
@@ -24,17 +25,41 @@ typedef enum
     Undocmd_RmLayer,
 } undocommand_t;
 
+class Layer
+{
+public:
+    Layer(QString name="")
+    {
+        if (name != "") this->name= name;
+        this->image= QImage(8, 8, QImage::Format_Indexed8);
+    }
+    Layer(QSize size, QString name="")
+    {
+        if (name != "") this->name= name;
+        this->image= QImage(size, QImage::Format_Indexed8);
+    }
+    Layer(QImage src, QString name="")
+    {
+        if (name != "") this->name= name;
+        this->image= src;
+    }
+    QImage image;
+    QString name= "layer";
+    bool visible= true;
+    uchar opacity= 255;
+};
+
 class UndoSnapshot
 {
 public:
-    UndoSnapshot(undocommand_t cmd, int layer, QImage* image= nullptr)
+    UndoSnapshot(undocommand_t cmd, int layer, Layer* image= nullptr)
     {
         this->cmd= cmd;
         this->layer= layer;
-        this->image= image? *image : QImage();
+        this->image= image? *image : Layer(QSize(8,8));
     };
 
-    QImage image;
+    Layer image= Layer(QSize(8,8));
     undocommand_t cmd;
     int layer;
 };
@@ -49,22 +74,21 @@ private:
 public:
     Frame(Project* parent, QSize size);
 
-    QImage* InsertLayerAt(int pos, bool record= true);
-    QImage* InsertLayer(bool record= true) { return InsertLayerAt(this->size(), record); }
+    Layer* InsertLayerAt(int pos, bool record= true);
+    Layer* InsertLayer(bool record= true) { return InsertLayerAt(this->size(), record); }
     void RemoveLayer(int layer, bool record= true);
+    void ReplaceLayer(Layer img, int index);
+    void SetImageSize(QSize size);
     void Undo();
     void Redo();
     void ClearHistory();
     void PushNewSnapshot(UndoSnapshot* snapshot);
 
-    QImage* Layer(int layer);
+    Layer* LayerAt(int layer);
     const QSize ImageSize() const { return image_size; }
     const int LayerCount() const { return this->size(); }
     int HistorySize() { return history.size(); }
     int HistoryIndex() { return history_index; }
-
-    void SetImageSize(QSize size);
-    void ReplaceLayer(QImage img, int index);
 };
 
 typedef enum
@@ -136,7 +160,7 @@ public:
 
     Frame* CurrentFrame() { return (Frame*)&(timeline.at(current_frame)); }
     Frame* FrameAt(int frame) { return (Frame*)&(timeline.at(frame)); }
-    QImage* CurrentLayer() { return CurrentFrame()->Layer(current_layer); }
+    Layer* CurrentLayer() { return CurrentFrame()->LayerAt(current_layer); }
     const int CurrentFrameIndex() const { return current_frame; }
     const int CurrentLayerIndex() const { return current_layer; }
     const int Frames() const { return timeline.size(); }
