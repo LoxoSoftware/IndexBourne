@@ -32,6 +32,8 @@ MainWindow::MainWindow(QWidget *parent)
     NewProject(this);
     dckPaletteEdit->Update();
     dckLayerPanel->Update();
+
+    UpdateWindowTitle();
 }
 
 MainWindow::~MainWindow()
@@ -50,6 +52,27 @@ QIcon MainWindow::ColorizeIcon(QString fname, QString color)
     src_file.close();
     QIcon new_icon= QIcon(QPixmap::fromImage(QImage::fromData(data.toLocal8Bit())));
     return new_icon;
+}
+
+void MainWindow::UpdateWindowTitle()
+{
+    QString project_name= "<new project>";
+    bool notsaved= true;
+
+    if (current_project)
+    {
+        QString fname= current_project->FileName();
+
+        if (fname != "")
+            project_name= fname.mid(fname.lastIndexOf('/')+1);
+
+        notsaved= !current_project->IsSaved();
+    }
+
+    if (project_name == QString())
+        project_name= "<>";
+
+    setWindowTitle(project_name + ( notsaved ? " *" : "" ) + " - EZGFX");
 }
 
 void MainWindow::on_actionZoom_in_triggered()

@@ -168,6 +168,7 @@ public:
     const palette_t Palette() const { return palette; }
     const bppformat_t BppFormat() const { return image_bpp; }
     const QString FileName() const { return filename; }
+    bool IsSaved() { return is_saved; }
     ImageCanvas* Canvas() { return canvas; }
     MainWindow* ParentWindow() { return main_window; }
     const QPoint PaltableAPosition() const { return paltable_Apos; }
@@ -183,7 +184,7 @@ public:
     void SetImageSize(QSize size);
     void SetPalette(palette_t palette= palette_t(), bool recursive= false);
     void SetBppFormat(bppformat_t fmt);
-    void SetFileName(QString filename) { this->filename= filename; }
+    void SetFileName(QString filename);
     void InsertFrameAt(int pos);
     void InsertFrame() { InsertFrameAt(timeline.size()); }
     void RemoveFrame(int frame);

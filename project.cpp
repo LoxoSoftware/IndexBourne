@@ -205,6 +205,10 @@ Project::Project(MainWindow* parent, QSize size)
 
     if (!current_project)
         current_project= this;
+
+    parent->UpdateWindowTitle();
+    UpdateLayerPanel();
+    SetPalette(); //Update palette panel
 }
 
 bool Project::ImportBitmap(QImage img, consent_t canvas_resize, consent_t import_palette)
@@ -328,6 +332,12 @@ void Project::SetImageSize(QSize size)
 
     if (Canvas())
         Canvas()->Redraw();
+}
+
+void Project::SetFileName(QString filename)
+{
+    this->filename= filename;
+    this->main_window->UpdateWindowTitle();
 }
 
 void Project::SetPaltableAPosition(QPoint pos)

@@ -39,6 +39,8 @@ public:
     ToolPanel** ToolPanelPtr() { return &dckToolPanel; }
     LayerPanel** LayerPanelPtr() { return &dckLayerPanel; }
 
+    void UpdateWindowTitle();
+
     static QIcon ColorizeIcon(QString filename, QString color);
 
 private slots:
