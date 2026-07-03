@@ -67,12 +67,13 @@ void Frame::SetImageSize(QSize size)
     PushNewSnapshot(new UndoSnapshot(Undocmd_DiffImage, 0, LayerAt(0)));
 }
 
-Layer* Frame::MergeLayerDown(int index)
+Layer* Frame::MergeLayerDown(int index, bool record)
 {
     if (index >= LayerCount() || index < 1)
         return LayerAt(index);
 
-    PushNewSnapshot(new UndoSnapshot(Undocmd_DiffImage, index-1, LayerAt(index-1)));
+    if (record)
+        PushNewSnapshot(new UndoSnapshot(Undocmd_DiffImage, index-1, LayerAt(index-1)));
 
     //Layer* old_layer= new Layer(LayerAt(index-1)->image);
 
@@ -86,10 +87,11 @@ Layer* Frame::MergeLayerDown(int index)
                 sl_dest[ix]= sl_src[ix];
     }
 
-    RemoveLayer(index, true);
+    RemoveLayer(index, record);
     index--;
 
-    PushNewSnapshot(new UndoSnapshot(Undocmd_DiffImage, index, LayerAt(index)));
+    if (record)
+        PushNewSnapshot(new UndoSnapshot(Undocmd_DiffImage, index, LayerAt(index)));
     return LayerAt(index);
 }
 

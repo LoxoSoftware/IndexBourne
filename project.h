@@ -87,7 +87,7 @@ public:
     void RemoveLayer(int layer, bool record= true);
     void ReplaceLayer(Layer img, int index);
     void SetImageSize(QSize size);
-    Layer* MergeLayerDown(int index);
+    Layer* MergeLayerDown(int index, bool record= true);
     void Undo();
     void Redo();
     void ClearHistory();
