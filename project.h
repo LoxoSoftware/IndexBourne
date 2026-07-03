@@ -36,6 +36,13 @@ public:
         if (name != "") this->name= name;
         this->image= src;
     }
+    Layer(Layer* lyr)
+    {
+        this->image= lyr->image;
+        this->name= lyr->name;
+        this->opacity= lyr->opacity;
+        this->visible= lyr->visible;
+    }
     QImage image;
     QString name= "layer";
     bool visible= true;
@@ -79,6 +86,7 @@ public:
     void RemoveLayer(int layer, bool record= true);
     void ReplaceLayer(Layer img, int index);
     void SetImageSize(QSize size);
+    Layer* MergeLayerDown(int index);
     void Undo();
     void Redo();
     void ClearHistory();

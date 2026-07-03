@@ -176,6 +176,13 @@ void LayerPanel::on_btnDelete_clicked()
 
 void LayerPanel::on_btnMergeDown_clicked()
 {
+    if (!current_project)
+        return;
 
+    current_project->CurrentFrame()->MergeLayerDown(ui->lstLayers->CurrentLayerIndex());
+    if (ui->lstLayers->CurrentLayerIndex()-1 > 0)
+        current_project->SetCurrentLayerIndex(ui->lstLayers->CurrentLayerIndex()-1);
+    else
+        current_project->SetCurrentLayerIndex(0);
 }
 

@@ -35,21 +35,15 @@ Layer* Frame::InsertLayerAt(int pos, bool record)
 
 void Frame::RemoveLayer(int pos, bool record)
 {
-    Layer old_layer;
-
     if (this->size() < 2)
     {
-        old_layer= *LayerAt(0);
         LayerAt(0)->image.fill(0);
         return;
     }
 
-    old_layer= *LayerAt(pos);
-
-    this->remove(pos);
-
     if (record)
-        PushNewSnapshot(new UndoSnapshot(Undocmd_RmLayer, pos, &old_layer));
+        PushNewSnapshot(new UndoSnapshot(Undocmd_RmLayer, pos, LayerAt(pos)));
+    this->remove(pos);
 
     if (current_project->CurrentLayerIndex() >= this->size())
         current_project->SetCurrentLayerIndex(this->size()-1);
@@ -71,6 +65,31 @@ void Frame::SetImageSize(QSize size)
         this->replace(il, new_layer);
     }
     PushNewSnapshot(new UndoSnapshot(Undocmd_DiffImage, 0, LayerAt(0)));
+}
+
+Layer* Frame::MergeLayerDown(int index)
+{
+    if (index >= LayerCount() || index < 1)
+        return LayerAt(index);
+
+    PushNewSnapshot(new UndoSnapshot(Undocmd_DiffImage, index-1, LayerAt(index-1)));
+
+    //Layer* old_layer= new Layer(LayerAt(index-1)->image);
+
+    for (int iy=0; iy<ImageSize().height(); iy++)
+    {
+        uchar* sl_src= LayerAt(index)->image.scanLine(iy);
+        uchar* sl_dest= LayerAt(index-1)->image.scanLine(iy);
+
+        for (int ix=0; ix<ImageSize().width(); ix++)
+            if (sl_src[ix])
+                sl_dest[ix]= sl_src[ix];
+    }
+
+    RemoveLayer(index, true);
+    index--;
+
+    return LayerAt(index);
 }
 
 void Frame::PushNewSnapshot(UndoSnapshot* snap)
