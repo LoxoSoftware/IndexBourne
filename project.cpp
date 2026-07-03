@@ -25,10 +25,10 @@ Layer* Frame::InsertLayerAt(int pos, bool record)
     new_layer.image.setColorTable(current_project->Palette());
     new_layer.image.fill(0);
 
-    this->insert(pos, new_layer);
+    if (record || !LayerCount())
+        PushNewSnapshot(new UndoSnapshot(LayerCount()>0? Undocmd_AddLayer : Undocmd_DiffImage, pos, &new_layer));
 
-    if (record)
-        PushNewSnapshot(new UndoSnapshot(Undocmd_AddLayer, pos, &new_layer));
+    this->insert(pos, new_layer);
 
     return (Layer*)&this->at(pos);
 }
@@ -89,11 +89,14 @@ Layer* Frame::MergeLayerDown(int index)
     RemoveLayer(index, true);
     index--;
 
+    PushNewSnapshot(new UndoSnapshot(Undocmd_DiffImage, index, LayerAt(index)));
     return LayerAt(index);
 }
 
 void Frame::PushNewSnapshot(UndoSnapshot* snap)
 {
+    //TODO: Discard all oldest snapshots until the oldest is a DiffImage
+
     if (history_index < HISTORY_MAX)
     {
         //Delete all the newer snapshots after the index
@@ -117,8 +120,11 @@ void Frame::PushNewSnapshot(UndoSnapshot* snap)
 void Frame::Undo()
 {
     if (history_index <= 1)
-        return;
-    history_index--;
+        history_index= 1;
+    else
+        history_index--;
+
+    //The last element is the current state, so we don't want to restore it
     UndoSnapshot* snap= &history[history_index-1];
 
     Layer* restored_layer;
@@ -145,9 +151,14 @@ void Frame::Undo()
 
 void Frame::Redo()
 {
-    if (history_index >= history.size())
-        return;
-    history_index++;
+    if (history_index >= history.size()-1)
+    {
+        history_index= history.size();
+        if (history[history_index-1].cmd != Undocmd_DiffImage)
+            return;
+    }
+    else
+        history_index++;
     UndoSnapshot* snap= &history[history_index-1];
 
     Layer* restored_layer;
@@ -165,7 +176,10 @@ void Frame::Redo()
         break;
     case Undocmd_RmLayer:
         this->RemoveLayer(snap->layer_ind, false);
-        current_project->SetCurrentLayerIndex(snap->layer_ind);
+        if (snap->layer_ind-1 >= LayerCount())
+            current_project->SetCurrentLayerIndex(LayerCount());
+        else
+            current_project->SetCurrentLayerIndex(snap->layer_ind-1);
         break;
     default:
         break;

@@ -205,7 +205,7 @@ bool Project::LoadProject(QString filename)
                         xstream.readNextStartElement(); //Ignore the element end
                     }
 
-                    tframe.PushNewSnapshot(new UndoSnapshot(Undocmd_AddLayer, 0, tframe.LayerAt(0)));
+                    tframe.PushNewSnapshot(new UndoSnapshot(Undocmd_DiffImage, 0, tframe.LayerAt(0)));
                     new_frames += tframe;
                 }
             }
