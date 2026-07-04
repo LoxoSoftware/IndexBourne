@@ -46,7 +46,21 @@ void ImageCanvas::Redraw()
 
     for (int il=0; il<current_frame->LayerCount(); il++)
     {
-        QPixmap pix= QPixmap::fromImage(current_frame->LayerAt(il)->image);
+        QPixmap pix;
+
+        if (!current_frame->LayerAt(il)->visible)
+        {
+            if (il) continue;
+            else
+            {
+                QImage voidimg= QImage(current_frame->ImageSize(), QImage::Format_Indexed8);
+                voidimg.setColorTable(current_project->Palette());
+                voidimg.fill(0);
+                pix= QPixmap::fromImage(voidimg);
+            }
+        }
+        else
+            pix= QPixmap::fromImage(current_frame->LayerAt(il)->image);
         QGraphicsPixmapItem* item= new QGraphicsPixmapItem(pix);
         item->setScale(scaling);
         scene.addItem(item);

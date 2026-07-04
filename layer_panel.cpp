@@ -78,8 +78,9 @@ void LayerTable::Redraw()
         //QListWidgetItem* item= new QListWidgetItem("Layer "+QString::number(il), ui->lstLayers);
         QPushButton* btn_visible= new QPushButton("V");
         btn_visible->setCheckable(true);
-        btn_visible->setChecked(true);
+        btn_visible->setChecked(frame->LayerAt(il)->visible);
         btn_visible->setToolTip("Visible?");
+        connect(btn_visible, &QPushButton::clicked, this, &LayerTable::on_layerVisibilityChanged);
         QLabel* lbl_name= new QLabel("layer "+QString::number(il));
         QIcon icn_preview= QIcon(QPixmap::fromImage(frame->LayerAt(il)->image.copy().transformed(QTransform::fromScale(48,48))));
         //item->setIcon(QIcon(QPixmap::fromImage(frame->Layer(il)->copy())));
@@ -110,6 +111,19 @@ void LayerTable::on_currentCellChanged(int currentRow, int currentColumn, int pr
 
     current_project->SetCurrentLayerIndex(LayerIndex(currentRow));
     //Update();
+}
+
+void LayerTable::on_layerVisibilityChanged(bool visible)
+{
+    if (!current_project)
+        return;
+
+    int layer_index= CurrentLayerIndex();
+
+    current_project->CurrentFrame()->LayerAt(layer_index)->visible= visible;
+    Redraw();
+    if (current_project->Canvas())
+        current_project->Canvas()->Redraw();
 }
 
 int LayerTable::LayerIndex(int row)
@@ -185,4 +199,3 @@ void LayerPanel::on_btnMergeDown_clicked()
     else
         current_project->SetCurrentLayerIndex(0);
 }
-

@@ -28,6 +28,7 @@ private:
     void dropEvent(QDropEvent* event);
 
     void on_currentCellChanged(int, int, int, int);
+    void on_layerVisibilityChanged(bool visible);
 };
 
 namespace Ui {
