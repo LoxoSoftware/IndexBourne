@@ -2,6 +2,7 @@
 #include "ui_layer_panel.h"
 #include <QMessageBox>
 #include "project.h"
+#include "mainwindow.h"
 #include <QLabel>
 
 extern Project* current_project;
@@ -76,10 +77,15 @@ void LayerTable::Redraw()
     {
         int irow= frame->LayerCount()-il-1;
         //QListWidgetItem* item= new QListWidgetItem("Layer "+QString::number(il), ui->lstLayers);
-        QPushButton* btn_visible= new QPushButton("V");
+        QPushButton* btn_visible= new QPushButton();
         btn_visible->setCheckable(true);
         btn_visible->setChecked(frame->LayerAt(il)->visible);
-        btn_visible->setToolTip("Visible?");
+        btn_visible->setToolTip("Toggle layer visibility");
+        btn_visible->setIconSize(QSize(32,32));
+        if (IS_DARK_THEME)
+            btn_visible->setIcon(MainWindow::ColorizeIcon(":/icons/scalable/layer-invisible", "#C0C0C0", ":/icons/scalable/layer-visible"));
+        else
+            btn_visible->setIcon(MainWindow::ColorizeIcon(":/icons/scalable/layer-invisible", "#202020", ":/icons/scalable/layer-visible"));
         connect(btn_visible, &QPushButton::clicked, this, &LayerTable::on_layerVisibilityChanged);
         QLabel* lbl_name= new QLabel("layer "+QString::number(il));
         QIcon icn_preview= QIcon(QPixmap::fromImage(frame->LayerAt(il)->image.copy().transformed(QTransform::fromScale(48,48))));

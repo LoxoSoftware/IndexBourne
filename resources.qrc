@@ -9,5 +9,7 @@
         <file alias="pencil">res/icons/pencil.svg</file>
         <file alias="ellipse">res/icons/ellipse.svg</file>
         <file alias="rectangle">res/icons/rectangle.svg</file>
+        <file alias="layer-invisible">res/icons/layer-invisible.svg</file>
+        <file alias="layer-visible">res/icons/layer-visible.svg</file>
     </qresource>
 </RCC>
