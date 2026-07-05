@@ -41,7 +41,7 @@ public:
 
     void UpdateWindowTitle();
 
-    static QIcon ColorizeIcon(QString filename, QString color);
+    static QIcon ColorizeIcon(QString filename, QString color, QString filename_on="");
 
 private slots:
     void on_actionZoom_in_triggered();

@@ -41,16 +41,32 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-QIcon MainWindow::ColorizeIcon(QString fname, QString color)
+QIcon MainWindow::ColorizeIcon(QString fname, QString color, QString fname_on)
 {
     QFile src_file= QFile(fname);
+    QFile src_file_on= QFile(fname_on);
+
     if (!src_file.open(QFile::ReadOnly))
         return QIcon(fname); //Error
+
     QString data= src_file.readAll();
     //data= data.replace("\"#000000\"", "\""+color+"\"");
     data= data.replace("#000000", color);
     src_file.close();
-    QIcon new_icon= QIcon(QPixmap::fromImage(QImage::fromData(data.toLocal8Bit())));
+
+    QIcon new_icon= QIcon();
+    new_icon.addPixmap(QPixmap::fromImage(QImage::fromData(data.toLocal8Bit())));
+
+    if (src_file_on.open(QFile::ReadOnly))
+    {
+        data= src_file_on.readAll();
+        //data= data.replace("\"#000000\"", "\""+color+"\"");
+        data= data.replace("#000000", color);
+        src_file_on.close();
+
+        new_icon.addPixmap(QPixmap::fromImage(QImage::fromData(data.toLocal8Bit())), QIcon::Normal, QIcon::On);
+    }
+
     return new_icon;
 }
 
