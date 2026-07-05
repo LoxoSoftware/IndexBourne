@@ -57,7 +57,7 @@ QIcon MainWindow::ColorizeIcon(QString fname, QString color, QString fname_on)
     QIcon new_icon= QIcon();
     new_icon.addPixmap(QPixmap::fromImage(QImage::fromData(data.toLocal8Bit())));
 
-    if (src_file_on.open(QFile::ReadOnly))
+    if (fname_on != "") if (src_file_on.open(QFile::ReadOnly))
     {
         data= src_file_on.readAll();
         //data= data.replace("\"#000000\"", "\""+color+"\"");
