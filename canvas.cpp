@@ -83,9 +83,9 @@ void ImageCanvas::Redraw()
 
 void ImageCanvas::PaintGrid(QPainter* painter)
 {
-    QPen pen_tg_out= QPen(QColor(0,0,0, IsRectSelection() ? 96 : 255));
+    QPen pen_tg_out= QPen(QColor(0,0,0, IsRectSelection() ? 128 : 255));
     pen_tg_out.setWidth(3);
-    QPen pen_tg_in= QPen(QColor(255,255,255, IsRectSelection() ? 96 : 255));
+    QPen pen_tg_in= QPen(QColor(255,255,255, IsRectSelection() ? 128 : 255));
     pen_tg_in.setWidth(1);
     QPen pen_pg= QPen(QColor(1,1,1));
     pen_pg.setWidth(1);
@@ -94,24 +94,31 @@ void ImageCanvas::PaintGrid(QPainter* painter)
     {
         painter->setPen(pen_pg);
         for (int iy=0; iy<height(); iy+=scaling)
-            for (int ix=0; ix<width(); ix+=scaling)
-            {
-                painter->drawLine(QLineF(ix, iy, width(), iy));
-                painter->drawLine(QLineF(ix, iy, ix, height()));
-            }
+            //Horizontal lines
+            painter->drawLine(QLineF(0, iy, width(), iy));
+        for (int ix=0; ix<width(); ix+=scaling)
+            //Vertical lines
+            painter->drawLine(QLineF(ix, 0, ix, height()));
     }
     if (show_tilegrid)
+    {
         for (int iy=0; iy<height(); iy+=tilegrid_size.height()*scaling)
-            for (int ix=0; ix<width(); ix+=tilegrid_size.width()*scaling)
-            {
-                painter->setPen(pen_tg_out);
-                painter->drawLine(QLineF(ix, iy, width(), iy));
-                painter->drawLine(QLineF(ix, iy, ix, height()));
-                painter->setPen(pen_tg_in);
-                painter->drawLine(QLineF(ix, iy, width(), iy));
-                painter->drawLine(QLineF(ix, iy, ix, height()));
-            }
-
+        {
+            //Horizontal lines
+            painter->setPen(pen_tg_out);
+            painter->drawLine(QLineF(0, iy, width(), iy));
+            painter->setPen(pen_tg_in);
+            painter->drawLine(QLineF(0, iy, width(), iy));
+        }
+        for (int ix=0; ix<width(); ix+=tilegrid_size.width()*scaling)
+        {
+            //Vertical lines
+            painter->setPen(pen_tg_out);
+            painter->drawLine(QLineF(ix, 0, ix, height()));
+            painter->setPen(pen_tg_in);
+            painter->drawLine(QLineF(ix, 0, ix, height()));
+        }
+    }
 }
 
 void ImageCanvas::PaintTempSelection(QPainter* painter)
@@ -119,33 +126,33 @@ void ImageCanvas::PaintTempSelection(QPainter* painter)
     if (!IsRectSelection())
         return;
 
-    QPen pen_tg_out;
-    QPen pen_tg_in;
+    QPen pen_sel_out;
+    QPen pen_sel_in;
     switch (current_tool->type)
     {
     case Tool_RectSelect:
-        pen_tg_out.setColor(QColor(32,32,0,255));
-        pen_tg_in.setColor(QColor(255,255,0,255));
-        pen_tg_in.setStyle(Qt::DashLine);
+        pen_sel_out.setColor(QColor(32,32,0,255));
+        pen_sel_in.setColor(QColor(255,255,0,255));
+        pen_sel_in.setStyle(Qt::DashLine);
         break;
     case Tool_Transform:
-        pen_tg_out.setColor(QColor(0,32,32,255));
-        pen_tg_in.setColor(QColor(0,255,255,255));
-        pen_tg_in.setStyle(Qt::SolidLine);
+        pen_sel_out.setColor(QColor(0,32,32,255));
+        pen_sel_in.setColor(QColor(0,255,255,255));
+        pen_sel_in.setStyle(Qt::SolidLine);
         break;
     default:
         return;
     }
-    pen_tg_out.setWidth(3);
-    pen_tg_in.setWidth(1);
+    pen_sel_out.setWidth(3);
+    pen_sel_in.setWidth(1);
 
     QRect disp_rect= QRect(
         rect_selection.x()*scaling, rect_selection.y()*scaling,
         rect_selection.width()*scaling, rect_selection.height()*scaling );
 
-    painter->setPen(pen_tg_out);
+    painter->setPen(pen_sel_out);
     painter->drawRect(disp_rect);
-    painter->setPen(pen_tg_in);
+    painter->setPen(pen_sel_in);
     painter->drawRect(disp_rect);
 }
 
