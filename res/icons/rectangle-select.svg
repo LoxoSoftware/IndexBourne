@@ -9,7 +9,7 @@
    version="1.1"
    id="svg1"
    sodipodi:docname="rectangle-select.svg"
-   inkscape:version="1.4.3 (0d15f75042, 2025-12-25)"
+   inkscape:version="1.4.4 (dcaf3e7d9e, 2026-05-05)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
@@ -25,11 +25,11 @@
      inkscape:pageopacity="0.0"
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
-     inkscape:zoom="0.74"
-     inkscape:cx="379.72973"
-     inkscape:cy="274.32432"
-     inkscape:window-width="1536"
-     inkscape:window-height="800"
+     inkscape:zoom="0.52325902"
+     inkscape:cx="173.91005"
+     inkscape:cy="382.21988"
+     inkscape:window-width="2048"
+     inkscape:window-height="1079"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
@@ -45,5 +45,5 @@
      stroke-linecap="round"
      stroke-linejoin="round"
      id="rect1"
-     style="stroke-width:2.00001;stroke-dasharray:2.00001001,2.00001001;stroke-dashoffset:2.00001001;stroke-linejoin:round;stroke-linecap:butt" />
+     style="stroke-width:2.00001;stroke-dasharray:2.00001001,3.20001602;stroke-dashoffset:2.20001102;stroke-linejoin:round;stroke-linecap:square" />
 </svg>

@@ -111,7 +111,8 @@ typedef enum
     Tool_FilledEllipsoid,
     Tool_FloodFill,
     Tool_RectSelect,
-    Tool_Transform,
+    Tool_PencilSelect,
+    Tool_Transform, //Right now it's just to move
 } tooltype_t;
 
 typedef struct Tool
@@ -119,7 +120,6 @@ typedef struct Tool
     tooltype_t type= Tool_Pencil;
     int diameter_a= 1;
     int diameter_b= 1;
-    QRect rect= QRect(0,0,1,1);
 } Tool;
 
 typedef enum
@@ -186,6 +186,7 @@ public:
     const int PaltableAIndex() const { return paltable_Apos.x()+paltable_Apos.y()*PALETTE_W; }
     const int PaltableBIndex() const { return paltable_Bpos.x()+paltable_Bpos.y()*PALETTE_W; }
     Tool CurrentTool() { return UiToolPanel()->GetCurrentTool(); }
+    void SetCurrentToolType(tooltype_t type) { UiToolPanel()->SetCurrentToolType(type); }
 
     void SetCurrentFrameIndex(int frame);
     void SetCurrentLayerIndex(int layer);

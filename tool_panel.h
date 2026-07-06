@@ -19,6 +19,7 @@ public:
     ~ToolPanel();
 
     Tool GetCurrentTool();
+    void SetCurrentToolType(int type); //tooltype_t
 
 private:
     Ui::ToolPanel *ui;

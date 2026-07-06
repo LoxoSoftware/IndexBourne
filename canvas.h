@@ -34,16 +34,23 @@ private:
     QMenu* context_menu= nullptr;
     Qt::MouseButton mouse_down_button= Qt::NoButton;
     bool mouse_has_moved= false;
+    bool rectangle_selecting= false;
     QPointF mouse_last_pos;
     QPointF mouse_last_global_pos;
     Layer* current_layer;
     QImage* image;
+    QImage selection;
+    QImage floating_layer;
+    QRect temp_rect_selection;
     Frame* current_frame= nullptr;
     int current_layer_index= 0;
     Tool* current_tool;
     QSize tilegrid_size= QSize(8, 8);
 
     const int max_scaling= 32;
+    const QList<QRgb> selection_palette= {
+        0x00000000, 0x800080FF, 0x8000FFFF, 0xC0000000, 0xC0FFFFFF,
+    };
 
     bool show_tilegrid= true;
     bool show_pixelgrid= false;
@@ -56,6 +63,7 @@ private:
 
     void PanToMouse(QPoint mouse_global_pos);
     void PaintGrid(QPainter* painter);
+    void PaintTempSelection(QPainter* painter);
 
 public:
     ImageCanvas(QScrollArea* parent, Frame* frame);
@@ -65,8 +73,11 @@ public:
     void ZoomOut();
 
     void Plot(int x, int y, int color, int radius=1);
+    void PlotSelection(int x, int y, bool include, int radius=1);
     void DrawPencil(QPoint pos, bool primary= true);
+    void DrawSelectionPencil(QPoint pos, bool include);
     void PickColor(QPoint pos, bool primary= true);
+    void RectangleSelect(QPoint pos, bool include= true); //Call on mouse release
 
     const QImage* Image() const { return image; }
     QWidget* Widget() { return this->Widget(); }
