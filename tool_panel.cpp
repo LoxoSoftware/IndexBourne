@@ -5,6 +5,8 @@
 
 #define COL_LIGHT_ICON  "#C0C0C0"
 
+extern Project* current_project;
+
 ToolPanel::ToolPanel(QWidget *parent, MainWindow* main_window)
     : QDockWidget(parent)
     , ui(new Ui::ToolPanel)
@@ -19,8 +21,14 @@ ToolPanel::ToolPanel(QWidget *parent, MainWindow* main_window)
         ui->btnEyedropper->setIcon(MainWindow::ColorizeIcon(":/icons/scalable/eyedropper", COL_LIGHT_ICON));
         ui->btnPencilSelect->setIcon(MainWindow::ColorizeIcon(":/icons/scalable/pencil-select", COL_LIGHT_ICON));
         ui->btnRectangleSelect->setIcon(MainWindow::ColorizeIcon(":/icons/scalable/rectangle-select", COL_LIGHT_ICON));
-        ui->btnMoveGfx->setIcon(MainWindow::ColorizeIcon(":/icons/scalable/move", COL_LIGHT_ICON));
+        ui->btnTransformGfx->setIcon(MainWindow::ColorizeIcon(":/icons/scalable/move", COL_LIGHT_ICON));
     }
+
+    connect(ui->btnPencil, &QToolButton::clicked, this, &ToolPanel::on_CurrentToolTypeChanged);
+    connect(ui->btnEyedropper, &QToolButton::clicked, this, &ToolPanel::on_CurrentToolTypeChanged);
+    connect(ui->btnPencilSelect, &QToolButton::clicked, this, &ToolPanel::on_CurrentToolTypeChanged);
+    connect(ui->btnRectangleSelect, &QToolButton::clicked, this, &ToolPanel::on_CurrentToolTypeChanged);
+    connect(ui->btnTransformGfx, &QToolButton::clicked, this, &ToolPanel::on_CurrentToolTypeChanged);
 }
 
 ToolPanel::~ToolPanel()
@@ -40,7 +48,7 @@ Tool ToolPanel::GetCurrentTool()
         new_tool.type= Tool_PencilSelect;
     if (ui->btnRectangleSelect->isChecked())
         new_tool.type= Tool_RectSelect;
-    if (ui->btnMoveGfx->isChecked())
+    if (ui->btnTransformGfx->isChecked())
         new_tool.type= Tool_Transform;
 
     new_tool.diameter_a= ui->spbPencilDotSizeA->value();
@@ -51,6 +59,8 @@ Tool ToolPanel::GetCurrentTool()
 
 void ToolPanel::SetCurrentToolType(int type)
 {
+    block_tooltype_change_signal= true;
+
     switch(type)
     {
     case Tool_Pencil:
@@ -66,9 +76,20 @@ void ToolPanel::SetCurrentToolType(int type)
         ui->btnRectangleSelect->setChecked(true);
         break;
     case Tool_Transform:
-        ui->btnMoveGfx->setChecked(true);
+        ui->btnTransformGfx->setChecked(true);
         break;
     default:
         break;
     }
+
+    block_tooltype_change_signal= false;
+    on_CurrentToolTypeChanged();
+}
+
+void ToolPanel::on_CurrentToolTypeChanged()
+{
+    if (block_tooltype_change_signal)
+        return;
+
+    current_project->Canvas()->Redraw();
 }

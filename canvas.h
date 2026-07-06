@@ -81,6 +81,7 @@ public:
     const QImage* Image() const { return image; }
     QWidget* Widget() { return this->Widget(); }
     bool IsRectSelection() { return rect_selection.width() != 0 && rect_selection.height() != 0; }
+    QRect GetSelectionBoundaries();
 
     //void SetImage(QImage* image);
     void SetFrame(Frame* frame);

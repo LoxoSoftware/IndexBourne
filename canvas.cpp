@@ -33,6 +33,14 @@ void ImageCanvas::Redraw()
     if (!image)
         return;
 
+    if (current_project)
+    {
+        *current_tool= current_project->CurrentTool();
+
+        if (current_tool->type == Tool_Transform)
+            rect_selection= GetSelectionBoundaries();
+    }
+
     scene.clear();
 
     setMinimumSize(image->width()*scaling,
@@ -111,11 +119,25 @@ void ImageCanvas::PaintTempSelection(QPainter* painter)
     if (!IsRectSelection())
         return;
 
-    QPen pen_tg_out= QPen(QColor(32,32,0,255));
+    QPen pen_tg_out;
+    QPen pen_tg_in;
+    switch (current_tool->type)
+    {
+    case Tool_RectSelect:
+        pen_tg_out.setColor(QColor(32,32,0,255));
+        pen_tg_in.setColor(QColor(255,255,0,255));
+        pen_tg_in.setStyle(Qt::DashLine);
+        break;
+    case Tool_Transform:
+        pen_tg_out.setColor(QColor(0,32,32,255));
+        pen_tg_in.setColor(QColor(0,255,255,255));
+        pen_tg_in.setStyle(Qt::SolidLine);
+        break;
+    default:
+        return;
+    }
     pen_tg_out.setWidth(3);
-    QPen pen_tg_in= QPen(QColor(255,255,0,255));
     pen_tg_in.setWidth(1);
-    pen_tg_in.setStyle(Qt::DashLine);
 
     QRect disp_rect= QRect(
         rect_selection.x()*scaling, rect_selection.y()*scaling,
@@ -264,6 +286,40 @@ void ImageCanvas::RectangleSelect(QPoint pos, bool include)
     Redraw();
 }
 
+QRect ImageCanvas::GetSelectionBoundaries()
+{
+    QPoint min_start= QPoint(999999, 999999);
+    QPoint max_end= QPoint(0, 0);
+    bool is_selected= false;
+
+    for (int iy=0; iy<selection.height(); iy++)
+    {
+        uint8_t* sl= selection.scanLine(iy);
+
+        for (int ix=0; ix<selection.width(); ix++)
+        {
+            if (sl[ix] == 0)
+                continue;
+
+            is_selected= true;
+
+            if (ix < min_start.x())
+                min_start.setX(ix);
+            if (iy < min_start.y())
+                min_start.setY(iy);
+            if (ix > max_end.x())
+                max_end.setX(ix);
+            if (iy > max_end.y())
+                max_end.setY(iy);
+        }
+    }
+
+    if (is_selected)
+        return QRect(min_start, max_end);
+    else
+        return QRect(0,0,0,0);
+}
+
 void ImageCanvas::mousePressEvent(QMouseEvent* event)
 {
     //event->accept();
@@ -292,6 +348,9 @@ void ImageCanvas::mousePressEvent(QMouseEvent* event)
         mouseMoveEvent(event);
     }
 
+    if (current_tool->type != Tool_Transform)
+        rect_selection.setSize(QSize(0,0));
+
     mouse_has_moved= false;
 }
 
@@ -308,10 +367,9 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent* event)
             if (!(event->modifiers()&Qt::ControlModifier))
                 //Hold CTRL to select multiple regions
                 selection.fill(0);
+            RectangleSelect(event->pos(), event->button()&Qt::LeftButton);
             if (!( event->modifiers()&Qt::ControlModifier || event->modifiers()&Qt::ShiftModifier ))
                 current_project->SetCurrentToolType(Tool_Transform);
-            RectangleSelect(event->pos(), event->button()&Qt::LeftButton);
-            Redraw();
             break;
         default:
             break;
@@ -320,7 +378,6 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent* event)
 
     mouse_down_button= Qt::NoButton;
     mouse_has_moved= false;
-    rect_selection.setSize(QSize(0,0));
 
     this->setCursor(Qt::ArrowCursor);
 }

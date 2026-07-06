@@ -19,7 +19,7 @@
   <property name="maximumSize">
    <size>
     <width>138</width>
-    <height>16777215</height>
+    <height>524287</height>
    </size>
   </property>
   <property name="features">
@@ -181,7 +181,7 @@
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="QToolButton" name="btnMoveGfx">
+    <widget class="QToolButton" name="btnTransformGfx">
      <property name="geometry">
       <rect>
        <x>10</x>

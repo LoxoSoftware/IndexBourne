@@ -25,6 +25,9 @@ private:
     Ui::ToolPanel *ui;
 
     MainWindow* main_window;
+    bool block_tooltype_change_signal= false;
+
+    void on_CurrentToolTypeChanged();
 };
 
 #endif // TOOL_PANEL_H

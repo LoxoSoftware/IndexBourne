@@ -185,7 +185,7 @@ public:
     const QPoint PaltableBPosition() const { return paltable_Bpos; }
     const int PaltableAIndex() const { return paltable_Apos.x()+paltable_Apos.y()*PALETTE_W; }
     const int PaltableBIndex() const { return paltable_Bpos.x()+paltable_Bpos.y()*PALETTE_W; }
-    Tool CurrentTool() { return UiToolPanel()->GetCurrentTool(); }
+    Tool CurrentTool() { if (!UiToolPanel()) return Tool(); return UiToolPanel()->GetCurrentTool(); }
     void SetCurrentToolType(tooltype_t type) { UiToolPanel()->SetCurrentToolType(type); }
 
     void SetCurrentFrameIndex(int frame);
