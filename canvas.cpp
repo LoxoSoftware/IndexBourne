@@ -75,9 +75,9 @@ void ImageCanvas::Redraw()
 
 void ImageCanvas::PaintGrid(QPainter* painter)
 {
-    QPen pen_tg_out= QPen(QColor(0,0,0, rectangle_selecting ? 96 : 255));
+    QPen pen_tg_out= QPen(QColor(0,0,0, IsRectSelection() ? 96 : 255));
     pen_tg_out.setWidth(3);
-    QPen pen_tg_in= QPen(QColor(255,255,255, rectangle_selecting ? 96 : 255));
+    QPen pen_tg_in= QPen(QColor(255,255,255, IsRectSelection() ? 96 : 255));
     pen_tg_in.setWidth(1);
     QPen pen_pg= QPen(QColor(1,1,1));
     pen_pg.setWidth(1);
@@ -108,7 +108,7 @@ void ImageCanvas::PaintGrid(QPainter* painter)
 
 void ImageCanvas::PaintTempSelection(QPainter* painter)
 {
-    if (!rectangle_selecting)
+    if (!IsRectSelection())
         return;
 
     QPen pen_tg_out= QPen(QColor(32,32,0,255));
@@ -118,8 +118,8 @@ void ImageCanvas::PaintTempSelection(QPainter* painter)
     pen_tg_in.setStyle(Qt::DashLine);
 
     QRect disp_rect= QRect(
-        temp_rect_selection.x()*scaling, temp_rect_selection.y()*scaling,
-        temp_rect_selection.width()*scaling, temp_rect_selection.height()*scaling );
+        rect_selection.x()*scaling, rect_selection.y()*scaling,
+        rect_selection.width()*scaling, rect_selection.height()*scaling );
 
     painter->setPen(pen_tg_out);
     painter->drawRect(disp_rect);
@@ -257,8 +257,8 @@ void ImageCanvas::PickColor(QPoint pos, bool primary)
 
 void ImageCanvas::RectangleSelect(QPoint pos, bool include)
 {
-    for (int iy=temp_rect_selection.y(); iy<=temp_rect_selection.bottom(); iy++)
-        for (int ix=temp_rect_selection.x(); ix<=temp_rect_selection.right(); ix++)
+    for (int iy=rect_selection.y(); iy<=rect_selection.bottom(); iy++)
+        for (int ix=rect_selection.x(); ix<=rect_selection.right(); ix++)
             PlotSelection(ix, iy, include, 1);
 
     Redraw();
@@ -320,7 +320,7 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent* event)
 
     mouse_down_button= Qt::NoButton;
     mouse_has_moved= false;
-    rectangle_selecting= false;
+    rect_selection.setSize(QSize(0,0));
 
     this->setCursor(Qt::ArrowCursor);
 }
@@ -341,11 +341,10 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent* event)
             DrawSelectionPencil(event->pos(), mouse_down_button == Qt::LeftButton);
             break;
         case Tool_RectSelect:
-            rectangle_selecting= true;
-            temp_rect_selection.setX(TILECANVASX_TO_PIXEL(mouse_last_pos.x()));
-            temp_rect_selection.setY(TILECANVASY_TO_PIXEL(mouse_last_pos.y()));
-            temp_rect_selection.setWidth(TILECANVASX_TO_PIXEL(event->pos().x())-temp_rect_selection.x());
-            temp_rect_selection.setHeight(TILECANVASY_TO_PIXEL(event->pos().y())-temp_rect_selection.y());
+            rect_selection.setX(TILECANVASX_TO_PIXEL(mouse_last_pos.x()));
+            rect_selection.setY(TILECANVASY_TO_PIXEL(mouse_last_pos.y()));
+            rect_selection.setWidth(TILECANVASX_TO_PIXEL(event->pos().x())-rect_selection.x());
+            rect_selection.setHeight(TILECANVASY_TO_PIXEL(event->pos().y())-rect_selection.y());
             this->repaint();
             break;
         default:

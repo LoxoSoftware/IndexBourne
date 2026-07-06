@@ -34,14 +34,13 @@ private:
     QMenu* context_menu= nullptr;
     Qt::MouseButton mouse_down_button= Qt::NoButton;
     bool mouse_has_moved= false;
-    bool rectangle_selecting= false;
     QPointF mouse_last_pos;
     QPointF mouse_last_global_pos;
     Layer* current_layer;
     QImage* image;
     QImage selection;
     QImage floating_layer;
-    QRect temp_rect_selection;
+    QRect rect_selection= QRect(0,0,0,0);
     Frame* current_frame= nullptr;
     int current_layer_index= 0;
     Tool* current_tool;
@@ -81,6 +80,7 @@ public:
 
     const QImage* Image() const { return image; }
     QWidget* Widget() { return this->Widget(); }
+    bool IsRectSelection() { return rect_selection.width() != 0 && rect_selection.height() != 0; }
 
     //void SetImage(QImage* image);
     void SetFrame(Frame* frame);
