@@ -54,7 +54,7 @@ void Frame::ReplaceLayer(Layer img, int index)
     this->replace(index, img);
 }
 
-void Frame::SetPalette(palette_t palette)
+void Frame::SetPalette(palette_t palette, bool record)
 {
     for (int il=0; il<LayerCount(); il++)
     {
@@ -66,6 +66,9 @@ void Frame::SetPalette(palette_t palette)
 
         layer->image.setColorTable(temp_pal);
     }
+
+    if (record)
+        PushNewSnapshot(new UndoSnapshot(Undocmd_DiffImage, 0, LayerAt(0)));
 }
 
 void Frame::SetImageSize(QSize size)
@@ -351,7 +354,7 @@ void Project::SetCurrentFrameIndex(int frame)
         this->Canvas()->SetFrame(CurrentFrame());
 }
 
-void Project::SetPalette(palette_t new_palette)
+void Project::SetPalette(palette_t new_palette, bool record)
 {
     if (new_palette != palette_t())
     {
@@ -362,7 +365,7 @@ void Project::SetPalette(palette_t new_palette)
         new_palette= this->palette;
 
     _PRJ_FOREACH_FRAME
-        FrameAt(ifr)->SetPalette(new_palette);
+        FrameAt(ifr)->SetPalette(new_palette, record);
 
     if (UiPalettePanel())
         UiPalettePanel()->Update();

@@ -205,7 +205,6 @@ bool Project::LoadProject(QString filename)
                         xstream.readNextStartElement(); //Ignore the element end
                     }
 
-                    tframe.PushNewSnapshot(new UndoSnapshot(Undocmd_DiffImage, 0, tframe.LayerAt(0)));
                     new_frames += tframe;
                 }
             }
@@ -227,9 +226,10 @@ bool Project::LoadProject(QString filename)
     this->current_frame= 0;
     this->current_layer= 0;
     this->Canvas()->SetFrame(CurrentFrame());
-    this->SetPalette(new_palette);
+    this->SetPalette(new_palette, true); //This will handle the creation of the base snapshot
     // -- --
 
+    Canvas()->DiscardFloatingLayer();
     Canvas()->Redraw();
     UiLayerPanel()->Update();
     UiPalettePanel()->Update();

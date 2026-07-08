@@ -88,7 +88,7 @@ public:
     Layer* InsertLayer(bool record= true) { return InsertLayerAt(this->size(), record); }
     void RemoveLayer(int layer, bool record= true);
     void ReplaceLayer(Layer img, int index);
-    void SetPalette(palette_t palette);
+    void SetPalette(palette_t palette, bool record= false);
     void SetImageSize(QSize size);
     void SwapLayers(int index_a, int index_b);
     Layer* MergeLayerDown(int index, bool record= true);
@@ -197,7 +197,7 @@ public:
     void SetPaltableAPosition(QPoint pos);
     void SetPaltableBPosition(QPoint pos);
     void SetImageSize(QSize size);
-    void SetPalette(palette_t palette= palette_t()); //Call with no arguments to just update the pal. on all frames
+    void SetPalette(palette_t palette= palette_t(), bool record= false); //Call with no arguments to just update the pal. on all frames
     void SetBppFormat(bppformat_t fmt);
     void SetFileName(QString filename);
     void InsertFrameAt(int pos);
