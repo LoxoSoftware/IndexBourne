@@ -91,5 +91,5 @@ void ToolPanel::on_CurrentToolTypeChanged()
     if (block_tooltype_change_signal)
         return;
 
-    current_project->Canvas()->Redraw();
+    current_project->Canvas()->UpdateMode();
 }

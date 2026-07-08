@@ -281,3 +281,19 @@ void MainWindow::on_actionResize_triggered()
     }
 }
 
+void MainWindow::on_actionApply_transform_triggered()
+{
+    if (!current_project)
+        return;
+
+    current_project->Canvas()->ApplyFloatingLayer();
+}
+
+void MainWindow::on_actionDiscard_temp_changes_triggered()
+{
+    if (!current_project)
+        return;
+
+    current_project->Canvas()->DiscardFloatingLayer();
+}
+

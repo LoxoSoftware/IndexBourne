@@ -1,5 +1,6 @@
 #include "canvas.h"
 #include "project.h"
+#include "mainwindow.h"
 #include <QGraphicsPixmapItem>
 #include <QMessageBox>
 
@@ -8,6 +9,7 @@
 #define TILECANVASY_TO_PIXEL(y)         (((y-y/(image->height()*scaling))/scaling))
 
 extern Project* current_project;
+extern MainWindow* main_window;
 
 ImageCanvas::ImageCanvas(QScrollArea* parent, Frame* frame)
 {
@@ -20,26 +22,98 @@ ImageCanvas::ImageCanvas(QScrollArea* parent, Frame* frame)
     if (current_layer_index >= frame->LayerCount())
         current_layer_index= 0;
 
-    SetFrame(frame);
+    current_tool= new Tool;
 
-    this->current_tool= new Tool();
+    SetFrame(frame);
 
     Redraw();
     show();
+}
+
+void ImageCanvas::UpdateMode()
+{
+    if (!current_project || !this->image)
+        return;
+
+    *current_tool= current_project->CurrentTool();
+
+    if (current_tool->type == Tool_Transform)
+    {
+        rect_selection= GetSelectionBoundaries().normalized();
+        if (rect_selection.size() == QSize(0,0))
+        {
+            main_window->UpdateTransformStatus(false);
+            return;
+        }
+        main_window->UpdateTransformStatus(true);
+
+        //Copy selection into floating layer
+        floating_layer= this->image->copy(rect_selection);
+        //Mask out pixels which are not selected
+        for (int iy=0; iy<floating_layer.height(); iy++)
+        {
+            uint8_t* sl_img= floating_layer.scanLine(iy);
+            uint8_t* sl_sel= selection.scanLine(iy+rect_selection.y());
+
+            for (int ix=0; ix<floating_layer.width(); ix++)
+                if (!sl_sel[ix+rect_selection.x()])
+                    sl_img[ix]= 0;
+        }
+    }
+    else
+        ApplyFloatingLayer();
+
+    Redraw();
+}
+
+void ImageCanvas::ApplyFloatingLayer(bool opaque, bool record)
+{
+    if (floating_layer.isNull() || selection.isNull() || rect_selection.isNull() || !this->image)
+    {
+        DiscardFloatingLayer();
+        return;
+    }
+
+    // if (rect_selection.x() < 0) rect_selection.setX(0);
+    // if (rect_selection.y() < 0) rect_selection.setY(0);
+    // if (rect_selection.right() > selection.width()) rect_selection.setRight(selection.width());
+    // if (rect_selection.bottom() > selection.height()) rect_selection.setRight(selection.height());
+
+    for (int iy=0; iy<floating_layer.height(); iy++)
+    {
+        uint8_t* sl_src= floating_layer.scanLine(iy);
+        uint8_t* sl_dest= this->image->scanLine(iy+rect_selection.y());
+
+        for (int ix=0; ix<floating_layer.width(); ix++)
+        {
+            if (sl_src[ix] || opaque)
+                sl_dest[ix+rect_selection.x()]= sl_src[ix];
+        }
+    }
+
+    DiscardFloatingLayer();
+
+    if (record && current_project)
+        current_project->CurrentFrame()->PushNewSnapshot(
+            new UndoSnapshot(Undocmd_DiffImage, current_layer_index, current_layer));
+}
+
+void ImageCanvas::DiscardFloatingLayer()
+{
+    if (main_window)
+        main_window->UpdateTransformStatus(false);
+
+    selection.fill(0);
+    floating_layer= QImage();
+    rect_selection= QRect();
+
+    Redraw();
 }
 
 void ImageCanvas::Redraw()
 {
     if (!image)
         return;
-
-    if (current_project)
-    {
-        *current_tool= current_project->CurrentTool();
-
-        if (current_tool->type == Tool_Transform)
-            rect_selection= GetSelectionBoundaries();
-    }
 
     scene.clear();
 
@@ -67,16 +141,35 @@ void ImageCanvas::Redraw()
         }
         else
             pix= QPixmap::fromImage(current_frame->LayerAt(il)->image);
+        // if (il == current_layer_index && floating_layer != QImage())
+        // {
+        //     QImage tempmask= floating_layer.copy(image->rect());
+        //     pix.setMask(QBitmap::fromImage(tempmask.createMaskFromColor(0)));
+        // }
+        item= new QGraphicsPixmapItem(pix);
+        item->setScale(scaling);
+        scene.addItem(item);
+
+        //Draw floating selection
+        if (il == current_layer_index && floating_layer != QImage())
+        {
+            pix= QPixmap::fromImage(floating_layer);
+            item= new QGraphicsPixmapItem(pix);
+            item->setOffset(rect_selection.x(), rect_selection.y());
+            item->setScale(scaling);
+            scene.addItem(item);
+        }
+    }
+
+    //Draw selection
+    if (current_tool)
+    if (current_tool->type != Tool_Transform)
+    {
+        pix= QPixmap::fromImage(this->selection);
         item= new QGraphicsPixmapItem(pix);
         item->setScale(scaling);
         scene.addItem(item);
     }
-
-    //Draw selection
-    pix= QPixmap::fromImage(this->selection);
-    item= new QGraphicsPixmapItem(pix);
-    item->setScale(scaling);
-    scene.addItem(item);
 
     this->repaint();
 }
@@ -182,8 +275,8 @@ void ImageCanvas::SetFrame(Frame* frame)
     this->image= &current_layer->image;
     this->selection= QImage(frame->ImageSize(), QImage::Format_Indexed8);
     this->selection.setColorTable(selection_palette);
-    this->selection.fill(0);
     this->current_frame= frame;
+    DiscardFloatingLayer();
 }
 
 void ImageCanvas::SetCurrentLayerIndex(int index)
@@ -383,10 +476,11 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent* event)
         }
     }
 
+    if (mouse_down_button == Qt::MiddleButton)
+        this->setCursor(Qt::ArrowCursor);
+
     mouse_down_button= Qt::NoButton;
     mouse_has_moved= false;
-
-    this->setCursor(Qt::ArrowCursor);
 }
 
 void ImageCanvas::mouseMoveEvent(QMouseEvent* event)
@@ -414,6 +508,21 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent* event)
         default:
             break;
         }
+    }
+
+    if (current_tool->type == Tool_Transform && !(mouse_down_button & Qt::MiddleButton))
+    {
+        if (rect_selection.contains(event->pos().x()/scaling, event->pos().y()/scaling))
+            this->setCursor(Qt::SizeAllCursor);
+        else
+            this->setCursor(Qt::ArrowCursor);
+
+        if (mouse_down_button == Qt::LeftButton)
+#if QT_VERSION_MAJOR > 5
+            MoveFloatLayerToMouse(event->globalPosition().toPoint());
+#else
+            MoveFloatLayerToMouse(event->globalPos());
+#endif
     }
 
     if (mouse_down_button == Qt::MiddleButton)
@@ -451,9 +560,28 @@ void ImageCanvas::paintEvent(QPaintEvent* event)
 
 void ImageCanvas::PanToMouse(QPoint mouse_global_pos)
 {
-    int finalx= mouse_global_pos.x()-mouse_last_global_pos.x();
-    int finaly= mouse_global_pos.y()-mouse_last_global_pos.y();
+    int diffx= mouse_global_pos.x()-mouse_last_global_pos.x();
+    int diffy= mouse_global_pos.y()-mouse_last_global_pos.y();
 
-    this->setGeometry(x()+finalx, y()+finaly, width(), height());
+    this->setGeometry(x()+diffx, y()+diffy, width(), height());
+    mouse_last_global_pos= mouse_global_pos;
+}
+
+void ImageCanvas::MoveFloatLayerToMouse(QPoint mouse_global_pos)
+{
+    if (rect_selection.size() == QSize(0,0))
+        return;
+
+    int diffx= (mouse_global_pos.x()-mouse_last_global_pos.x())/scaling;
+    int diffy= (mouse_global_pos.y()-mouse_last_global_pos.y())/scaling;
+
+    if (!diffy && !diffx)
+        return;
+
+    rect_selection.setRect(rect_selection.x()+diffx, rect_selection.y()+diffy,
+                           rect_selection.width(), rect_selection.height());
+
+    Redraw();
+
     mouse_last_global_pos= mouse_global_pos;
 }

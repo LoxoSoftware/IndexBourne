@@ -40,6 +40,8 @@ public:
     LayerPanel** LayerPanelPtr() { return &dckLayerPanel; }
 
     void UpdateWindowTitle();
+    void UpdateTransformStatus(bool present) { ui->actionApply_transform->setEnabled(present);
+        ui->actionDiscard_temp_changes->setEnabled(present); }
 
     static QIcon ColorizeIcon(QString filename, QString color, QString filename_on="");
 
@@ -60,6 +62,8 @@ private slots:
     void on_actionTogglePixelGrid_triggered(bool checked);
     void on_actionToggleTileGrid_triggered(bool checked);
     void on_actionResize_triggered();
+    void on_actionApply_transform_triggered();
+    void on_actionDiscard_temp_changes_triggered();
 };
 
 #endif // MAINWINDOW_H

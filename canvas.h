@@ -40,10 +40,11 @@ private:
     QImage* image;
     QImage selection;
     QImage floating_layer;
+    //QRect floating_layer_rect;
     QRect rect_selection= QRect(0,0,0,0);
     Frame* current_frame= nullptr;
     int current_layer_index= 0;
-    Tool* current_tool;
+    Tool* current_tool= nullptr;
     QSize tilegrid_size= QSize(8, 8);
 
     const int max_scaling= 32;
@@ -61,12 +62,14 @@ private:
     void paintEvent(QPaintEvent* event);
 
     void PanToMouse(QPoint mouse_global_pos);
+    void MoveFloatLayerToMouse(QPoint mouse_global_pos);
     void PaintGrid(QPainter* painter);
     void PaintTempSelection(QPainter* painter);
 
 public:
     ImageCanvas(QScrollArea* parent, Frame* frame);
 
+    void UpdateMode();
     void Redraw();
     void ZoomIn();
     void ZoomOut();
@@ -77,6 +80,8 @@ public:
     void DrawSelectionPencil(QPoint pos, bool include);
     void PickColor(QPoint pos, bool primary= true);
     void RectangleSelect(QPoint pos, bool include= true); //Call on mouse release
+    void ApplyFloatingLayer(bool opaque= true, bool record= true);
+    void DiscardFloatingLayer();
 
     const QImage* Image() const { return image; }
     QWidget* Widget() { return this->Widget(); }
