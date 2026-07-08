@@ -54,7 +54,7 @@ void LayerTable::dropEvent(QDropEvent* event)
     if (!item)
         return;
 
-    current_project->SwapLayerIndex(LayerIndex(item->row()), LayerIndex(drag_src_index));
+    current_project->SwapAllLayers(LayerIndex(item->row()), LayerIndex(drag_src_index));
 
     on_currentCellChanged(item->row(), 1, currentRow(), currentColumn());
 }
@@ -174,7 +174,7 @@ void LayerPanel::on_btnNew_clicked()
     if (!current_project)
         return;
 
-    current_project->CurrentFrame()->InsertLayerAt(ui->lstLayers->CurrentLayerIndex()+1);
+    current_project->InsertLayerAt(ui->lstLayers->CurrentLayerIndex()+1);
     current_project->SetCurrentLayerIndex(ui->lstLayers->CurrentLayerIndex()+1);
 
     //Update();
@@ -185,7 +185,7 @@ void LayerPanel::on_btnDelete_clicked()
     if (!current_project)
         return;
 
-    current_project->CurrentFrame()->RemoveLayer(ui->lstLayers->CurrentLayerIndex());
+    current_project->RemoveLayer(ui->lstLayers->CurrentLayerIndex());
     if (ui->lstLayers->CurrentLayerIndex()-1 > 0)
         current_project->SetCurrentLayerIndex(ui->lstLayers->CurrentLayerIndex()-1);
     else

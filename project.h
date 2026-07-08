@@ -8,9 +8,11 @@
 #include "tool_panel.h"
 #include "layer_panel.h"
 
-#define PALETTE_W   16
-#define PALETTE_H   16
-#define HISTORY_MAX 32
+#define PALETTE_W       16
+#define PALETTE_H       16
+#define HISTORY_MAX     32
+
+#define _PRJ_FOREACH_FRAME  for (int ifr=0; ifr<timeline.size(); ifr++)
 
 class Project;
 class Layer;
@@ -86,7 +88,9 @@ public:
     Layer* InsertLayer(bool record= true) { return InsertLayerAt(this->size(), record); }
     void RemoveLayer(int layer, bool record= true);
     void ReplaceLayer(Layer img, int index);
+    void SetPalette(palette_t palette);
     void SetImageSize(QSize size);
+    void SwapLayers(int index_a, int index_b);
     Layer* MergeLayerDown(int index, bool record= true);
     void Undo();
     void Redo();
@@ -193,17 +197,20 @@ public:
     void SetPaltableAPosition(QPoint pos);
     void SetPaltableBPosition(QPoint pos);
     void SetImageSize(QSize size);
-    void SetPalette(palette_t palette= palette_t(), bool recursive= false);
+    void SetPalette(palette_t palette= palette_t()); //Call with no arguments to just update the pal. on all frames
     void SetBppFormat(bppformat_t fmt);
     void SetFileName(QString filename);
     void InsertFrameAt(int pos);
     void InsertFrame() { InsertFrameAt(timeline.size()); }
     void RemoveFrame(int frame);
+    void InsertLayerAt(int pos, bool record= true) { _PRJ_FOREACH_FRAME FrameAt(ifr)->InsertLayerAt(pos, record); }
+    void InsertLayer(bool record= true) { _PRJ_FOREACH_FRAME FrameAt(ifr)->InsertLayer(record); }
+    void RemoveLayer(int pos, bool record= true) { _PRJ_FOREACH_FRAME FrameAt(ifr)->RemoveLayer(pos, record); if (canvas) canvas->Redraw(); }
     void SwapColorIndex(int index_a, int index_b);
     void FillPaletteLinear(int index_a, int index_b, QRgb color);
     void FillPaletteRect(QPoint pos_a, QPoint pos_b, QRgb color);
     void UpdateLayerPanel() { UiLayerPanel()->Update(); }
-    void SwapLayerIndex(int index_a, int index_b);
+    void SwapAllLayers(int index_a, int index_b) { _PRJ_FOREACH_FRAME FrameAt(ifr)->SwapLayers(index_a, index_b); SetPalette(); }
 };
 
 #endif // PROJECT_H

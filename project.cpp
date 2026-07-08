@@ -54,6 +54,20 @@ void Frame::ReplaceLayer(Layer img, int index)
     this->replace(index, img);
 }
 
+void Frame::SetPalette(palette_t palette)
+{
+    for (int il=0; il<LayerCount(); il++)
+    {
+        Layer* layer= LayerAt(il);
+        palette_t temp_pal= palette;
+
+        if (il != 0)
+            temp_pal[0]= qRgba(0,0,0,0);
+
+        layer->image.setColorTable(temp_pal);
+    }
+}
+
 void Frame::SetImageSize(QSize size)
 {
     this->image_size= size;
@@ -95,6 +109,16 @@ Layer* Frame::MergeLayerDown(int index, bool record)
     return LayerAt(index);
 }
 
+void Frame::SwapLayers(int index_a, int index_b)
+{
+    if (index_a >= LayerCount() || index_b >= LayerCount())
+        return;
+
+    Layer templayer= *LayerAt(index_a);
+    ReplaceLayer(*LayerAt(index_b), index_a);
+    ReplaceLayer(templayer, index_b);
+}
+
 void Frame::PushNewSnapshot(UndoSnapshot* snap)
 {
     //TODO: Discard all oldest snapshots until the oldest is a DiffImage
@@ -134,7 +158,7 @@ void Frame::Undo()
     {
     case Undocmd_DiffImage:
         this->replace(snap->layer_ind, snap->layer_data);
-        current_project->SetPalette(snap->layer_data.image.colorTable(), false);
+        current_project->SetPalette(snap->layer_data.image.colorTable());
         break;
     case Undocmd_AddLayer:
         this->RemoveLayer(snap->layer_ind, false);
@@ -168,7 +192,7 @@ void Frame::Redo()
     {
     case Undocmd_DiffImage:
         this->replace(snap->layer_ind, snap->layer_data);
-        current_project->SetPalette(snap->layer_data.image.colorTable(), false);
+        current_project->SetPalette(snap->layer_data.image.colorTable());
         current_project->SetCurrentLayerIndex(snap->layer_ind);
         break;
     case Undocmd_AddLayer:
@@ -229,7 +253,7 @@ Project::Project(MainWindow* parent, QSize size)
 
     InsertFrame();
     SetCurrentFrameIndex(0);
-    CurrentFrame()->InsertLayer();
+    InsertLayer();
 
     this->main_window= parent;
     this->canvas= new ImageCanvas(main_window->CanvasContainer(), CurrentFrame());
@@ -322,35 +346,23 @@ void Project::SetCurrentFrameIndex(int frame)
     this->current_frame= frame;
     if (!CurrentFrame())
         return;
-    SetPalette(palette_t(), false);
+    SetPalette();
     if (Canvas())
         this->Canvas()->SetFrame(CurrentFrame());
 }
 
-void Project::SetPalette(palette_t new_palette, bool recursive)
+void Project::SetPalette(palette_t new_palette)
 {
     if (new_palette != palette_t())
     {
         this->palette.clear();
         this->palette= new_palette;
     }
+    else
+        new_palette= this->palette;
 
-    int start_frame= recursive? 0 : CurrentFrameIndex();
-    int end_frame= recursive? timeline.size() : CurrentFrameIndex()+1;
-
-    for (int ifr=start_frame; ifr<end_frame; ifr++)
-    {
-        for (int il=0; il<timeline[ifr].LayerCount(); il++)
-        {
-            Layer* layer= timeline[ifr].LayerAt(il);
-            palette_t temp_pal= this->palette;
-
-            if (il != 0)
-                temp_pal[0]= qRgba(0,0,0,0);
-
-            layer->image.setColorTable(temp_pal);
-        }
-    }
+    _PRJ_FOREACH_FRAME
+        FrameAt(ifr)->SetPalette(new_palette);
 
     if (UiPalettePanel())
         UiPalettePanel()->Update();
@@ -360,7 +372,7 @@ void Project::SetPalette(palette_t new_palette, bool recursive)
 
 void Project::SetImageSize(QSize size)
 {
-    for (int ifr=0; ifr<timeline.size(); ifr++)
+    _PRJ_FOREACH_FRAME
         timeline[ifr].SetImageSize(size);
 
     this->image_size= size;
@@ -408,9 +420,8 @@ void Project::SwapColorIndex(int index_a, int index_b)
     palette[index_a]= palette[index_b];
     palette[index_b]= tempcol;
 
-    if (index_a && index_b) //Swapping color 0 would break the transparency
-    for (int ifr=0; ifr<timeline.size(); ifr++)
-    {
+    //   v-- Swapping color 0 would break the transparency
+    if (index_a && index_b) _PRJ_FOREACH_FRAME
         for (int il=0; il<timeline[ifr].LayerCount(); il++)
         {
             QImage* layer= &(timeline[ifr].LayerAt(il)->image);
@@ -427,9 +438,8 @@ void Project::SwapColorIndex(int index_a, int index_b)
                 }
             }
         }
-    }
 
-    SetPalette(palette_t(), false);
+    SetPalette();
 }
 
 void Project::FillPaletteLinear(int index_a, int index_b, QRgb color)
@@ -449,22 +459,4 @@ void Project::FillPaletteRect(QPoint pos_a, QPoint pos_b, QRgb color)
             palette[ix+iy*PALETTE_W]= color;
         }
     SetPalette();
-}
-
-void Project::SwapLayerIndex(int index_a, int index_b)
-{
-    if (index_a >= CurrentFrame()->LayerCount() || index_b >= CurrentFrame()->LayerCount())
-    {
-        QMessageBox::critical(main_window, "Error", "Selected index A or B is out of bounds");
-        return;
-    }
-
-    for (int ifr=0; ifr<timeline.size(); ifr++)
-    {
-        Layer templayer= *FrameAt(ifr)->LayerAt(index_a);
-        FrameAt(ifr)->ReplaceLayer(*FrameAt(ifr)->LayerAt(index_b), index_a);
-        FrameAt(ifr)->ReplaceLayer(templayer, index_b);
-    }
-
-    SetPalette(palette_t(), false);
 }
