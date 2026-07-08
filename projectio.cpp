@@ -205,6 +205,7 @@ bool Project::LoadProject(QString filename)
                         xstream.readNextStartElement(); //Ignore the element end
                     }
 
+                    tframe.ClearHistory();
                     new_frames += tframe;
                 }
             }
@@ -226,7 +227,7 @@ bool Project::LoadProject(QString filename)
     this->current_frame= 0;
     this->current_layer= 0;
     this->Canvas()->SetFrame(CurrentFrame());
-    this->SetPalette(new_palette, true); //This will handle the creation of the base snapshot
+    this->SetPalette(new_palette);
     // -- --
 
     Canvas()->DiscardFloatingLayer();

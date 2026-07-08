@@ -149,12 +149,15 @@ void Frame::PushNewSnapshot(UndoSnapshot* snap)
 void Frame::Undo()
 {
     if (history_index <= 1)
-        history_index= 1;
+    {
+        RestoreInitialState();
+        return;
+    }
     else
         history_index--;
 
     //The last element is the current state, so we don't want to restore it
-    UndoSnapshot* snap= &history[history_index-1];
+    UndoSnapshot* snap= &history[history_index];
 
     Layer* restored_layer;
     switch (snap->cmd)
@@ -180,11 +183,10 @@ void Frame::Undo()
 
 void Frame::Redo()
 {
-    if (history_index >= history.size()-1)
+    if (history_index >= history.size())
     {
         history_index= history.size();
-        if (history[history_index-1].cmd != Undocmd_DiffImage)
-            return;
+        return;
     }
     else
         history_index++;
@@ -221,6 +223,25 @@ void Frame::ClearHistory()
 {
     history_index= 0;
     history.clear();
+
+    //Rebuild initial state
+    init_state.clear();
+    for (int il=0; il<LayerCount(); il++)
+        init_state.append(this->at(il));
+}
+
+void Frame::RestoreInitialState()
+{
+    if (init_state.empty())
+        return;
+
+    history_index= 0;
+
+    for (int il=0; il<LayerCount(); il++)
+        this->ReplaceLayer(init_state[il], il);
+
+    if (current_project)
+        current_project->SetPalette(init_state[0].image.colorTable(), false);
 }
 
 Layer* Frame::LayerAt(int layer)

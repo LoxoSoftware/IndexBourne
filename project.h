@@ -58,7 +58,6 @@ typedef enum
     Undocmd_RmLayer,
 } undocommand_t;
 
-//NOTE: The first snapshot MUST be a DiffImage. ALWAYS.
 class UndoSnapshot
 {
 public:
@@ -79,6 +78,7 @@ class Frame : protected layergroup_t
 private:
     QSize image_size;
     QList<UndoSnapshot> history;
+    layergroup_t init_state;
     int history_index= 0;
 
 public:
@@ -95,8 +95,8 @@ public:
     void Undo();
     void Redo();
     void ClearHistory();
+    void RestoreInitialState();
     void PushNewSnapshot(UndoSnapshot* snapshot);
-    //^^ IMPORTANT ^^ A ClearHistory() call must ALWAYS be followed by a DiffImage snapshot, it won't be done automatically
 
     Layer* LayerAt(int layer);
     const QSize ImageSize() const { return image_size; }
