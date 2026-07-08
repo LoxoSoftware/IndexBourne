@@ -98,6 +98,8 @@ public:
     void RestoreInitialState();
     void PushNewSnapshot(UndoSnapshot* snapshot);
 
+    QImage RenderBitmap();
+
     Layer* LayerAt(int layer);
     const QSize ImageSize() const { return image_size; }
     const int LayerCount() const { return this->size(); }
@@ -169,15 +171,13 @@ public:
     bool LoadProject(QString filename); //Returns true on success
     bool SaveProject(QString filename); //Returns true on success
     bool ImportBitmap(QImage img, consent_t canvas_resize=Consent_Ask, consent_t import_palette=Consent_Ask); //Returns true on success
-    QImage RenderBitmap();
-    QImage RenderPalette();
 
     Frame* CurrentFrame() { return (Frame*)&(timeline.at(current_frame)); }
     Frame* FrameAt(int frame) { return (Frame*)&(timeline.at(frame)); }
     Layer* CurrentLayer() { return CurrentFrame()->LayerAt(current_layer); }
     const int CurrentFrameIndex() const { return current_frame; }
     const int CurrentLayerIndex() const { return current_layer; }
-    const int Frames() const { return timeline.size(); }
+    const int FrameCount() const { return timeline.size(); }
     const QSize ImageSize() const { return image_size; }
     const palette_t Palette() const { return palette; }
     const bppformat_t BppFormat() const { return image_bpp; }

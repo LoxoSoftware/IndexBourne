@@ -14,10 +14,16 @@ bool Project::SaveProject(QString filename)
     if (!ozip.open(QuaZip::mdAppend))
         return false;
 
+    if (FrameCount() < 1)
+    {
+        QMessageBox::critical(this->main_window, "Save error", "A project must have at least one frame");
+        return false;
+    }
+
     QuaZipFile ofile= QuaZipFile(&ozip);
     QXmlStreamWriter xstream= QXmlStreamWriter(&ofile);
 
-    QImage merged_image= RenderBitmap();
+    QImage merged_image= CurrentFrame()->RenderBitmap();
     merged_image.convertTo(QImage::Format_ARGB32);
 
     ofile.open(QIODevice::WriteOnly, QuaZipNewInfo("mimetype"));
@@ -36,7 +42,7 @@ bool Project::SaveProject(QString filename)
     ofile.close();
 
     //Export all layers' image data
-    for (int ifr=0; ifr<this->Frames(); ifr++)
+    for (int ifr=0; ifr<this->FrameCount(); ifr++)
     {
         for (int il=0; il<FrameAt(ifr)->LayerCount(); il++)
         {
@@ -59,7 +65,7 @@ bool Project::SaveProject(QString filename)
     xstream.writeAttribute("", "w", QString::number(this->image_size.width()));
     xstream.writeAttribute("", "h", QString::number(this->image_size.height()));
         xstream.writeStartElement("", "stack"); //Root stack BEGIN
-        for (int ifr=0; ifr<this->Frames(); ifr++)
+        for (int ifr=0; ifr<this->FrameCount(); ifr++)
         {
             xstream.writeStartElement("", "stack"); //Frame stack BEGIN
             xstream.writeAttribute("", "name", "frame"+QString::number(ifr));

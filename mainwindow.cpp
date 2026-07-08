@@ -211,7 +211,7 @@ void MainWindow::on_actionSaveProjectAs_triggered()
 
 bool MainWindow::_QuickSaveBitmap(QString new_fname)
 {
-    if (!current_project->RenderBitmap().save(new_fname, nullptr, 100))
+    if (!current_project->CurrentFrame()->RenderBitmap().save(new_fname, nullptr, 100))
     {
         QMessageBox::critical(this, "Write error", "Failed to open output file for writing");
         return false;

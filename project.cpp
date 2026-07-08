@@ -257,6 +257,30 @@ Layer* Frame::LayerAt(int layer)
     return img;
 }
 
+QImage Frame::RenderBitmap()
+{
+    QImage result= QImage(this->ImageSize(), QImage::Format_Indexed8);
+    result.setColorTable(this->at(0).image.colorTable());
+
+    for (int il=0; il<LayerCount(); il++)
+    {
+        for (int iy=0; iy<ImageSize().height(); iy++)
+        {
+            if (!LayerAt(il)->visible)
+                continue;
+
+            unsigned char* sl_src= LayerAt(il)->image.scanLine(iy);
+            unsigned char* sl_dest= result.scanLine(iy);
+
+            for (int ix=0; ix<ImageSize().width(); ix++)
+                if (sl_src[ix] != 0 || il == 0)
+                    sl_dest[ix]= sl_src[ix];
+        }
+    }
+
+    return result;
+}
+
 Project::Project(MainWindow* parent, QSize size)
 {
     if (!parent)
@@ -335,27 +359,6 @@ bool Project::ImportBitmap(QImage img, consent_t canvas_resize, consent_t import
     Canvas()->Redraw();
 
     return true;
-}
-
-QImage Project::RenderBitmap()
-{
-    QImage result= QImage(this->ImageSize(), QImage::Format_Indexed8);
-    result.setColorTable(this->Palette());
-
-    for (int il=0; il<CurrentFrame()->LayerCount(); il++)
-    {
-        for (int iy=0; iy<ImageSize().height(); iy++)
-        {
-            unsigned char* sl_src= CurrentFrame()->LayerAt(il)->image.scanLine(iy);
-            unsigned char* sl_dest= result.scanLine(iy);
-
-            for (int ix=0; ix<ImageSize().width(); ix++)
-                if (sl_src[ix] != 0 || il == 0)
-                    sl_dest[ix]= sl_src[ix];
-        }
-    }
-
-    return result;
 }
 
 void Project::SetCurrentLayerIndex(int layer)
