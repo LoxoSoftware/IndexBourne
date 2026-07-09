@@ -6,7 +6,25 @@
 #include <QMessageBox>
 #include "mainwindow.h"
 
-#define ORA_VERSION "0.0.6"
+#define ORA_VERSION     "0.0.6"
+
+#define PAL_HEADER_SZ   16
+
+QByteArray IntToBigEndian(long n, int size= 4)
+{
+    QByteArray result;
+    for (int i=size-1; i>=0; i--)
+        result += (n>>(8*i))&0xFF;
+    return result;
+}
+
+QByteArray IntToLittleEndian(long n, int size= 4)
+{
+    QByteArray result;
+    for (int i=0; i<size; i++)
+        result += (n>>(8*i))&0xFF;
+    return result;
+}
 
 bool Project::SaveProject(QString filename)
 {
@@ -244,4 +262,94 @@ bool Project::LoadProject(QString filename)
     izip.close();
 
     return true;
+}
+
+bool Project::SavePalette(QString filename)
+{
+    QFile ofile= QFile(filename);
+
+    if (!ofile.open(QFile::WriteOnly))
+    {
+        QMessageBox::critical(this->main_window, "Error saving palette", "Cannot open output file for writing");
+        return false;
+    }
+
+    //We are always exporting 256 colors, no more, no less.
+    uint32_t pal_sz= PALETTE_W*PALETTE_H*4; //RGBA
+
+    //Write header
+    ofile.write("RIFF");
+    ofile.write(IntToLittleEndian(PAL_HEADER_SZ+pal_sz, 4));
+    ofile.write("PAL data");
+    ofile.write(IntToLittleEndian(PAL_HEADER_SZ-12+pal_sz));
+    ofile.write(IntToLittleEndian(0x0300, 2));
+    ofile.write(IntToLittleEndian(PALETTE_W*PALETTE_H, 2));
+    //Write colors
+    foreach(QRgb col, Palette())
+    {
+        ofile.write(IntToBigEndian(col&0x00FFFFFF, 3));  //RGB
+        ofile.write(IntToBigEndian(255, 1));             //A
+    }
+
+    ofile.close();
+
+    return true;
+}
+
+bool Project::LoadPalette(QString filename)
+{
+    if (filename.endsWith(".png", Qt::CaseInsensitive) || filename.endsWith(".bmp", Qt::CaseInsensitive))
+    {
+        QImage timg= QImage(filename);
+        if (timg.isNull() || timg.colorCount() <= 0)
+            return false;
+
+        SetPalette(timg.colorTable(), true);
+
+        return true;
+    }
+
+    QFile ifile= QFile(filename);
+
+    if (!ifile.open(QFile::ReadOnly))
+    {
+        QMessageBox::critical(this->main_window, "Error loading palette", "Cannot open input file for reading");
+        return false;
+    }
+
+    palette_t new_palette;
+    QByteArray tstr= "";
+    int color_number= 0;
+
+    //Parse header
+    tstr= ifile.read(4);
+    if (tstr != "RIFF")
+        goto load_error;
+    ifile.read(4);
+    tstr= ifile.read(8);
+    if (tstr != "PAL data")
+        goto load_error;
+    ifile.read(6);
+    color_number= ((uint8_t)ifile.read(1)[0])|((uint8_t)ifile.read(1)[0]<<8);
+    //Load colors
+    for (int ic=0; ic</*PALETTE_W*PALETTE_H*/color_number; ic++)
+    {
+        // if (ic+1 <= color_number)
+        // {
+            tstr= ifile.read(4);
+            new_palette += qRgb((uint8_t)tstr[0], (uint8_t)tstr[1], (uint8_t)tstr[2]);
+        // }
+        // else //Color index not in file
+        //     new_palette += QRgb(ic&1 ? 0xFF808080 : 0xFFB0B0B0);
+    }
+
+    ifile.close();
+
+    SetPalette(new_palette, true);
+
+    return true;
+
+load_error:
+    QMessageBox::critical(this->main_window, "Error loading palette", "Parse error");
+    return false;
 }

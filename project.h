@@ -171,6 +171,8 @@ public:
     bool LoadProject(QString filename); //Returns true on success
     bool SaveProject(QString filename); //Returns true on success
     bool ImportBitmap(QImage img, consent_t canvas_resize=Consent_Ask, consent_t import_palette=Consent_Ask); //Returns true on success
+    bool SavePalette(QString filename); //Returns true on success
+    bool LoadPalette(QString filename); //Returns true on success
 
     Frame* CurrentFrame() { return (Frame*)&(timeline.at(current_frame)); }
     Frame* FrameAt(int frame) { return (Frame*)&(timeline.at(frame)); }

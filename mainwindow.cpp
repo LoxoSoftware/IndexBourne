@@ -297,3 +297,44 @@ void MainWindow::on_actionDiscard_temp_changes_triggered()
     current_project->Canvas()->DiscardFloatingLayer();
 }
 
+void MainWindow::on_actionImportPalette_triggered()
+{
+    if (!current_project)
+        return;
+
+    QString ifile_name= QFileDialog::getOpenFileName(this, "Load palette...", "",
+                                                      "Windows palette (*.pal);;Indexed image (*.png *.bmp)");
+
+    if (ifile_name == "")
+        return;
+
+    if (!ifile_name.endsWith(".pal", Qt::CaseInsensitive)
+        && !ifile_name.endsWith(".bmp", Qt::CaseInsensitive) && !ifile_name.endsWith(".png", Qt::CaseInsensitive))
+    {
+        QMessageBox::critical(this, "Error loading palette", "Format is not supported");
+        return;
+    }
+
+    current_project->LoadPalette(ifile_name);
+}
+
+void MainWindow::on_actionExportPalette_triggered()
+{
+    if (!current_project)
+        return;
+
+    QString ofile_name= QFileDialog::getSaveFileName(this, "Save palette as...", "",
+                                                      "Windows palette (*.pal)");
+
+    if (ofile_name == "")
+        return;
+
+    if (!ofile_name.endsWith(".pal", Qt::CaseInsensitive))
+    {
+        QMessageBox::critical(this, "Error saving palette", "Output format is not supported");
+        return;
+    }
+
+    current_project->SavePalette(ofile_name);
+}
+

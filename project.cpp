@@ -383,6 +383,8 @@ void Project::SetPalette(palette_t new_palette, bool record)
     if (new_palette != palette_t())
     {
         this->palette.clear();
+        for (int ic=new_palette.size(); ic<PALETTE_W*PALETTE_H; ic++)
+            new_palette += QRgb(ic&1 ? 0xFF808080 : 0xFFB0B0B0);
         this->palette= new_palette;
     }
     else

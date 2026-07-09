@@ -29,7 +29,7 @@
          <x>0</x>
          <y>0</y>
          <width>778</width>
-         <height>532</height>
+         <height>533</height>
         </rect>
        </property>
       </widget>
@@ -212,19 +212,22 @@
    </property>
   </action>
   <action name="actionImportPalette">
-   <property name="enabled">
-    <bool>false</bool>
+   <property name="icon">
+    <iconset theme="document-open"/>
    </property>
    <property name="text">
-    <string>Import</string>
+    <string>Load</string>
    </property>
   </action>
   <action name="actionExportPalette">
-   <property name="enabled">
-    <bool>false</bool>
+   <property name="icon">
+    <iconset theme="document-save-as"/>
    </property>
    <property name="text">
-    <string>Export</string>
+    <string>Save as...</string>
+   </property>
+   <property name="toolTip">
+    <string>Save as...</string>
    </property>
   </action>
   <action name="actionPaletteQuickSwap">

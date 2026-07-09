@@ -64,6 +64,8 @@ private slots:
     void on_actionResize_triggered();
     void on_actionApply_transform_triggered();
     void on_actionDiscard_temp_changes_triggered();
+    void on_actionImportPalette_triggered();
+    void on_actionExportPalette_triggered();
 };
 
 #endif // MAINWINDOW_H
