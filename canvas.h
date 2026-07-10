@@ -79,7 +79,7 @@ public:
     void DrawPencil(QPoint pos, bool primary= true);
     void DrawSelectionPencil(QPoint pos, bool include);
     void PickColor(QPoint pos, bool primary= true);
-    void RectangleSelect(QPoint pos, bool include= true); //Call on mouse release
+    void RectangleSelect(QRect rect, bool include= true); //Call on mouse release
     void ApplyFloatingLayer(bool opaque= true, bool record= true);
     void DiscardFloatingLayer();
 

@@ -52,12 +52,20 @@ void ImageCanvas::UpdateMode()
         //Mask out pixels which are not selected
         for (int iy=0; iy<floating_layer.height(); iy++)
         {
+            if (iy+rect_selection.y() < 0 || iy+rect_selection.y() >= this->image->height())
+                continue;
+
             uint8_t* sl_img= floating_layer.scanLine(iy);
             uint8_t* sl_sel= selection.scanLine(iy+rect_selection.y());
 
             for (int ix=0; ix<floating_layer.width(); ix++)
+            {
+                if (ix+rect_selection.x() < 0 || ix+rect_selection.x() >= this->image->width())
+                    continue;
+
                 if (!sl_sel[ix+rect_selection.x()])
                     sl_img[ix]= 0;
+            }
         }
     }
     else
@@ -74,18 +82,19 @@ void ImageCanvas::ApplyFloatingLayer(bool opaque, bool record)
         return;
     }
 
-    // if (rect_selection.x() < 0) rect_selection.setX(0);
-    // if (rect_selection.y() < 0) rect_selection.setY(0);
-    // if (rect_selection.right() > selection.width()) rect_selection.setRight(selection.width());
-    // if (rect_selection.bottom() > selection.height()) rect_selection.setRight(selection.height());
-
     for (int iy=0; iy<floating_layer.height(); iy++)
     {
+        if (iy+rect_selection.y() < 0 || iy+rect_selection.y() >= this->image->height())
+            continue;
+
         uint8_t* sl_src= floating_layer.scanLine(iy);
         uint8_t* sl_dest= this->image->scanLine(iy+rect_selection.y());
 
         for (int ix=0; ix<floating_layer.width(); ix++)
         {
+            if (ix+rect_selection.x() < 0 || ix+rect_selection.x() >= this->image->width())
+                continue;
+
             if (sl_src[ix] || opaque)
                 sl_dest[ix+rect_selection.x()]= sl_src[ix];
         }
@@ -380,10 +389,10 @@ void ImageCanvas::PickColor(QPoint pos, bool primary)
         current_project->SetPaltableBPosition(QPoint(color_picked%PALETTE_W, color_picked/PALETTE_W));
 }
 
-void ImageCanvas::RectangleSelect(QPoint pos, bool include)
+void ImageCanvas::RectangleSelect(QRect rect, bool include)
 {
-    for (int iy=rect_selection.y(); iy<=rect_selection.bottom(); iy++)
-        for (int ix=rect_selection.x(); ix<=rect_selection.right(); ix++)
+    for (int iy=rect.y(); iy<=rect.bottom(); iy++)
+        for (int ix=rect.x(); ix<=rect.right(); ix++)
             PlotSelection(ix, iy, include, 1);
 
     Redraw();
@@ -453,6 +462,11 @@ void ImageCanvas::mousePressEvent(QMouseEvent* event)
 
     if (current_tool->type != Tool_Transform)
         rect_selection.setSize(QSize(0,0));
+    else if (rect_selection.size() == QSize(0,0))
+    {
+        RectangleSelect(image->rect(), true);
+        UpdateMode();
+    }
 
     mouse_has_moved= false;
 }
@@ -470,7 +484,7 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent* event)
             if (!(event->modifiers()&Qt::ControlModifier))
                 //Hold CTRL to select multiple regions
                 selection.fill(0);
-            RectangleSelect(event->pos(), event->button()&Qt::LeftButton);
+            RectangleSelect(rect_selection, event->button()&Qt::LeftButton);
             if (!( event->modifiers()&Qt::ControlModifier || event->modifiers()&Qt::ShiftModifier ))
                 current_project->SetCurrentToolType(Tool_Transform);
             break;
