@@ -362,6 +362,11 @@ void MainWindow::on_actionSharedPalette_triggered(bool checked)
 
         current_project->SetSharedPalette(ifile_name);
     }
+    else
+    {
+        current_project->SetSharedPalette("");
+        SetSharedPaletteCheckStatus(false);
+    }
 }
 
 void MainWindow::on_actionReloadSharedPalette_triggered()

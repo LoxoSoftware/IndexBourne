@@ -136,8 +136,6 @@ bool Project::LoadProject(QString filename)
     QByteArray txml;
     QBuffer buffer= QBuffer(&txml);
     QDir project_dir= QDir(filename.first(filename.lastIndexOf('/')));
-    QStringView elem_name;
-    QXmlStreamAttributes elem_attrs;
 
     QSize new_size= QSize(-1, -1);
     QList<Frame> new_frames;
@@ -159,19 +157,15 @@ bool Project::LoadProject(QString filename)
 
     while (xstream.readNextStartElement())
     {
-        elem_name= xstream.name();
-        elem_attrs= xstream.attributes();
-
-        if (elem_name == "ezgfx")
+        if (xstream.name() == "ezgfx")
         {
             while (xstream.readNextStartElement())
             {
-                elem_name= xstream.name();
-                elem_attrs= xstream.attributes();
-
-                if (elem_name == "shared_palette")
+                if (xstream.name() == "shared_palette")
                 {
-                    new_shared_pal= project_dir.absoluteFilePath(xstream.readElementText());
+                    QString tfname= xstream.readElementText();
+                    if (tfname != "")
+                        new_shared_pal= project_dir.absoluteFilePath(tfname);
                     continue;
                 }
             }
@@ -194,44 +188,33 @@ bool Project::LoadProject(QString filename)
 
     while (xstream.readNextStartElement())
     {
-        elem_name= xstream.name();
-        elem_attrs= xstream.attributes();
-
-        if (elem_name == "image")
+        if (xstream.name() == "image")
         {
-            if (elem_attrs.hasAttribute("w") && elem_attrs.hasAttribute("h"))
-                new_size= QSize(elem_attrs.value("w").toInt(), elem_attrs.value("h").toInt());
+            if (xstream.attributes().hasAttribute("w") && xstream.attributes().hasAttribute("h"))
+                new_size= QSize(xstream.attributes().value("w").toInt(), xstream.attributes().value("h").toInt());
         }
 
-        if (elem_name == "stack")
+        if (xstream.name() == "stack")
         {
             //Parse root stack
-            QStringView tname;
 
             while (xstream.readNextStartElement())
             {
                 //Parse each frame stack
-                tname= xstream.name();
 
-                if (tname == "stack")
+                if (xstream.name() == "stack")
                 {
-                    QStringView ttname;
-                    QXmlStreamAttributes ttattrs;
-
                     Frame tframe= Frame(this, new_size); //If the "image" tag has not been read
                                                          //  this won't work
 
                     while (xstream.readNextStartElement())
                     {
-                        ttname= xstream.name();
-                        ttattrs= xstream.attributes();
-
-                        if (ttname == "layer")
+                        if (xstream.name() == "layer")
                         {
-                            if (!ttattrs.hasAttribute("src"))
+                            if (!xstream.attributes().hasAttribute("src"))
                                 continue;
 
-                            izip.setCurrentFile(ttattrs.value("src").toString());
+                            izip.setCurrentFile(xstream.attributes().value("src").toString());
 
                             if (!ifile.open(QIODevice::ReadOnly))
                             {
