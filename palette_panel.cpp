@@ -122,6 +122,18 @@ void PalettePanel::Update()
         setWindowTitle("Palette (invalid tile format!)");
         break;
     }
+
+    if (current_project->SharedPalette() != "")
+    {
+        ui->lblPaletteName->setText("Shared file: " +
+            current_project->SharedPalette().mid(current_project->SharedPalette().lastIndexOf('/')+1));
+        ui->lblPaletteName->setToolTip(current_project->SharedPalette());
+    }
+    else
+    {
+        ui->lblPaletteName->setText("Internal data");
+        ui->lblPaletteName->setToolTip("Not using a shared palette");
+    }
 }
 
 void PalettePanel::on_UpdateAPosition(QPoint pos)

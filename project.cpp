@@ -399,6 +399,32 @@ void Project::SetPalette(palette_t new_palette, bool record)
         Canvas()->Redraw();
 }
 
+bool Project::SetSharedPalette(QString filename)
+{
+    if (filename == "")
+    {
+        shared_palette_filename= "";
+        main_window->SetSharedPaletteCheckStatus(false);
+        return true;
+    }
+
+    if (!LoadPalette(filename, false))
+        if (!SavePalette(filename))
+            goto load_error;
+
+    shared_palette_filename= filename;
+    UiPalettePanel()->Update();
+    main_window->SetSharedPaletteCheckStatus(true);
+    return true;
+
+load_error:
+    QMessageBox::warning(this->main_window, "Loading shared palette",
+                         "Cannot load shared palette file \""+filename+"\", using the internal palette instead");
+    shared_palette_filename= "";
+    main_window->SetSharedPaletteCheckStatus(false);
+    return false;
+}
+
 void Project::SetImageSize(QSize size)
 {
     _PRJ_FOREACH_FRAME

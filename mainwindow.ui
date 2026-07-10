@@ -29,7 +29,7 @@
          <x>0</x>
          <y>0</y>
          <width>778</width>
-         <height>533</height>
+         <height>532</height>
         </rect>
        </property>
       </widget>
@@ -72,7 +72,9 @@
     </property>
     <addaction name="actionImportPalette"/>
     <addaction name="actionExportPalette"/>
+    <addaction name="separator"/>
     <addaction name="actionSharedPalette"/>
+    <addaction name="actionReloadSharedPalette"/>
     <addaction name="separator"/>
     <addaction name="actionPaletteQuickSwap"/>
     <addaction name="actionPaletteQuickFill"/>
@@ -363,9 +365,6 @@
    <property name="checkable">
     <bool>true</bool>
    </property>
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
    <property name="text">
     <string>Shared file...</string>
    </property>
@@ -404,6 +403,17 @@
    </property>
    <property name="shortcut">
     <string>Esc</string>
+   </property>
+  </action>
+  <action name="actionReloadSharedPalette">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Reload shared file</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+P</string>
    </property>
   </action>
  </widget>

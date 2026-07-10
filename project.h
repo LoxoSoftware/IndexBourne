@@ -171,8 +171,8 @@ public:
     bool LoadProject(QString filename); //Returns true on success
     bool SaveProject(QString filename); //Returns true on success
     bool ImportBitmap(QImage img, consent_t canvas_resize=Consent_Ask, consent_t import_palette=Consent_Ask); //Returns true on success
-    bool SavePalette(QString filename); //Returns true on success
-    bool LoadPalette(QString filename); //Returns true on success
+    bool SavePalette(QString filename, bool interactive= true); //Returns true on success
+    bool LoadPalette(QString filename, bool interactive= true); //Returns true on success
 
     Frame* CurrentFrame() { return (Frame*)&(timeline.at(current_frame)); }
     Frame* FrameAt(int frame) { return (Frame*)&(timeline.at(frame)); }
@@ -184,6 +184,7 @@ public:
     const palette_t Palette() const { return palette; }
     const bppformat_t BppFormat() const { return image_bpp; }
     const QString FileName() const { return filename; }
+    const QString SharedPalette() const { return shared_palette_filename; }
     bool IsSaved() { return is_saved; }
     ImageCanvas* Canvas() { return canvas; }
     MainWindow* ParentWindow() { return main_window; }
@@ -202,6 +203,7 @@ public:
     void SetPalette(palette_t palette= palette_t(), bool record= false); //Call with no arguments to just update the pal. on all frames
     void SetBppFormat(bppformat_t fmt);
     void SetFileName(QString filename);
+    bool SetSharedPalette(QString filename); //Returns true on success | set to "" to disable
     void InsertFrameAt(int pos);
     void InsertFrame() { InsertFrameAt(timeline.size()); }
     void RemoveFrame(int frame);

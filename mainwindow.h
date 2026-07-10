@@ -40,6 +40,8 @@ public:
     LayerPanel** LayerPanelPtr() { return &dckLayerPanel; }
 
     void UpdateWindowTitle();
+    void SetSharedPaletteCheckStatus(bool checked) { ui->actionSharedPalette->setChecked(checked);
+        ui->actionReloadSharedPalette->setEnabled(checked); }
     void UpdateTransformStatus(bool present) { ui->actionApply_transform->setEnabled(present);
         ui->actionDiscard_temp_changes->setEnabled(present); }
 
@@ -66,6 +68,8 @@ private slots:
     void on_actionDiscard_temp_changes_triggered();
     void on_actionImportPalette_triggered();
     void on_actionExportPalette_triggered();
+    void on_actionSharedPalette_triggered(bool checked);
+    void on_actionReloadSharedPalette_triggered();
 };
 
 #endif // MAINWINDOW_H

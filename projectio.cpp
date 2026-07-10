@@ -4,6 +4,7 @@
 #include <QXmlStreamWriter>
 #include <QBuffer>
 #include <QMessageBox>
+#include <QDir>
 #include "mainwindow.h"
 
 #define ORA_VERSION     "0.0.6"
@@ -37,6 +38,8 @@ bool Project::SaveProject(QString filename)
         QMessageBox::critical(this->main_window, "Save error", "A project must have at least one frame");
         return false;
     }
+
+    QDir project_dir= QDir(filename.first(filename.lastIndexOf('/')));
 
     QuaZipFile ofile= QuaZipFile(&ozip);
     QXmlStreamWriter xstream= QXmlStreamWriter(&ofile);
@@ -108,9 +111,14 @@ bool Project::SaveProject(QString filename)
     xstream.writeStartDocument();
     xstream.writeStartElement("", "ezgfx");
     xstream.writeAttribute("", "version", "0.0.1");
+    xstream.writeTextElement("", "shared_palette", project_dir.relativeFilePath(shared_palette_filename));
+    xstream.writeEndElement();
     xstream.writeEndElement();
     xstream.writeEndDocument();
     ofile.close();
+
+    if (shared_palette_filename != "")
+        SavePalette(shared_palette_filename);
 
     ozip.close();
 
@@ -124,7 +132,20 @@ bool Project::LoadProject(QString filename)
         return false;
 
     QuaZipFile ifile= QuaZipFile(&izip);
-    QXmlStreamReader xstream= QXmlStreamReader(&ifile);
+    QXmlStreamReader xstream;
+    QByteArray txml;
+    QBuffer buffer= QBuffer(&txml);
+    QDir project_dir= QDir(filename.first(filename.lastIndexOf('/')));
+    QStringView elem_name;
+    QXmlStreamAttributes elem_attrs;
+
+    QSize new_size= QSize(-1, -1);
+    QList<Frame> new_frames;
+    palette_t new_palette;
+    QString new_shared_pal= "";
+
+    buffer.open(QIODevice::ReadOnly);
+    xstream.setDevice(&buffer);
 
     // -- Handle EZGFX specific extensions --
     izip.setCurrentFile("ezgfx.xml");
@@ -133,9 +154,31 @@ bool Project::LoadProject(QString filename)
         izip.close();
         return false;
     }
-
-    // -- --
+    txml= ifile.readAll();
     ifile.close();
+
+    while (xstream.readNextStartElement())
+    {
+        elem_name= xstream.name();
+        elem_attrs= xstream.attributes();
+
+        if (elem_name == "ezgfx")
+        {
+            while (xstream.readNextStartElement())
+            {
+                elem_name= xstream.name();
+                elem_attrs= xstream.attributes();
+
+                if (elem_name == "shared_palette")
+                {
+                    new_shared_pal= project_dir.absoluteFilePath(xstream.readElementText());
+                    continue;
+                }
+            }
+
+            continue;
+        }
+    }
 
     // -- Parse stack.xml --
     izip.setCurrentFile("stack.xml");
@@ -144,17 +187,11 @@ bool Project::LoadProject(QString filename)
         izip.close();
         return false;
     }
-    QByteArray stack_xml= ifile.readAll();
-    QBuffer stack_buffer= QBuffer(&stack_xml);
-    stack_buffer.open(QIODevice::ReadOnly);
-    xstream.setDevice(&stack_buffer);
+    txml= ifile.readAll();
+    buffer.seek(0);
+    xstream.setDevice(&buffer);
     ifile.close();
 
-    QStringView elem_name;
-    QXmlStreamAttributes elem_attrs;
-    QSize new_size= QSize(-1, -1);
-    QList<Frame> new_frames;
-    palette_t new_palette;
     while (xstream.readNextStartElement())
     {
         elem_name= xstream.name();
@@ -234,9 +271,9 @@ bool Project::LoadProject(QString filename)
                 }
             }
         }
-
     }
-    stack_buffer.close();
+
+    buffer.close();
 
     if (new_size == QSize(-1, -1))
     {
@@ -251,7 +288,8 @@ bool Project::LoadProject(QString filename)
     this->current_frame= 0;
     this->current_layer= 0;
     this->Canvas()->SetFrame(CurrentFrame());
-    this->SetPalette(new_palette);
+    SetPalette(new_palette);
+    SetSharedPalette(new_shared_pal);
     // -- --
 
     Canvas()->DiscardFloatingLayer();
@@ -264,13 +302,14 @@ bool Project::LoadProject(QString filename)
     return true;
 }
 
-bool Project::SavePalette(QString filename)
+bool Project::SavePalette(QString filename, bool interactive)
 {
     QFile ofile= QFile(filename);
 
     if (!ofile.open(QFile::WriteOnly))
     {
-        QMessageBox::critical(this->main_window, "Error saving palette", "Cannot open output file for writing");
+        if (interactive)
+            QMessageBox::critical(this->main_window, "Error saving palette", "Cannot open output file for writing");
         return false;
     }
 
@@ -296,7 +335,7 @@ bool Project::SavePalette(QString filename)
     return true;
 }
 
-bool Project::LoadPalette(QString filename)
+bool Project::LoadPalette(QString filename, bool interactive)
 {
     if (filename.endsWith(".png", Qt::CaseInsensitive) || filename.endsWith(".bmp", Qt::CaseInsensitive))
     {
@@ -313,7 +352,8 @@ bool Project::LoadPalette(QString filename)
 
     if (!ifile.open(QFile::ReadOnly))
     {
-        QMessageBox::critical(this->main_window, "Error loading palette", "Cannot open input file for reading");
+        if (interactive)
+            QMessageBox::critical(this->main_window, "Error loading palette", "Cannot open input file for reading");
         return false;
     }
 
@@ -332,15 +372,10 @@ bool Project::LoadPalette(QString filename)
     ifile.read(6);
     color_number= ((uint8_t)ifile.read(1)[0])|((uint8_t)ifile.read(1)[0]<<8);
     //Load colors
-    for (int ic=0; ic</*PALETTE_W*PALETTE_H*/color_number; ic++)
+    for (int ic=0; ic<color_number; ic++)
     {
-        // if (ic+1 <= color_number)
-        // {
-            tstr= ifile.read(4);
-            new_palette += qRgb((uint8_t)tstr[0], (uint8_t)tstr[1], (uint8_t)tstr[2]);
-        // }
-        // else //Color index not in file
-        //     new_palette += QRgb(ic&1 ? 0xFF808080 : 0xFFB0B0B0);
+        tstr= ifile.read(4);
+        new_palette += qRgb((uint8_t)tstr[0], (uint8_t)tstr[1], (uint8_t)tstr[2]);
     }
 
     ifile.close();
@@ -350,6 +385,7 @@ bool Project::LoadPalette(QString filename)
     return true;
 
 load_error:
-    QMessageBox::critical(this->main_window, "Error loading palette", "Parse error");
+    if (interactive)
+        QMessageBox::critical(this->main_window, "Error loading palette", "Parse error");
     return false;
 }

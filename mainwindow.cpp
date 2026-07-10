@@ -338,3 +338,39 @@ void MainWindow::on_actionExportPalette_triggered()
     current_project->SavePalette(ofile_name);
 }
 
+void MainWindow::on_actionSharedPalette_triggered(bool checked)
+{
+    if (!current_project)
+        return;
+
+    if (checked)
+    {
+        QString ifile_name= QFileDialog::getSaveFileName(this, "Set shared palette to file...", "", "Windows palette (*.pal)");
+
+        if (ifile_name == "")
+        {
+            SetSharedPaletteCheckStatus(false);
+            return;
+        }
+
+        if (!ifile_name.endsWith(".pal", Qt::CaseInsensitive))
+        {
+            QMessageBox::critical(this, "Error loading palette", "Format is not supported");
+            SetSharedPaletteCheckStatus(false);
+            return;
+        }
+
+        current_project->SetSharedPalette(ifile_name);
+    }
+}
+
+void MainWindow::on_actionReloadSharedPalette_triggered()
+{
+    if (!current_project)
+        return;
+    if (current_project->SharedPalette() == "")
+        return;
+
+    current_project->LoadPalette(current_project->SharedPalette());
+}
+
