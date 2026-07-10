@@ -366,6 +366,9 @@ void ImageCanvas::PickColor(QPoint pos, bool primary)
     int color_picked= 0, tcol;
     for (int il=0; il<current_frame->LayerCount(); il++)
     {
+        if (!current_frame->LayerAt(il)->visible)
+            continue;
+
         tcol= current_frame->LayerAt(il)->image.pixelIndex(pixx, pixy);
         if (tcol)
             color_picked= tcol;
