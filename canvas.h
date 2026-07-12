@@ -80,6 +80,7 @@ public:
     void DrawSelectionPencil(QPoint pos, bool include);
     void PickColor(QPoint pos, bool primary= true);
     void RectangleSelect(QRect rect, bool include= true); //Call on mouse release
+    void FloodSelect(QPoint pos);
     void ApplyFloatingLayer(bool opaque= true, bool record= true);
     void DiscardFloatingLayer();
 
@@ -87,6 +88,7 @@ public:
     QWidget* Widget() { return this->Widget(); }
     bool IsRectSelection() { return rect_selection.width() != 0 && rect_selection.height() != 0; }
     QRect GetSelectionBoundaries();
+    QImage GetFloodMap(QImage img, QPoint pos);
 
     //void SetImage(QImage* image);
     void SetFrame(Frame* frame);

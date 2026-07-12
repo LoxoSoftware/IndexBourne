@@ -22,6 +22,7 @@ ToolPanel::ToolPanel(QWidget *parent, MainWindow* main_window)
         ui->btnPencilSelect->setIcon(MainWindow::ColorizeIcon(":/icons/scalable/pencil-select", COL_LIGHT_ICON));
         ui->btnRectangleSelect->setIcon(MainWindow::ColorizeIcon(":/icons/scalable/rectangle-select", COL_LIGHT_ICON));
         ui->btnTransformGfx->setIcon(MainWindow::ColorizeIcon(":/icons/scalable/move", COL_LIGHT_ICON));
+        ui->btnFloodSelect->setIcon(MainWindow::ColorizeIcon(":/icons/scalable/magic-wand", COL_LIGHT_ICON));
     }
 
     connect(ui->btnPencil, &QToolButton::clicked, this, &ToolPanel::on_CurrentToolTypeChanged);
@@ -29,6 +30,7 @@ ToolPanel::ToolPanel(QWidget *parent, MainWindow* main_window)
     connect(ui->btnPencilSelect, &QToolButton::clicked, this, &ToolPanel::on_CurrentToolTypeChanged);
     connect(ui->btnRectangleSelect, &QToolButton::clicked, this, &ToolPanel::on_CurrentToolTypeChanged);
     connect(ui->btnTransformGfx, &QToolButton::clicked, this, &ToolPanel::on_CurrentToolTypeChanged);
+    connect(ui->btnFloodSelect, &QToolButton::clicked, this, &ToolPanel::on_CurrentToolTypeChanged);
 }
 
 ToolPanel::~ToolPanel()
@@ -50,6 +52,8 @@ Tool ToolPanel::GetCurrentTool()
         new_tool.type= Tool_RectSelect;
     if (ui->btnTransformGfx->isChecked())
         new_tool.type= Tool_Transform;
+    if (ui->btnFloodSelect->isChecked())
+        new_tool.type= Tool_FloodSelect;
 
     new_tool.diameter_a= ui->spbPencilDotSizeA->value();
     new_tool.diameter_b= ui->spbPencilDotSizeB->value();
@@ -77,6 +81,9 @@ void ToolPanel::SetCurrentToolType(int type)
         break;
     case Tool_Transform:
         ui->btnTransformGfx->setChecked(true);
+        break;
+    case Tool_FloodSelect:
+        ui->btnFloodSelect->setChecked(true);
         break;
     default:
         break;

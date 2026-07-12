@@ -3,6 +3,7 @@
 #include "mainwindow.h"
 #include <QGraphicsPixmapItem>
 #include <QMessageBox>
+#include <queue>
 
 #define CANVAS_BORDER_W                 2
 #define TILECANVASX_TO_PIXEL(x)         (((x-x/(image->width()*scaling))/scaling))
@@ -68,7 +69,7 @@ void ImageCanvas::UpdateMode()
             }
         }
     }
-    else
+    else if (!( current_tool->type & (Tool_RectSelect | Tool_FloodSelect | Tool_PencilSelect) ))
         ApplyFloatingLayer();
 
     Redraw();
@@ -398,6 +399,70 @@ void ImageCanvas::RectangleSelect(QRect rect, bool include)
     Redraw();
 }
 
+QImage ImageCanvas::GetFloodMap(QImage img, QPoint pos)
+{
+    using namespace std;
+
+    QImage result= QImage(img.size(), QImage::Format_Mono);
+    result.fill(0);
+
+    int old_color = img.pixelIndex(pos.x(), pos.y());
+    int new_color = (old_color+1)&0xFF;
+    vector<pair<int, int>> dir = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+    queue<pair<int, int>> q;
+
+    if (old_color == new_color)
+        return result;
+
+    q.push({pos.x(), pos.y()});
+
+    // Change the color of the starting pixel
+    img.setPixel(pos.x(), pos.y(), new_color);
+    result.setPixel(pos.x(), pos.y(), 1);
+
+    // Perform Breadth-First Search
+    while (!q.empty())
+    {
+        pair<int, int> front = q.front();
+        int x = front.first, y = front.second;
+        q.pop();
+
+        // Traverse all 4 directions
+        for (pair<int, int>& it : dir)
+        {
+            int nx = x + it.first;
+            int ny = y + it.second;
+
+            // Check boundary conditions and color match
+            if (nx >= 0 && nx < img.width() &&
+                ny >= 0 && ny < img.height() &&
+                img.pixelIndex(nx, ny) == old_color)
+            {
+                img.setPixel(nx, ny, new_color);
+                result.setPixel(nx, ny, 1);
+                q.push({nx, ny});
+            }
+        }
+    }
+
+    return result;
+}
+
+void ImageCanvas::FloodSelect(QPoint pos)
+{
+    int pixx= TILECANVASX_TO_PIXEL(pos.x());
+    int pixy= TILECANVASY_TO_PIXEL(pos.y());
+
+    QImage result= GetFloodMap(*this->image, QPoint(pixx, pixy));
+
+    for (int iy=0; iy<selection.height(); iy++)
+        for (int ix=0; ix<selection.width(); ix++)
+            if (result.pixelIndex(ix, iy))
+                PlotSelection(ix, iy, true);
+
+    Redraw();
+}
+
 QRect ImageCanvas::GetSelectionBoundaries()
 {
     QPoint min_start= QPoint(999999, 999999);
@@ -449,20 +514,37 @@ void ImageCanvas::mousePressEvent(QMouseEvent* event)
     if (mouse_down_button == Qt::MiddleButton)
         this->setCursor(Qt::ClosedHandCursor);
 
-    if (event->modifiers()& Qt::ControlModifier && current_tool->type == Tool_Pencil)
+    if (event->modifiers()& Qt::ControlModifier)
     {
-        //Quick color picker
-        if (mouse_down_button & (Qt::LeftButton | Qt::RightButton))
-            PickColor(event->pos(), mouse_down_button == Qt::LeftButton);
+        switch(current_tool->type)
+        {
+        case Tool_Pencil:
+            //Quick color picker
+            if (mouse_down_button & (Qt::LeftButton | Qt::RightButton))
+                PickColor(event->pos(), mouse_down_button == Qt::LeftButton);
+            break;
+        case Tool_FloodSelect:
+            FloodSelect(event->pos());
+            break;
+        default:
+            break;
+        }
     }
     else
     {
-        mouseMoveEvent(event);
+        switch (current_tool->type)
+        {
+        case Tool_FloodSelect:
+            selection.fill(0);
+            FloodSelect(event->pos());
+            break;
+        default:
+            mouseMoveEvent(event);
+            break;
+        }
     }
 
-    if (current_tool->type != Tool_Transform)
-        rect_selection.setSize(QSize(0,0));
-    else if (rect_selection.size() == QSize(0,0))
+    if (rect_selection.size() == QSize(0,0) && current_tool->type == Tool_Transform)
     {
         RectangleSelect(image->rect(), true);
         UpdateMode();

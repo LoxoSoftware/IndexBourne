@@ -13,5 +13,6 @@
         <file alias="layer-visible">res/icons/layer-visible.svg</file>
         <file alias="pencil-select">res/icons/pencil-select.svg</file>
         <file alias="move">res/icons/move.svg</file>
+        <file alias="magic-wand">res/icons/magic-wand.svg</file>
     </qresource>
 </RCC>

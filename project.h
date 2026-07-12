@@ -109,16 +109,15 @@ public:
 
 typedef enum
 {
-    Tool_Pencil,
-    Tool_Eyedropper,
-    Tool_Rectangle,
-    Tool_Ellipsoid,
-    Tool_FilledRectangle,
-    Tool_FilledEllipsoid,
-    Tool_FloodFill,
-    Tool_RectSelect,
-    Tool_PencilSelect,
-    Tool_Transform, //Right now it's just to move
+    Tool_Pencil         = (1<<0),
+    Tool_Eyedropper     = (1<<1),
+    Tool_Rectangle      = (1<<2),
+    Tool_Ellipsoid      = (1<<3),
+    Tool_FloodFill      = (1<<4),
+    Tool_FloodSelect    = (1<<5),
+    Tool_RectSelect     = (1<<6),
+    Tool_PencilSelect   = (1<<7),
+    Tool_Transform      = (1<<8),
 } tooltype_t;
 
 typedef struct Tool
@@ -126,6 +125,9 @@ typedef struct Tool
     tooltype_t type= Tool_Pencil;
     int diameter_a= 1;
     int diameter_b= 1;
+    bool opaque_select= false;
+    bool contour= false;
+    bool fill= true;
 } Tool;
 
 typedef enum
