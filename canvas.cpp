@@ -69,7 +69,9 @@ void ImageCanvas::UpdateMode()
             }
         }
     }
-    else if (!( current_tool->type & (Tool_RectSelect | Tool_FloodSelect | Tool_PencilSelect) ))
+    else if (current_tool->type & (Tool_RectSelect | Tool_FloodSelect | Tool_PencilSelect))
+        DiscardFloatingLayer(true);
+    else
         ApplyFloatingLayer();
 
     Redraw();
@@ -108,14 +110,17 @@ void ImageCanvas::ApplyFloatingLayer(bool opaque, bool record)
             new UndoSnapshot(Undocmd_DiffImage, current_layer_index, current_layer));
 }
 
-void ImageCanvas::DiscardFloatingLayer()
+void ImageCanvas::DiscardFloatingLayer(bool keep_selection)
 {
     if (main_window)
         main_window->UpdateTransformStatus(false);
 
-    selection.fill(0);
     floating_layer= QImage();
-    rect_selection= QRect();
+    if (!keep_selection)
+    {
+        selection.fill(0);
+        rect_selection= QRect();
+    }
 
     Redraw();
 }
@@ -403,7 +408,8 @@ QImage ImageCanvas::GetFloodMap(QImage img, QPoint pos)
 {
     using namespace std;
 
-    QImage result= QImage(img.size(), QImage::Format_Mono);
+    QImage result= QImage(img.size(), QImage::Format_Indexed8);
+    result.setColorTable((palette_t){0,1});
     result.fill(0);
 
     int old_color = img.pixelIndex(pos.x(), pos.y());
@@ -456,10 +462,30 @@ void ImageCanvas::FloodSelect(QPoint pos)
     QImage result= GetFloodMap(*this->image, QPoint(pixx, pixy));
 
     for (int iy=0; iy<selection.height(); iy++)
-        for (int ix=0; ix<selection.width(); ix++)
-            if (result.pixelIndex(ix, iy))
-                PlotSelection(ix, iy, true);
+    {
+        uint8_t* sl_mask= result.scanLine(iy);
 
+        for (int ix=0; ix<selection.width(); ix++)
+            if (sl_mask[ix])
+                PlotSelection(ix, iy, true);
+    }
+
+    Redraw();
+}
+
+void ImageCanvas::FillSelection(int color)
+{
+    for (int iy=0; iy<selection.height(); iy++)
+    {
+        uint8_t* sl_mask= selection.scanLine(iy);
+        uint8_t* sl_dest= this->image->scanLine(iy);
+
+        for (int ix=0; ix<selection.width(); ix++)
+            if (sl_mask[ix])
+                sl_dest[ix]= color;
+    }
+
+    current_frame->PushNewSnapshot(new UndoSnapshot(Undocmd_DiffImage, current_layer_index, current_layer));
     Redraw();
 }
 
@@ -679,6 +705,25 @@ void ImageCanvas::MoveFloatLayerToMouse(QPoint mouse_global_pos)
 
     rect_selection.setRect(rect_selection.x()+diffx, rect_selection.y()+diffy,
                            rect_selection.width(), rect_selection.height());
+    //move the selection
+    QImage old_sel= selection;
+    selection.fill(0);
+    for (int iy= 0; iy < selection.height(); iy++)
+    {
+        if (iy < diffy || iy-diffy >= selection.height())
+            continue;
+
+        uint8_t* sl_src= old_sel.scanLine(iy-diffy);
+        uint8_t* sl_dest= selection.scanLine(iy);
+
+        for (int ix= 0; ix < selection.width(); ix++)
+        {
+            if (ix < diffx || ix-diffx >= selection.width())
+                continue;
+
+            sl_dest[ix]= sl_src[ix-diffx];
+        }
+    }
 
     Redraw();
 

@@ -29,7 +29,7 @@
          <x>0</x>
          <y>0</y>
          <width>778</width>
-         <height>532</height>
+         <height>533</height>
         </rect>
        </property>
       </widget>
@@ -79,6 +79,7 @@
     <addaction name="actionPaletteQuickSwap"/>
     <addaction name="actionPaletteQuickFill"/>
     <addaction name="separator"/>
+    <addaction name="actionSwapABSelection"/>
    </widget>
    <widget class="QMenu" name="menuImage">
     <property name="enabled">
@@ -124,6 +125,10 @@
     <addaction name="separator"/>
     <addaction name="actionApply_transform"/>
     <addaction name="actionDiscard_temp_changes"/>
+    <addaction name="separator"/>
+    <addaction name="actionDeleteGfx"/>
+    <addaction name="actionFillSelection_A"/>
+    <addaction name="actionFillSelection_B"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -414,6 +419,41 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+P</string>
+   </property>
+  </action>
+  <action name="actionDeleteGfx">
+   <property name="icon">
+    <iconset theme="edit-delete"/>
+   </property>
+   <property name="text">
+    <string>Delete</string>
+   </property>
+   <property name="shortcut">
+    <string>Del</string>
+   </property>
+  </action>
+  <action name="actionFillSelection_A">
+   <property name="text">
+    <string>Fill selection with color A</string>
+   </property>
+   <property name="shortcut">
+    <string>N</string>
+   </property>
+  </action>
+  <action name="actionFillSelection_B">
+   <property name="text">
+    <string>Fill selection with color B</string>
+   </property>
+   <property name="shortcut">
+    <string>M</string>
+   </property>
+  </action>
+  <action name="actionSwapABSelection">
+   <property name="text">
+    <string>Swap A/B selection</string>
+   </property>
+   <property name="shortcut">
+    <string>X</string>
    </property>
   </action>
  </widget>

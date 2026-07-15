@@ -379,3 +379,40 @@ void MainWindow::on_actionReloadSharedPalette_triggered()
     current_project->LoadPalette(current_project->SharedPalette());
 }
 
+void MainWindow::on_actionDeleteGfx_triggered()
+{
+    if (!current_project)
+        return;
+    if (!current_project->Canvas())
+        return;
+    current_project->Canvas()->FillSelection(0);
+    current_project->Canvas()->DiscardFloatingLayer(true);
+}
+
+void MainWindow::on_actionFillSelection_A_triggered()
+{
+    if (!current_project)
+        return;
+    if (!current_project->Canvas())
+        return;
+    current_project->Canvas()->FillSelection(current_project->PaltableAIndex());
+}
+
+void MainWindow::on_actionFillSelection_B_triggered()
+{
+    if (!current_project)
+        return;
+    if (!current_project->Canvas())
+        return;
+    current_project->Canvas()->FillSelection(current_project->PaltableBIndex());
+}
+
+void MainWindow::on_actionSwapABSelection_triggered()
+{
+    if (!current_project)
+        return;
+    QPoint tpos= current_project->PaltableAPosition();
+    current_project->SetPaltableAPosition(current_project->PaltableBPosition());
+    current_project->SetPaltableBPosition(tpos);
+}
+

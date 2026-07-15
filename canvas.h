@@ -81,8 +81,9 @@ public:
     void PickColor(QPoint pos, bool primary= true);
     void RectangleSelect(QRect rect, bool include= true); //Call on mouse release
     void FloodSelect(QPoint pos);
+    void FillSelection(int color);
     void ApplyFloatingLayer(bool opaque= true, bool record= true);
-    void DiscardFloatingLayer();
+    void DiscardFloatingLayer(bool keep_selection= false);
 
     const QImage* Image() const { return image; }
     QWidget* Widget() { return this->Widget(); }

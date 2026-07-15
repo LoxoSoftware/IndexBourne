@@ -70,6 +70,10 @@ private slots:
     void on_actionExportPalette_triggered();
     void on_actionSharedPalette_triggered(bool checked);
     void on_actionReloadSharedPalette_triggered();
+    void on_actionDeleteGfx_triggered();
+    void on_actionFillSelection_A_triggered();
+    void on_actionFillSelection_B_triggered();
+    void on_actionSwapABSelection_triggered();
 };
 
 #endif // MAINWINDOW_H
