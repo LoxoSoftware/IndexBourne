@@ -1,11 +1,13 @@
 #include "project.h"
+#include "mainwindow.h"
+#include "exportdialog.h"
 #include <quazip/quazip.h>
 #include <quazip/quazipfile.h>
 #include <QXmlStreamWriter>
 #include <QBuffer>
 #include <QMessageBox>
 #include <QDir>
-#include "mainwindow.h"
+#include <QProcess>
 
 #define ORA_VERSION     "0.0.6"
 
@@ -371,4 +373,66 @@ load_error:
     if (interactive)
         QMessageBox::critical(this->main_window, "Error loading palette", "Parse error");
     return false;
+}
+
+bool Project::GoExport(QWidget* parent)
+{
+    ExportDialog exdial= ExportDialog(parent);
+    QString ofname= exdial.GetOutputFileName();
+
+    if (ofname == "")
+        return false;
+
+    QImage rendered= this->CurrentFrame()->RenderBitmap();
+
+    if (exdial.IsExportingRegular())
+    {
+        palette_t tpal= this->Palette();
+        unsigned int exflags= exdial.RegularExportSettings();
+
+        if (exflags & Regfmt_0Trans)
+            tpal[0]= 0x00000000;
+
+        QImage output= rendered;
+        output.setColorTable(tpal);
+
+        if (exflags & Regfmt_RGBAMode)
+            output= output.convertToFormat(QImage::Format_ARGB32);
+
+        switch (exflags&0x0F)
+        {
+        case Regfmt_PNG:
+            output.save(ofname + ".png");
+            break;
+        case Regfmt_BMP:
+            output.save(ofname + ".bmp");
+            break;
+        default:
+            break;
+        }
+    }
+
+    if (exdial.IsExportingSource())
+    {
+        //Make temporary bitmap to input
+        if (!rendered.save(".tempgfx.bmp"))
+            return false;
+
+        QProcess proc;
+        proc.start("grit", QList<QString>{ ".tempgfx.bmp", "-o"+ofname } + exdial.GritFlags());
+
+        if (!proc.waitForFinished(5000))
+            QMessageBox::critical(parent, "Export error", "GRIT timed out after 5 seconds");
+        if (proc.exitCode() == 255)
+            QMessageBox::critical(parent, "Export error", "Cannot find \"grit\", please make sure it is in PATH");
+        else if (proc.exitCode())
+            QMessageBox::critical(parent, "Export error", "GRIT returned error code "+QString::number(proc.exitCode()));
+        else
+            QMessageBox::information(parent, "Export complete", "Done!");
+
+        if (proc.exitCode())
+            return false;
+    }
+
+    return true;
 }

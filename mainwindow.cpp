@@ -3,6 +3,7 @@
 #include "project.h"
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QProcess>
 #include "newprojectdialog.h"
 #include "resizedialog.h"
 
@@ -414,5 +415,12 @@ void MainWindow::on_actionSwapABSelection_triggered()
     QPoint tpos= current_project->PaltableAPosition();
     current_project->SetPaltableAPosition(current_project->PaltableBPosition());
     current_project->SetPaltableBPosition(tpos);
+}
+
+void MainWindow::on_actionExport_triggered()
+{
+    if (!current_project)
+        return;
+    current_project->GoExport(this);
 }
 

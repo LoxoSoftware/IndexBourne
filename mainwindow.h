@@ -74,6 +74,7 @@ private slots:
     void on_actionFillSelection_A_triggered();
     void on_actionFillSelection_B_triggered();
     void on_actionSwapABSelection_triggered();
+    void on_actionExport_triggered();
 };
 
 #endif // MAINWINDOW_H

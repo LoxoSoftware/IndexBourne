@@ -103,8 +103,7 @@
     </widget>
     <addaction name="menuSet_mode"/>
     <addaction name="actionResize"/>
-    <addaction name="actionExportBitmap"/>
-    <addaction name="actionExportToGRIT"/>
+    <addaction name="actionExport"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -176,7 +175,7 @@
     <iconset theme="document-open"/>
    </property>
    <property name="text">
-    <string>Open</string>
+    <string>Open / import</string>
    </property>
    <property name="toolTip">
     <string>Open project file or bitmap image</string>
@@ -285,32 +284,18 @@
     <string>4bpp</string>
    </property>
   </action>
-  <action name="actionExportBitmap">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
+  <action name="actionExport">
    <property name="icon">
     <iconset theme="media-eject"/>
    </property>
    <property name="text">
-    <string>Export as bitmap</string>
+    <string>Export</string>
+   </property>
+   <property name="toolTip">
+    <string>Export as bitmap or raw data</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+E</string>
-   </property>
-  </action>
-  <action name="actionExportToGRIT">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset theme="media-eject"/>
-   </property>
-   <property name="text">
-    <string>Export to GRIT</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Shift+E</string>
    </property>
   </action>
   <action name="actionTogglePixelGrid">
