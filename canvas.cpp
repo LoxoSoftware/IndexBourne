@@ -38,16 +38,16 @@ void ImageCanvas::UpdateMode()
 
     *current_tool= current_project->CurrentTool();
 
+    rect_selection= GetSelectionBoundaries().normalized();
+    if (rect_selection.size() == QSize(0,0))
+    {
+        main_window->UpdateTransformStatus(false);
+        return;
+    }
+    main_window->UpdateTransformStatus(true);
+
     if (current_tool->type == Tool_Transform)
     {
-        rect_selection= GetSelectionBoundaries().normalized();
-        if (rect_selection.size() == QSize(0,0))
-        {
-            main_window->UpdateTransformStatus(false);
-            return;
-        }
-        main_window->UpdateTransformStatus(true);
-
         //Copy selection into floating layer
         floating_layer= this->image->copy(rect_selection);
         //Mask out pixels which are not selected
@@ -486,6 +486,52 @@ void ImageCanvas::FillSelection(int color)
     }
 
     current_frame->PushNewSnapshot(new UndoSnapshot(Undocmd_DiffImage, current_layer_index, current_layer));
+
+    UpdateMode();
+    Redraw();
+}
+
+void ImageCanvas::FlipSelectionVertical()
+{
+    UpdateMode();
+    QImage tlayer= *this->image;
+
+    for (int iy=rect_selection.top(); iy<=rect_selection.bottom(); iy++)
+    {
+        uint8_t* sl_mask= selection.scanLine(iy);
+        uint8_t* sl_dest= this->image->scanLine(iy);
+        uint8_t* sl_src= tlayer.scanLine(rect_selection.bottom()-iy+rect_selection.top());
+
+        for (int ix=rect_selection.left(); ix<=rect_selection.right(); ix++)
+            if (sl_mask[ix])
+                sl_dest[ix]= sl_src[ix];
+    }
+
+    current_frame->PushNewSnapshot(new UndoSnapshot(Undocmd_DiffImage, current_layer_index, current_layer));
+
+    UpdateMode();
+    Redraw();
+}
+
+void ImageCanvas::FlipSelectionHorizontal()
+{
+    UpdateMode();
+    QImage tlayer= *this->image;
+
+    for (int iy=rect_selection.top(); iy<=rect_selection.bottom(); iy++)
+    {
+        uint8_t* sl_mask= selection.scanLine(iy);
+        uint8_t* sl_dest= this->image->scanLine(iy);
+        uint8_t* sl_src= tlayer.scanLine(iy);
+
+        for (int ix=rect_selection.left(); ix<=rect_selection.right(); ix++)
+            if (sl_mask[ix])
+                sl_dest[ix]= sl_src[rect_selection.left()-ix+rect_selection.right()];
+    }
+
+    current_frame->PushNewSnapshot(new UndoSnapshot(Undocmd_DiffImage, current_layer_index, current_layer));
+
+    UpdateMode();
     Redraw();
 }
 

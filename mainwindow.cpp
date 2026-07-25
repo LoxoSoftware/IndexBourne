@@ -424,3 +424,21 @@ void MainWindow::on_actionExport_triggered()
     current_project->GoExport(this);
 }
 
+void MainWindow::on_actionVertical_flip_triggered()
+{
+    if (!current_project)
+        return;
+    if (!current_project->Canvas())
+        return;
+    current_project->Canvas()->FlipSelectionVertical();
+}
+
+void MainWindow::on_actionHorizontal_flip_triggered()
+{
+    if (!current_project)
+        return;
+    if (!current_project->Canvas())
+        return;
+    current_project->Canvas()->FlipSelectionHorizontal();
+}
+

@@ -82,6 +82,8 @@ public:
     void RectangleSelect(QRect rect, bool include= true); //Call on mouse release
     void FloodSelect(QPoint pos);
     void FillSelection(int color);
+    void FlipSelectionVertical();
+    void FlipSelectionHorizontal();
     void ApplyFloatingLayer(bool opaque= true, bool record= true);
     void DiscardFloatingLayer(bool keep_selection= false);
 
