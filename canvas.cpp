@@ -91,6 +91,7 @@ void ImageCanvas::ApplyFloatingLayer(bool opaque, bool record)
             continue;
 
         uint8_t* sl_src= floating_layer.scanLine(iy);
+        uint8_t* sl_mask= selection.scanLine(iy+rect_selection.y());
         uint8_t* sl_dest= this->image->scanLine(iy+rect_selection.y());
 
         for (int ix=0; ix<floating_layer.width(); ix++)
@@ -98,7 +99,7 @@ void ImageCanvas::ApplyFloatingLayer(bool opaque, bool record)
             if (ix+rect_selection.x() < 0 || ix+rect_selection.x() >= this->image->width())
                 continue;
 
-            if (sl_src[ix] || opaque)
+            if ((sl_src[ix] && !opaque || opaque) && sl_mask[ix+rect_selection.x()])
                 sl_dest[ix+rect_selection.x()]= sl_src[ix];
         }
     }
