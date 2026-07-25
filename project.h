@@ -125,7 +125,7 @@ typedef struct Tool
     tooltype_t type= Tool_Pencil;
     int diameter_a= 1;
     int diameter_b= 1;
-    bool opaque_select= false;
+    bool opaque_apply_mode= true;
     bool contour= false;
     bool fill= true;
 } Tool;

@@ -287,7 +287,7 @@ void MainWindow::on_actionApply_transform_triggered()
     if (!current_project)
         return;
 
-    current_project->Canvas()->ApplyFloatingLayer();
+    current_project->Canvas()->ApplyFloatingLayer(current_project->CurrentTool().opaque_apply_mode);
 }
 
 void MainWindow::on_actionDiscard_temp_changes_triggered()

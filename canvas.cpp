@@ -72,7 +72,7 @@ void ImageCanvas::UpdateMode()
     else if (current_tool->type & (Tool_RectSelect | Tool_FloodSelect | Tool_PencilSelect))
         DiscardFloatingLayer(true);
     else
-        ApplyFloatingLayer();
+        ApplyFloatingLayer(current_tool->opaque_apply_mode);
 
     Redraw();
 }
