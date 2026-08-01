@@ -237,7 +237,7 @@ void MainWindow::on_actionPaletteQuickFill_triggered()
 
 void MainWindow::on_actionAbout_triggered()
 {
-    QMessageBox::about(this, "About EZGFX", "EZGFX is a free and open source image editor aimed at"
+    QMessageBox::about(this, "About EZGFX", "EZGFX is a free and open source image editor aimed at "
                                             "game developement for retro platforms."
                                             "\n\nCopyright (c)2026 LoxoSoftware");
 }
@@ -304,7 +304,7 @@ void MainWindow::on_actionImportPalette_triggered()
         return;
 
     QString ifile_name= QFileDialog::getOpenFileName(this, "Load palette...", "",
-                                                      "Windows palette (*.pal);;Indexed image (*.png *.bmp)");
+                                                      "RIFF palette (*.pal);;Indexed image (*.png *.bmp)");
 
     if (ifile_name == "")
         return;

@@ -166,10 +166,14 @@ void ImageCanvas::Redraw()
         item->setScale(scaling);
         scene.addItem(item);
 
-        //Draw floating selection
+        //Draw floating layer
         if (il == current_layer_index && floating_layer != QImage())
         {
-            pix= QPixmap::fromImage(floating_layer);
+            QImage tfl= floating_layer;
+            tfl.setColorTable(current_frame->LayerAt(0)->image.colorTable());
+            pix= QPixmap::fromImage(tfl);
+            QBitmap mask= QBitmap::fromImage(selection.copy(rect_selection).createMaskFromColor(0));
+            pix.setMask(mask);
             item= new QGraphicsPixmapItem(pix);
             item->setOffset(rect_selection.x(), rect_selection.y());
             item->setScale(scaling);
