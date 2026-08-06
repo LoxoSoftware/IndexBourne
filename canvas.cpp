@@ -6,6 +6,7 @@
 #include <queue>
 
 #define CANVAS_BORDER_W                 2
+#define CANVAS_HANDLE_SZ                16
 #define TILECANVASX_TO_PIXEL(x)         (((x-x/(image->width()*scaling))/scaling))
 #define TILECANVASY_TO_PIXEL(y)         (((y-y/(image->height()*scaling))/scaling))
 
@@ -37,6 +38,7 @@ void ImageCanvas::UpdateMode()
         return;
 
     *current_tool= current_project->CurrentTool();
+    setCursor(Qt::ArrowCursor);
 
     rect_selection= GetSelectionBoundaries().normalized();
     if (rect_selection.size() == QSize(0,0))
@@ -241,32 +243,57 @@ void ImageCanvas::PaintTempSelection(QPainter* painter)
 
     QPen pen_sel_out;
     QPen pen_sel_in;
+    QRect sel_rect= QRect(
+        rect_selection.x()*scaling, rect_selection.y()*scaling,
+        rect_selection.width()*scaling, rect_selection.height()*scaling );
+    QPoint corners_pt[3][3];
+
+    for (int iy=0; iy<3; iy++) for (int ix=0; ix<3; ix++)
+        corners_pt[iy][ix]= QPoint(sel_rect.x()+sel_rect.width()*ix/2-CANVAS_HANDLE_SZ/2, sel_rect.y()+sel_rect.height()*iy/2-CANVAS_HANDLE_SZ/2);
+
     switch (current_tool->type)
     {
     case Tool_RectSelect:
+        //Temporary selection overlay
+        pen_sel_out.setWidth(3);
+        pen_sel_in.setWidth(1);
         pen_sel_out.setColor(QColor(32,32,0,255));
         pen_sel_in.setColor(QColor(255,255,0,255));
         pen_sel_in.setStyle(Qt::DashLine);
+        painter->setPen(pen_sel_out);
+        painter->drawRect(sel_rect);
+        painter->setPen(pen_sel_in);
+        painter->drawRect(sel_rect);
         break;
     case Tool_Transform:
+        //Selection UI in transform tool
+        //  Perimeter
+        pen_sel_out.setWidth(3);
+        pen_sel_in.setWidth(1);
         pen_sel_out.setColor(QColor(0,32,32,255));
         pen_sel_in.setColor(QColor(0,255,255,255));
         pen_sel_in.setStyle(Qt::SolidLine);
+        painter->setPen(pen_sel_out);
+        painter->drawRect(sel_rect);
+        painter->setPen(pen_sel_in);
+        painter->drawRect(sel_rect);
+        //  Size handles
+        pen_sel_out.setWidth(3);
+        pen_sel_in.setWidth(1);
+        pen_sel_out.setColor(QColor(0,32,32,255));
+        pen_sel_in.setColor(QColor(192,192,192,255));
+        pen_sel_in.setStyle(Qt::SolidLine);
+        for (int iy=0; iy<3; iy++) for (int ix=0; ix<3; ix++)
+        {
+            painter->setPen(pen_sel_out);
+            painter->drawRect(QRect(corners_pt[iy][ix], QSize(CANVAS_HANDLE_SZ, CANVAS_HANDLE_SZ)));
+            painter->setPen(pen_sel_in);
+            painter->drawRect(QRect(corners_pt[iy][ix], QSize(CANVAS_HANDLE_SZ, CANVAS_HANDLE_SZ)));
+        }
         break;
     default:
         return;
     }
-    pen_sel_out.setWidth(3);
-    pen_sel_in.setWidth(1);
-
-    QRect disp_rect= QRect(
-        rect_selection.x()*scaling, rect_selection.y()*scaling,
-        rect_selection.width()*scaling, rect_selection.height()*scaling );
-
-    painter->setPen(pen_sel_out);
-    painter->drawRect(disp_rect);
-    painter->setPen(pen_sel_in);
-    painter->drawRect(disp_rect);
 }
 
 // void ImageCanvas::SetImage(QImage* image)
@@ -652,6 +679,9 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent* event)
         }
     }
 
+    //selection_old= QImage();
+    floating_layer_old= QImage();
+
     if (mouse_down_button == Qt::MiddleButton)
         this->setCursor(Qt::ArrowCursor);
 
@@ -686,19 +716,82 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent* event)
         }
     }
 
-    if (current_tool->type == Tool_Transform && !(mouse_down_button & Qt::MiddleButton))
+    if (current_tool->type == Tool_Transform)
     {
-        if (rect_selection.contains(event->pos().x()/scaling, event->pos().y()/scaling))
-            this->setCursor(Qt::SizeAllCursor);
-        else
-            this->setCursor(Qt::ArrowCursor);
+        QRect sel_rect= QRect(
+            rect_selection.x()*scaling, rect_selection.y()*scaling,
+            rect_selection.width()*scaling, rect_selection.height()*scaling );
+
+        if (mouse_down_button == Qt::NoButton)
+        {
+            if (sel_rect.contains(event->pos().x(), event->pos().y()))
+            {
+                this->setCursor(Qt::SizeAllCursor);
+                transform_mode= TransMode_Move;
+            }
+            else
+            {
+                this->setCursor(Qt::ArrowCursor);
+                transform_mode= TransMode_None;
+            }
+
+            for (int iy=0; iy<3; iy++) for (int ix=0; ix<3; ix++)
+            {
+                QPoint corner_pt= QPoint(sel_rect.x()+sel_rect.width()*ix/2-CANVAS_HANDLE_SZ/2, sel_rect.y()+sel_rect.height()*iy/2-CANVAS_HANDLE_SZ/2);
+                QRect corner_rect= QRect(corner_pt, QSize(CANVAS_HANDLE_SZ, CANVAS_HANDLE_SZ));
+                if (corner_rect.contains(event->pos().x(), event->pos().y()))
+                {
+                    if ((iy==0 && ix==2) || (iy==2 && ix==0))
+                    {
+                        this->setCursor(Qt::SizeBDiagCursor);
+                        transform_mode= TransMode_AllAxis;
+                    }
+                    else if ((iy==2 && ix==2) || (iy==0 && ix==0))
+                    {
+                        this->setCursor(Qt::SizeFDiagCursor);
+                        transform_mode= TransMode_AllAxis;
+                    }
+                    else if ((iy==0 && ix==1) || (iy==2 && ix==1))
+                    {
+                        this->setCursor(Qt::SizeVerCursor);
+                        transform_mode= TransMode_Vertical;
+                    }
+                    else if ((iy==1 && ix==0) || (iy==1 && ix==2))
+                    {
+                        this->setCursor(Qt::SizeHorCursor);
+                        transform_mode= TransMode_Horizontal;
+                    }
+
+                    transform_grabbing_right= ix>1;
+                    transform_grabbing_bottom= iy>1;
+                }
+            }
+        }
 
         if (mouse_down_button == Qt::LeftButton)
+        {
 #if QT_VERSION_MAJOR > 5
-            MoveFloatLayerToMouse(event->globalPosition().toPoint());
+            QPoint mouse_pos= event->globalPosition().toPoint();
 #else
-            MoveFloatLayerToMouse(event->globalPos());
+            QPoint mouse_pos= event->globalPos();
 #endif
+            //Transform tool actions
+            switch (transform_mode)
+            {
+            case TransMode_Move:
+                MoveFloatLayerToMouse(mouse_pos);
+                break;
+            case TransMode_AllAxis: case TransMode_Horizontal: case TransMode_Vertical:
+                // if (selection_old.isNull())
+                //     selection_old= selection.copy(rect_selection);
+                if (floating_layer_old.isNull())
+                    floating_layer_old= floating_layer;
+                ResizeFloatLayerToMouse(mouse_pos);
+                break;
+            default:
+                break;
+            }
+        }
     }
 
     if (mouse_down_button == Qt::MiddleButton)
@@ -756,6 +849,7 @@ void ImageCanvas::MoveFloatLayerToMouse(QPoint mouse_global_pos)
 
     rect_selection.setRect(rect_selection.x()+diffx, rect_selection.y()+diffy,
                            rect_selection.width(), rect_selection.height());
+
     //move the selection
     QImage old_sel= selection;
     selection.fill(0);
@@ -775,6 +869,48 @@ void ImageCanvas::MoveFloatLayerToMouse(QPoint mouse_global_pos)
             sl_dest[ix]= sl_src[ix-diffx];
         }
     }
+
+    Redraw();
+
+    mouse_last_global_pos= mouse_global_pos;
+}
+
+void ImageCanvas::ResizeFloatLayerToMouse(QPoint mouse_global_pos)
+{
+    if (rect_selection.size() == QSize(0,0))
+        return;
+
+    int diffx= 0, diffy= 0;
+    if (transform_mode == TransMode_Horizontal || transform_mode == TransMode_AllAxis)
+        diffx= (mouse_global_pos.x()-mouse_last_global_pos.x())/scaling;
+    if (transform_mode == TransMode_Vertical || transform_mode == TransMode_AllAxis)
+        diffy= (mouse_global_pos.y()-mouse_last_global_pos.y())/scaling;
+
+    if (!diffy && !diffx)
+        return;
+
+    if (transform_grabbing_right)
+        rect_selection.setRight(rect_selection.right()+diffx);
+    else
+        rect_selection.setLeft(rect_selection.left()+diffx);
+    if (transform_grabbing_bottom)
+        rect_selection.setBottom(rect_selection.bottom()+diffy);
+    else
+        rect_selection.setTop(rect_selection.top()+diffy);
+
+    //Scale the image and the selection
+    floating_layer= floating_layer_old.scaled(rect_selection.size());
+    selection.fill(0);
+    RectangleSelect(rect_selection, true);
+    // QImage selection_scaled= selection_old.scaled(rect_selection.size());
+    // for (int iy= 0; iy < selection_scaled.height(); iy++)
+    // {
+    //     uint8_t* sl_src= selection_scaled.scanLine(iy);
+
+    //     for (int ix= 0; ix < selection_scaled.width(); ix++)
+    //         if (sl_src[ix])
+    //             DrawSelectionPencil(QPoint(rect_selection.x()+ix, rect_selection.y()+iy), true);
+    // }
 
     Redraw();
 

@@ -26,6 +26,15 @@ class ImageCanvas : public QOpenGLWidget
     //NOTE: parent must be a QScrollArea!
 
 private:
+    typedef enum
+    {
+        TransMode_None = 0,
+        TransMode_Move,
+        TransMode_Vertical,
+        TransMode_Horizontal,
+        TransMode_AllAxis,
+    } transform_mode_t;
+
     Ui::ImageCanvas* ui;
     int scaling= 5;
     QGraphicsScene scene;
@@ -39,12 +48,16 @@ private:
     Layer* current_layer;
     QImage* image;
     QImage selection;
+    //QImage selection_old;
     QImage floating_layer;
-    //QRect floating_layer_rect;
+    QImage floating_layer_old= QImage();
     QRect rect_selection= QRect(0,0,0,0);
     Frame* current_frame= nullptr;
     int current_layer_index= 0;
     Tool* current_tool= nullptr;
+    transform_mode_t transform_mode= TransMode_None;
+    bool transform_grabbing_right= false;
+    bool transform_grabbing_bottom= false;
     QSize tilegrid_size= QSize(8, 8);
 
     const int max_scaling= 32;
@@ -63,6 +76,7 @@ private:
 
     void PanToMouse(QPoint mouse_global_pos);
     void MoveFloatLayerToMouse(QPoint mouse_global_pos);
+    void ResizeFloatLayerToMouse(QPoint mouse_global_pos);
     void PaintGrid(QPainter* painter);
     void PaintTempSelection(QPainter* painter);
 
