@@ -48,7 +48,7 @@ private:
     Layer* current_layer;
     QImage* image;
     QImage selection;
-    //QImage selection_old;
+    QImage selection_old;
     QImage floating_layer;
     QImage floating_layer_old= QImage();
     QRect rect_selection= QRect(0,0,0,0);

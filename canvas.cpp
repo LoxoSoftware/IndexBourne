@@ -654,6 +654,14 @@ void ImageCanvas::mousePressEvent(QMouseEvent* event)
         UpdateMode();
     }
 
+    if (mouse_down_button == Qt::LeftButton && current_tool->type == Tool_Transform)
+    {
+        if (selection_old.isNull())
+            selection_old= selection.copy(rect_selection);
+        if (floating_layer_old.isNull())
+            floating_layer_old= floating_layer;
+    }
+
     mouse_has_moved= false;
 }
 
@@ -679,7 +687,7 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent* event)
         }
     }
 
-    //selection_old= QImage();
+    selection_old= QImage();
     floating_layer_old= QImage();
 
     if (mouse_down_button == Qt::MiddleButton)
@@ -782,10 +790,6 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent* event)
                 MoveFloatLayerToMouse(mouse_pos);
                 break;
             case TransMode_AllAxis: case TransMode_Horizontal: case TransMode_Vertical:
-                // if (selection_old.isNull())
-                //     selection_old= selection.copy(rect_selection);
-                if (floating_layer_old.isNull())
-                    floating_layer_old= floating_layer;
                 ResizeFloatLayerToMouse(mouse_pos);
                 break;
             default:
@@ -851,23 +855,14 @@ void ImageCanvas::MoveFloatLayerToMouse(QPoint mouse_global_pos)
                            rect_selection.width(), rect_selection.height());
 
     //move the selection
-    QImage old_sel= selection;
     selection.fill(0);
-    for (int iy= 0; iy < selection.height(); iy++)
+    for (int iy= 0; iy < selection_old.height(); iy++)
     {
-        if (iy < diffy || iy-diffy >= selection.height())
-            continue;
+        uint8_t* sl_src= selection_old.scanLine(iy);
 
-        uint8_t* sl_src= old_sel.scanLine(iy-diffy);
-        uint8_t* sl_dest= selection.scanLine(iy);
-
-        for (int ix= 0; ix < selection.width(); ix++)
-        {
-            if (ix < diffx || ix-diffx >= selection.width())
-                continue;
-
-            sl_dest[ix]= sl_src[ix-diffx];
-        }
+        for (int ix= 0; ix < selection_old.width(); ix++)
+            if (sl_src[ix])
+                PlotSelection(rect_selection.x()+ix, rect_selection.y()+iy, true);
     }
 
     Redraw();
@@ -909,7 +904,7 @@ void ImageCanvas::ResizeFloatLayerToMouse(QPoint mouse_global_pos)
 
     //     for (int ix= 0; ix < selection_scaled.width(); ix++)
     //         if (sl_src[ix])
-    //             DrawSelectionPencil(QPoint(rect_selection.x()+ix, rect_selection.y()+iy), true);
+    //             PlotSelection(rect_selection.x()+ix, rect_selection.y()+iy, true);
     // }
 
     Redraw();
