@@ -119,6 +119,9 @@ void ImageCanvas::DiscardFloatingLayer(bool keep_selection)
         main_window->UpdateTransformStatus(false);
 
     floating_layer= QImage();
+    selection_old= QImage();
+    floating_layer_old= QImage();
+
     if (!keep_selection)
     {
         selection.fill(0);
@@ -656,6 +659,10 @@ void ImageCanvas::mousePressEvent(QMouseEvent* event)
 
     if (mouse_down_button == Qt::LeftButton && current_tool->type == Tool_Transform)
     {
+        //Invalidate the old selection if it has been scaled
+        if (transform_mode == TransMode_Move)
+            selection_old= QImage();
+
         if (selection_old.isNull())
             selection_old= selection.copy(rect_selection);
         if (floating_layer_old.isNull())
@@ -686,9 +693,6 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent* event)
             break;
         }
     }
-
-    selection_old= QImage();
-    floating_layer_old= QImage();
 
     if (mouse_down_button == Qt::MiddleButton)
         this->setCursor(Qt::ArrowCursor);
@@ -884,28 +888,32 @@ void ImageCanvas::ResizeFloatLayerToMouse(QPoint mouse_global_pos)
     if (!diffy && !diffx)
         return;
 
+    QRect new_rect_selection= rect_selection;
     if (transform_grabbing_right)
-        rect_selection.setRight(rect_selection.right()+diffx);
+        new_rect_selection.setRight(new_rect_selection.right()+diffx);
     else
-        rect_selection.setLeft(rect_selection.left()+diffx);
+        new_rect_selection.setLeft(new_rect_selection.left()+diffx);
     if (transform_grabbing_bottom)
-        rect_selection.setBottom(rect_selection.bottom()+diffy);
+        new_rect_selection.setBottom(new_rect_selection.bottom()+diffy);
     else
-        rect_selection.setTop(rect_selection.top()+diffy);
+        new_rect_selection.setTop(new_rect_selection.top()+diffy);
+
+    if (new_rect_selection.width() == 0 || new_rect_selection.height() == 0)
+        return;
+    rect_selection= new_rect_selection;
 
     //Scale the image and the selection
     floating_layer= floating_layer_old.scaled(rect_selection.size());
     selection.fill(0);
-    RectangleSelect(rect_selection, true);
-    // QImage selection_scaled= selection_old.scaled(rect_selection.size());
-    // for (int iy= 0; iy < selection_scaled.height(); iy++)
-    // {
-    //     uint8_t* sl_src= selection_scaled.scanLine(iy);
+    QImage selection_scaled= selection_old.scaled(rect_selection.size());
+    for (int iy= 0; iy < selection_scaled.height(); iy++)
+    {
+        uint8_t* sl_src= selection_scaled.scanLine(iy);
 
-    //     for (int ix= 0; ix < selection_scaled.width(); ix++)
-    //         if (sl_src[ix])
-    //             PlotSelection(rect_selection.x()+ix, rect_selection.y()+iy, true);
-    // }
+        for (int ix= 0; ix < selection_scaled.width(); ix++)
+            if (sl_src[ix])
+                PlotSelection(rect_selection.x()+ix, rect_selection.y()+iy, true);
+    }
 
     Redraw();
 
