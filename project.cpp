@@ -356,6 +356,7 @@ bool Project::ImportBitmap(QImage img, consent_t canvas_resize, consent_t import
         SetPalette(old_palette);
 
     CurrentFrame()->PushNewSnapshot(new UndoSnapshot(Undocmd_AddLayer, CurrentLayerIndex(), CurrentLayer()));
+    Canvas()->SetFrame(CurrentFrame());
     Canvas()->Redraw();
 
     return true;
@@ -433,7 +434,10 @@ void Project::SetImageSize(QSize size)
     this->image_size= size;
 
     if (Canvas())
+    {
         Canvas()->Redraw();
+        Canvas()->SetFrame(CurrentFrame());
+    }
 }
 
 void Project::SetFileName(QString filename)
