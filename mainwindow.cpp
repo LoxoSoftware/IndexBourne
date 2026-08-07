@@ -430,7 +430,7 @@ void MainWindow::on_actionVertical_flip_triggered()
         return;
     if (!current_project->Canvas())
         return;
-    current_project->Canvas()->FlipSelectionVertical();
+    current_project->Canvas()->FlipSelection(false, true);
 }
 
 void MainWindow::on_actionHorizontal_flip_triggered()
@@ -439,6 +439,6 @@ void MainWindow::on_actionHorizontal_flip_triggered()
         return;
     if (!current_project->Canvas())
         return;
-    current_project->Canvas()->FlipSelectionHorizontal();
+    current_project->Canvas()->FlipSelection(true, false);
 }
 

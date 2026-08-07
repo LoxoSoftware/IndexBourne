@@ -79,6 +79,7 @@ private:
     void ResizeFloatLayerToMouse(QPoint mouse_global_pos);
     void PaintGrid(QPainter* painter);
     void PaintTempSelection(QPainter* painter);
+    void UpdateSelectionContentWithImage(QImage content);
 
 public:
     ImageCanvas(QScrollArea* parent, Frame* frame);
@@ -96,8 +97,7 @@ public:
     void RectangleSelect(QRect rect, bool include= true); //Call on mouse release
     void FloodSelect(QPoint pos);
     void FillSelection(int color);
-    void FlipSelectionVertical();
-    void FlipSelectionHorizontal();
+    void FlipSelection(bool horizontal, bool vertical);
     void ApplyFloatingLayer(bool opaque= true, bool record= true);
     void DiscardFloatingLayer(bool keep_selection= false);
 

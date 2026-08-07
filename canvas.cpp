@@ -541,47 +541,45 @@ void ImageCanvas::FillSelection(int color)
     Redraw();
 }
 
-void ImageCanvas::FlipSelectionVertical()
+void ImageCanvas::FlipSelection(bool horizontal, bool vertical)
 {
-    UpdateMode();
-    QImage tlayer= *this->image;
+    QImage* dest= this->image;
+    if (current_tool->type == Tool_Transform && !floating_layer.isNull())
+        //Flip only the floating layer being transformed (non destructive)
+        dest= &floating_layer;
+    else
+        UpdateMode();
 
-    for (int iy=rect_selection.top(); iy<=rect_selection.bottom(); iy++)
+    selection_old= selection.copy(rect_selection);
+
+#if QT_VERSION_MAJOR > 5
+    if (horizontal)
     {
-        uint8_t* sl_mask= selection.scanLine(iy);
-        uint8_t* sl_dest= this->image->scanLine(iy);
-        uint8_t* sl_src= tlayer.scanLine(rect_selection.bottom()-iy+rect_selection.top());
+        dest->flip(Qt::Horizontal);
+        selection_old.flip(Qt::Horizontal);
+    }
+    if (vertical)
+    {
+        dest->flip(Qt::Vertical);
+        selection_old.flip(Qt::Vertical);
+    }
+#else
+    *dest= dest->mirrored(horizontal, vertical);
+    selection_old= selection_old.mirrored(horizontal, vertical);
+#endif
 
-        for (int ix=rect_selection.left(); ix<=rect_selection.right(); ix++)
-            if (sl_mask[ix])
-                sl_dest[ix]= sl_src[ix];
+    if (dest == &floating_layer)
+    {
+        selection.fill(0);
+        UpdateSelectionContentWithImage(selection_old);
+        floating_layer_old= floating_layer;
+    }
+    if (dest == this->image)
+    {
+        current_frame->PushNewSnapshot(new UndoSnapshot(Undocmd_DiffImage, current_layer_index, current_layer));
+        UpdateMode();
     }
 
-    current_frame->PushNewSnapshot(new UndoSnapshot(Undocmd_DiffImage, current_layer_index, current_layer));
-
-    UpdateMode();
-    Redraw();
-}
-
-void ImageCanvas::FlipSelectionHorizontal()
-{
-    UpdateMode();
-    QImage tlayer= *this->image;
-
-    for (int iy=rect_selection.top(); iy<=rect_selection.bottom(); iy++)
-    {
-        uint8_t* sl_mask= selection.scanLine(iy);
-        uint8_t* sl_dest= this->image->scanLine(iy);
-        uint8_t* sl_src= tlayer.scanLine(iy);
-
-        for (int ix=rect_selection.left(); ix<=rect_selection.right(); ix++)
-            if (sl_mask[ix])
-                sl_dest[ix]= sl_src[rect_selection.left()-ix+rect_selection.right()];
-    }
-
-    current_frame->PushNewSnapshot(new UndoSnapshot(Undocmd_DiffImage, current_layer_index, current_layer));
-
-    UpdateMode();
     Redraw();
 }
 
@@ -875,14 +873,7 @@ void ImageCanvas::MoveFloatLayerToMouse(QPoint mouse_global_pos)
 
     //move the selection
     selection.fill(0);
-    for (int iy= 0; iy < selection_old.height(); iy++)
-    {
-        uint8_t* sl_src= selection_old.scanLine(iy);
-
-        for (int ix= 0; ix < selection_old.width(); ix++)
-            if (sl_src[ix])
-                PlotSelection(rect_selection.x()+ix, rect_selection.y()+iy, true);
-    }
+    UpdateSelectionContentWithImage(selection_old);
 
     Redraw();
 
@@ -922,18 +913,25 @@ void ImageCanvas::ResizeFloatLayerToMouse(QPoint mouse_global_pos)
 
     //Scale the image and the selection
     floating_layer= floating_layer_old.scaled(rect_selection.size());
-    selection.fill(0);
     QImage selection_scaled= selection_old.scaled(rect_selection.size());
-    for (int iy= 0; iy < selection_scaled.height(); iy++)
-    {
-        uint8_t* sl_src= selection_scaled.scanLine(iy);
-
-        for (int ix= 0; ix < selection_scaled.width(); ix++)
-            if (sl_src[ix])
-                PlotSelection(rect_selection.x()+ix, rect_selection.y()+iy, true);
-    }
+    selection.fill(0);
+    UpdateSelectionContentWithImage(selection_scaled);
 
     Redraw();
 
     mouse_last_global_pos= mouse_global_pos;
+}
+
+void ImageCanvas::UpdateSelectionContentWithImage(QImage content)
+{
+    // selection.fill(0);
+
+    for (int iy= 0; iy < content.height(); iy++)
+    {
+        uint8_t* sl_src= content.scanLine(iy);
+
+        for (int ix= 0; ix < content.width(); ix++)
+            if (sl_src[ix])
+                PlotSelection(rect_selection.x()+ix, rect_selection.y()+iy, true);
+    }
 }
