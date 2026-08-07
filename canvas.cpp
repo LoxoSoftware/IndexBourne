@@ -510,19 +510,34 @@ void ImageCanvas::FloodSelect(QPoint pos)
 
 void ImageCanvas::FillSelection(int color)
 {
-    for (int iy=0; iy<selection.height(); iy++)
-    {
-        uint8_t* sl_mask= selection.scanLine(iy);
-        uint8_t* sl_dest= this->image->scanLine(iy);
+    if (current_tool->type == Tool_Transform && !floating_layer.isNull())
+        //Fill only the floating layer being transformed (non destructive)
+        for (int iy=0; iy<rect_selection.height(); iy++)
+        {
+            uint8_t* sl_mask= selection.scanLine(iy+rect_selection.y());
+            uint8_t* sl_dest= floating_layer.scanLine(iy);
 
-        for (int ix=0; ix<selection.width(); ix++)
-            if (sl_mask[ix])
-                sl_dest[ix]= color;
+            for (int ix=0; ix<rect_selection.width(); ix++)
+                if (sl_mask[ix+rect_selection.x()])
+                    sl_dest[ix]= color;
+        }
+    else
+    {
+        //Fall back to filling the actual layer
+        for (int iy=0; iy<selection.height(); iy++)
+        {
+            uint8_t* sl_mask= selection.scanLine(iy);
+            uint8_t* sl_dest= this->image->scanLine(iy);
+
+            for (int ix=0; ix<selection.width(); ix++)
+                if (sl_mask[ix])
+                    sl_dest[ix]= color;
+        }
+
+        current_frame->PushNewSnapshot(new UndoSnapshot(Undocmd_DiffImage, current_layer_index, current_layer));
+        UpdateMode();
     }
 
-    current_frame->PushNewSnapshot(new UndoSnapshot(Undocmd_DiffImage, current_layer_index, current_layer));
-
-    UpdateMode();
     Redraw();
 }
 
