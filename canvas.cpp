@@ -913,8 +913,11 @@ void ImageCanvas::ResizeFloatLayerToMouse(QPoint mouse_global_pos)
     else
         new_rect_selection.setTop(new_rect_selection.top()+diffy);
 
-    if (new_rect_selection.width() == 0 || new_rect_selection.height() == 0)
-        return;
+    if (new_rect_selection.width() <= 0)
+        new_rect_selection.setWidth(1);
+    if (new_rect_selection.height() <= 0)
+        new_rect_selection.setHeight(1);
+
     rect_selection= new_rect_selection;
 
     //Scale the image and the selection
