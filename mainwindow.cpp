@@ -442,3 +442,30 @@ void MainWindow::on_actionHorizontal_flip_triggered()
     current_project->Canvas()->FlipSelection(true, false);
 }
 
+void MainWindow::on_actionSelectAll_triggered()
+{
+    if (!current_project)
+        return;
+    if (!current_project->Canvas())
+        return;
+    current_project->Canvas()->RectangleSelect(current_project->CurrentLayer()->image.rect(), true);
+}
+
+void MainWindow::on_actionSelectNone_triggered()
+{
+    if (!current_project)
+        return;
+    if (!current_project->Canvas())
+        return;
+    current_project->Canvas()->RectangleSelect(current_project->CurrentLayer()->image.rect(), false);
+}
+
+void MainWindow::on_actionInvertSelection_triggered()
+{
+    if (!current_project)
+        return;
+    if (!current_project->Canvas())
+        return;
+    current_project->Canvas()->InvertSelectionRegion();
+}
+

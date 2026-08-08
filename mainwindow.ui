@@ -131,8 +131,17 @@
     <addaction name="actionVertical_flip"/>
     <addaction name="actionHorizontal_flip"/>
    </widget>
+   <widget class="QMenu" name="menuSelection">
+    <property name="title">
+     <string>Selection</string>
+    </property>
+    <addaction name="actionSelectAll"/>
+    <addaction name="actionSelectNone"/>
+    <addaction name="actionInvertSelection"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
+   <addaction name="menuSelection"/>
    <addaction name="menuImage"/>
    <addaction name="menuPalette"/>
    <addaction name="menuView"/>
@@ -444,6 +453,9 @@
    </property>
   </action>
   <action name="actionVertical_flip">
+   <property name="icon">
+    <iconset theme="object-flip-vertical"/>
+   </property>
    <property name="text">
     <string>Vertical flip</string>
    </property>
@@ -452,11 +464,47 @@
    </property>
   </action>
   <action name="actionHorizontal_flip">
+   <property name="icon">
+    <iconset theme="object-flip-horizontal"/>
+   </property>
    <property name="text">
     <string>Horizontal flip</string>
    </property>
    <property name="shortcut">
     <string>Shift+H</string>
+   </property>
+  </action>
+  <action name="actionSelectAll">
+   <property name="icon">
+    <iconset theme="edit-select-all"/>
+   </property>
+   <property name="text">
+    <string>Select all</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+A</string>
+   </property>
+  </action>
+  <action name="actionSelectNone">
+   <property name="icon">
+    <iconset theme="edit-clear"/>
+   </property>
+   <property name="text">
+    <string>Select none</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+A</string>
+   </property>
+  </action>
+  <action name="actionInvertSelection">
+   <property name="text">
+    <string>Invert</string>
+   </property>
+   <property name="toolTip">
+    <string>InvertSelection</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+I</string>
    </property>
   </action>
  </widget>

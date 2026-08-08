@@ -77,6 +77,9 @@ private slots:
     void on_actionExport_triggered();
     void on_actionVertical_flip_triggered();
     void on_actionHorizontal_flip_triggered();
+    void on_actionSelectAll_triggered();
+    void on_actionSelectNone_triggered();
+    void on_actionInvertSelection_triggered();
 };
 
 #endif // MAINWINDOW_H

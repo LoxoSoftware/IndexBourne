@@ -259,7 +259,7 @@
       <number>31</number>
      </property>
      <property name="displayIntegerBase">
-      <number>16</number>
+      <number>10</number>
      </property>
     </widget>
     <widget class="QSlider" name="sliRedChannel">
@@ -337,7 +337,7 @@
       <number>31</number>
      </property>
      <property name="displayIntegerBase">
-      <number>16</number>
+      <number>10</number>
      </property>
     </widget>
     <widget class="QSlider" name="sliGreenChannel">
@@ -426,7 +426,7 @@
       <number>31</number>
      </property>
      <property name="displayIntegerBase">
-      <number>16</number>
+      <number>10</number>
      </property>
     </widget>
     <widget class="QLabel" name="lblBlueChannel">

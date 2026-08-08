@@ -583,6 +583,19 @@ void ImageCanvas::FlipSelection(bool horizontal, bool vertical)
     Redraw();
 }
 
+void ImageCanvas::InvertSelectionRegion()
+{
+    for (int iy=0; iy<selection.height(); iy++)
+    {
+        uint8_t* sl= selection.scanLine(iy);
+
+        for (int ix=0; ix<selection.width(); ix++)
+            PlotSelection(ix, iy, !sl[ix], 1);
+    }
+
+    Redraw();
+}
+
 QRect ImageCanvas::GetSelectionBoundaries()
 {
     QPoint min_start= QPoint(999999, 999999);

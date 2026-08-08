@@ -98,6 +98,7 @@ public:
     void FloodSelect(QPoint pos);
     void FillSelection(int color);
     void FlipSelection(bool horizontal, bool vertical);
+    void InvertSelectionRegion();
     void ApplyFloatingLayer(bool opaque= true, bool record= true);
     void DiscardFloatingLayer(bool keep_selection= false);
 
