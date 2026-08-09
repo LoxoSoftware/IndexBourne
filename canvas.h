@@ -85,6 +85,7 @@ public:
     ImageCanvas(QScrollArea* parent, Frame* frame);
 
     void UpdateMode();
+    void UpdateCurrentTool();
     void Redraw();
     void ZoomIn();
     void ZoomOut();

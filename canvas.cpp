@@ -37,7 +37,7 @@ void ImageCanvas::UpdateMode()
     if (!current_project || !this->image)
         return;
 
-    *current_tool= current_project->CurrentTool();
+    UpdateCurrentTool();
     setCursor(Qt::ArrowCursor);
 
     rect_selection= GetSelectionBoundaries().normalized();
@@ -78,6 +78,8 @@ void ImageCanvas::UpdateMode()
 
     Redraw();
 }
+
+void ImageCanvas::UpdateCurrentTool() { *current_tool= current_project->CurrentTool(); }
 
 void ImageCanvas::ApplyFloatingLayer(bool opaque, bool record)
 {
@@ -175,7 +177,7 @@ void ImageCanvas::Redraw()
         if (il == current_layer_index && floating_layer != QImage())
         {
             QImage tfl= floating_layer;
-            tfl.setColorTable(current_frame->LayerAt(0)->image.colorTable());
+            tfl.setColorTable(current_frame->LayerAt(current_tool->opaque_apply_mode? 0 : current_layer_index)->image.colorTable());
             pix= QPixmap::fromImage(tfl);
             QBitmap mask= QBitmap::fromImage(selection.copy(rect_selection).createMaskFromColor(0));
             pix.setMask(mask);
@@ -186,7 +188,7 @@ void ImageCanvas::Redraw()
         }
     }
 
-    //Draw selection
+    //Draw selection region
     if (current_tool)
     if (current_tool->type != Tool_Transform)
     {
@@ -634,7 +636,7 @@ void ImageCanvas::mousePressEvent(QMouseEvent* event)
 {
     //event->accept();
 
-    *current_tool= current_project->CurrentTool();
+    UpdateCurrentTool();
 
     mouse_down_button= event->button();
     mouse_last_pos= event->pos();
@@ -925,8 +927,21 @@ void ImageCanvas::ResizeFloatLayerToMouse(QPoint mouse_global_pos)
     rect_selection= new_rect_selection;
 
     //Scale the image and the selection
-    floating_layer= floating_layer_old.scaled(rect_selection.size());
-    QImage selection_scaled= selection_old.scaled(rect_selection.size());
+    QSize new_size;
+    if (current_tool->force_integer_scale)
+    {
+        new_size= QSize(floating_layer_old.width()*(int)(rect_selection.width()/floating_layer_old.width()),
+                        floating_layer_old.height()*(int)(rect_selection.height()/floating_layer_old.height()));
+        if (new_size.width() <= 0)
+            new_size.setWidth(floating_layer_old.width());
+        if (new_size.height() <= 0)
+            new_size.setHeight(floating_layer_old.height());
+    }
+    else
+        new_size= rect_selection.size();
+    //NOTE: The copy operation below is redundant, but Qt would complain otherwise
+    floating_layer= floating_layer_old.scaled(new_size).copy(QRect(0, 0, rect_selection.width(), rect_selection.height()));
+    QImage selection_scaled= selection_old.scaled(new_size).copy(QRect(0, 0, rect_selection.width(), rect_selection.height()));
     selection.fill(0);
     UpdateSelectionContentWithImage(selection_scaled);
 

@@ -31,6 +31,8 @@ ToolPanel::ToolPanel(QWidget *parent, MainWindow* main_window)
     connect(ui->btnRectangleSelect, &QToolButton::clicked, this, &ToolPanel::on_CurrentToolTypeChanged);
     connect(ui->btnTransformGfx, &QToolButton::clicked, this, &ToolPanel::on_CurrentToolTypeChanged);
     connect(ui->btnFloodSelect, &QToolButton::clicked, this, &ToolPanel::on_CurrentToolTypeChanged);
+    connect(ui->chkApplyOpaque, &QCheckBox::checkStateChanged, this, &ToolPanel::on_CanvasInvalidate);
+    connect(ui->chkForceIntegerScale, &QCheckBox::checkStateChanged, this, &ToolPanel::on_CanvasInvalidate);
 }
 
 ToolPanel::~ToolPanel()
@@ -76,6 +78,7 @@ Tool ToolPanel::GetCurrentTool()
     new_tool.diameter_a= ui->spbPencilDotSizeA->value();
     new_tool.diameter_b= ui->spbPencilDotSizeB->value();
     new_tool.opaque_apply_mode= ui->chkApplyOpaque->isChecked();
+    new_tool.force_integer_scale= ui->chkForceIntegerScale->isChecked();
 
     return new_tool;
 }
@@ -120,4 +123,10 @@ void ToolPanel::on_CurrentToolTypeChanged()
     //GetCurrentTool();
 
     current_project->Canvas()->UpdateMode();
+}
+
+void ToolPanel::on_CanvasInvalidate()
+{
+    current_project->Canvas()->UpdateCurrentTool();
+    current_project->Canvas()->Redraw();
 }

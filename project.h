@@ -126,6 +126,7 @@ typedef struct Tool
     int diameter_a= 1;
     int diameter_b= 1;
     bool opaque_apply_mode= true;
+    bool force_integer_scale= false;
     bool contour= false;
     bool fill= true;
 } Tool;

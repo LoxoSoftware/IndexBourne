@@ -262,7 +262,7 @@
      </rect>
     </property>
     <property name="frameShape">
-     <enum>QFrame::Shape::WinPanel</enum>
+     <enum>QFrame::Shape::StyledPanel</enum>
     </property>
     <property name="frameShadow">
      <enum>QFrame::Shadow::Sunken</enum>
@@ -354,8 +354,8 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>20</y>
-        <width>91</width>
+        <y>10</y>
+        <width>101</width>
         <height>23</height>
        </rect>
       </property>
@@ -367,6 +367,25 @@
       </property>
       <property name="checked">
        <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="chkForceIntegerScale">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>30</y>
+        <width>101</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>Force integer scaling</string>
+      </property>
+      <property name="text">
+       <string>Integer scale</string>
+      </property>
+      <property name="checked">
+       <bool>false</bool>
       </property>
      </widget>
     </widget>

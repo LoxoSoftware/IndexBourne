@@ -28,6 +28,7 @@ private:
     bool block_tooltype_change_signal= false;
 
     void on_CurrentToolTypeChanged();
+    void on_CanvasInvalidate();
 };
 
 #endif // TOOL_PANEL_H
