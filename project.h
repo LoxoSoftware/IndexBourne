@@ -208,6 +208,7 @@ public:
     void SetBppFormat(bppformat_t fmt);
     void SetFileName(QString filename);
     bool SetSharedPalette(QString filename); //Returns true on success | set to "" to disable
+    void SetSaved(bool saved);
     void InsertFrameAt(int pos);
     void InsertFrame() { InsertFrameAt(timeline.size()); }
     void RemoveFrame(int frame);

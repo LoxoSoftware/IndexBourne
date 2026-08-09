@@ -124,6 +124,8 @@ bool Project::SaveProject(QString filename)
 
     ozip.close();
 
+    SetSaved(true);
+
     return true;
 }
 
@@ -283,6 +285,8 @@ bool Project::LoadProject(QString filename)
     UiPalettePanel()->Update();
 
     izip.close();
+
+    SetSaved(true);
 
     return true;
 }

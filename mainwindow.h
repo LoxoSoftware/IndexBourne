@@ -29,6 +29,8 @@ private:
 
     bool _QuickSaveBitmap(QString new_fname);
 
+    void closeEvent(QCloseEvent* event) override;
+
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow() override;

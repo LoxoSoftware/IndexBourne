@@ -144,6 +144,8 @@ void Frame::PushNewSnapshot(UndoSnapshot* snap)
     snap->layer_data.image.setColorTable(current_project->Palette());
 
     history.insert(history_index-1, *snap);
+
+    current_project->SetSaved(false);
 }
 
 void Frame::Undo()
@@ -316,6 +318,8 @@ Project::Project(MainWindow* parent, QSize size)
     parent->UpdateWindowTitle();
     UpdateLayerPanel();
     SetPalette(); //Update palette panel
+
+    SetSaved(true);
 }
 
 bool Project::ImportBitmap(QImage img, consent_t canvas_resize, consent_t import_palette)
@@ -444,6 +448,13 @@ void Project::SetFileName(QString filename)
 {
     this->filename= filename;
     this->main_window->UpdateWindowTitle();
+}
+
+void Project::SetSaved(bool saved)
+{
+    is_saved= saved;
+    if (main_window)
+        main_window->UpdateWindowTitle();
 }
 
 void Project::SetPaltableAPosition(QPoint pos)

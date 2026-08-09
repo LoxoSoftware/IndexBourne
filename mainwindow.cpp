@@ -42,6 +42,40 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::closeEvent(QCloseEvent* event)
+{
+    if (!current_project)
+    {
+        event->accept();
+        return;
+    }
+    if (current_project->IsSaved())
+    {
+        event->accept();
+        return;
+    }
+
+    QMessageBox::StandardButton answer;
+    answer= QMessageBox::question(this, "Unsaved changes",
+                                   "There may be unsaved changes in your project, \nwhat would you like to do?",
+                                   QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel, QMessageBox::Save);
+
+    switch(answer)
+    {
+    case QMessageBox::Save:
+        on_actionSaveProject_triggered();
+        break;
+    case QMessageBox::Cancel:
+        event->ignore();
+        return;
+    case QMessageBox::Discard:
+    default:
+        break;
+    }
+
+    event->accept();
+}
+
 QIcon MainWindow::ColorizeIcon(QString fname, QString color, QString fname_on)
 {
     QFile src_file= QFile(fname);
