@@ -330,6 +330,7 @@ void MainWindow::on_actionDiscard_temp_changes_triggered()
         return;
 
     current_project->Canvas()->DiscardFloatingLayer();
+    on_actionUndo_triggered();
 }
 
 void MainWindow::on_actionImportPalette_triggered()

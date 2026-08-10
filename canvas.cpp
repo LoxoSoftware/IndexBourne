@@ -49,28 +49,7 @@ void ImageCanvas::UpdateMode()
     main_window->UpdateTransformStatus(true);
 
     if (current_tool->type == Tool_Transform)
-    {
-        //Copy selection into floating layer
-        floating_layer= this->image->copy(rect_selection);
-        //Mask out pixels which are not selected
-        for (int iy=0; iy<floating_layer.height(); iy++)
-        {
-            if (iy+rect_selection.y() < 0 || iy+rect_selection.y() >= this->image->height())
-                continue;
-
-            uint8_t* sl_img= floating_layer.scanLine(iy);
-            uint8_t* sl_sel= selection.scanLine(iy+rect_selection.y());
-
-            for (int ix=0; ix<floating_layer.width(); ix++)
-            {
-                if (ix+rect_selection.x() < 0 || ix+rect_selection.x() >= this->image->width())
-                    continue;
-
-                if (!sl_sel[ix+rect_selection.x()])
-                    sl_img[ix]= 0;
-            }
-        }
-    }
+        TransferToFloatingLayer(false);
     else if (current_tool->type & (Tool_RectSelect | Tool_FloodSelect | Tool_PencilSelect))
         DiscardFloatingLayer(true);
     else
@@ -80,6 +59,47 @@ void ImageCanvas::UpdateMode()
 }
 
 void ImageCanvas::UpdateCurrentTool() { *current_tool= current_project->CurrentTool(); }
+
+void ImageCanvas::TransferToFloatingLayer(bool keep, QImage* src, QImage* mask)
+{
+    if (!src) src= this->image;
+    if (!mask) mask= &selection;
+    if (mask != &selection)
+        rect_selection= GetSelectionBoundaries().normalized();
+    if (rect_selection.size() == QSize(0,0))
+    {
+        main_window->UpdateTransformStatus(false);
+        return;
+    }
+    main_window->UpdateTransformStatus(true);
+
+    floating_layer= src->copy(rect_selection);
+
+    if (!keep && mask != &selection)
+        current_frame->PushNewSnapshot(new UndoSnapshot(Undocmd_DiffImage, current_layer_index, current_layer));
+
+    //Mask out pixels which are not selected
+    for (int iy=0; iy<floating_layer.height(); iy++)
+    {
+        if (iy+rect_selection.y() < 0 || iy+rect_selection.y() >= src->height())
+            continue;
+
+        uint8_t* sl_dest= floating_layer.scanLine(iy);
+        uint8_t* sl_src= src->scanLine(iy+rect_selection.y());
+        uint8_t* sl_sel= mask->scanLine(iy+rect_selection.y());
+
+        for (int ix=0; ix<floating_layer.width(); ix++)
+        {
+            if (ix+rect_selection.x() < 0 || ix+rect_selection.x() >= src->width())
+                continue;
+
+            if (!sl_sel[ix+rect_selection.x()])
+                sl_dest[ix]= 0;
+            else if (!keep)
+                sl_src[ix+rect_selection.x()]= 0;
+        }
+    }
+}
 
 void ImageCanvas::ApplyFloatingLayer(bool opaque, bool record)
 {

@@ -100,6 +100,7 @@ public:
     void FillSelection(int color);
     void FlipSelection(bool horizontal, bool vertical);
     void InvertSelectionRegion();
+    void TransferToFloatingLayer(bool keep, QImage* src= nullptr, QImage* mask= nullptr);
     void ApplyFloatingLayer(bool opaque= true, bool record= true);
     void DiscardFloatingLayer(bool keep_selection= false);
 
