@@ -352,7 +352,12 @@ bool Project::ImportBitmap(QImage img, consent_t canvas_resize, consent_t import
             answer= QMessageBox::question(this->main_window, "Import palette?",
                                            "Do you wish to replace the palette?");
         if (answer == QMessageBox::Yes)
-            SetPalette(img.colorTable());
+        {
+            palette_t new_palette= img.colorTable();
+            if ((new_palette[0]&0xFF000000) < 0xFF && !CurrentLayerIndex()) //Replace transparent color
+                new_palette[0]= 0xFFFF00FF;
+            SetPalette(new_palette);
+        }
         else
             SetPalette(old_palette);
     }
