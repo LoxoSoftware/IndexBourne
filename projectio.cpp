@@ -32,7 +32,7 @@ QByteArray IntToLittleEndian(long n, int size= 4)
 bool Project::SaveProject(QString filename)
 {
     QuaZip ozip= QuaZip(filename);
-    if (!ozip.open(QuaZip::mdAppend))
+    if (!ozip.open(QuaZip::mdCreate))
         return false;
 
     if (FrameCount() < 1)
