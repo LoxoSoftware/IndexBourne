@@ -29,7 +29,7 @@
          <x>0</x>
          <y>0</y>
          <width>778</width>
-         <height>533</height>
+         <height>532</height>
         </rect>
        </property>
       </widget>
@@ -125,7 +125,10 @@
     <addaction name="actionApply_transform"/>
     <addaction name="actionDiscard_temp_changes"/>
     <addaction name="separator"/>
+    <addaction name="actionCopy"/>
+    <addaction name="actionPaste"/>
     <addaction name="actionDeleteGfx"/>
+    <addaction name="separator"/>
     <addaction name="actionFillSelection_A"/>
     <addaction name="actionFillSelection_B"/>
     <addaction name="actionVertical_flip"/>
@@ -386,7 +389,10 @@
     <iconset theme="window-new"/>
    </property>
    <property name="text">
-    <string>Apply floating layer</string>
+    <string>Apply transformation</string>
+   </property>
+   <property name="toolTip">
+    <string>Apply transformation to the underlying</string>
    </property>
    <property name="shortcut">
     <string>Return</string>
@@ -400,7 +406,10 @@
     <iconset theme="window-close"/>
    </property>
    <property name="text">
-    <string>Discard floating layer</string>
+    <string>Discard temporary changes</string>
+   </property>
+   <property name="toolTip">
+    <string>Discard any temporary changes and undo</string>
    </property>
    <property name="shortcut">
     <string>Esc</string>
@@ -505,6 +514,34 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+I</string>
+   </property>
+  </action>
+  <action name="actionCopy">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::EditCopy"/>
+   </property>
+   <property name="text">
+    <string>Copy</string>
+   </property>
+   <property name="toolTip">
+    <string>Copy content in the selected region</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="actionPaste">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::EditPaste"/>
+   </property>
+   <property name="text">
+    <string>Paste</string>
+   </property>
+   <property name="toolTip">
+    <string>Paste image from clipboard</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+V</string>
    </property>
   </action>
  </widget>

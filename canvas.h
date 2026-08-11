@@ -51,6 +51,9 @@ private:
     QImage selection_old;
     QImage floating_layer;
     QImage floating_layer_old= QImage();
+    QImage clipboard_image= QImage();
+    QImage clipboard_mask= QImage();
+    bool is_transfer_source_moved= false;
     QRect rect_selection= QRect(0,0,0,0);
     Frame* current_frame= nullptr;
     int current_layer_index= 0;
@@ -100,9 +103,11 @@ public:
     void FillSelection(int color);
     void FlipSelection(bool horizontal, bool vertical);
     void InvertSelectionRegion();
-    void TransferToFloatingLayer(bool keep, QImage* src= nullptr, QImage* mask= nullptr);
+    void TransferToFloatingLayer(bool keep, QImage* src= nullptr, QImage* mask= nullptr, QRect src_rect= QRect());
     void ApplyFloatingLayer(bool opaque= true, bool record= true);
-    void DiscardFloatingLayer(bool keep_selection= false);
+    void DiscardFloatingLayer(bool keep_selection= false, bool auto_undo= false);
+    void CopySelected();
+    void Paste();
 
     const QImage* Image() const { return image; }
     QWidget* Widget() { return this->Widget(); }

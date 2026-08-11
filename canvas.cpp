@@ -49,7 +49,10 @@ void ImageCanvas::UpdateMode()
     main_window->UpdateTransformStatus(true);
 
     if (current_tool->type == Tool_Transform)
-        TransferToFloatingLayer(false);
+    {
+        if (floating_layer.isNull())
+            TransferToFloatingLayer(false);
+    }
     else if (current_tool->type & (Tool_RectSelect | Tool_FloodSelect | Tool_PencilSelect))
         DiscardFloatingLayer(true);
     else
@@ -60,12 +63,14 @@ void ImageCanvas::UpdateMode()
 
 void ImageCanvas::UpdateCurrentTool() { *current_tool= current_project->CurrentTool(); }
 
-void ImageCanvas::TransferToFloatingLayer(bool keep, QImage* src, QImage* mask)
+void ImageCanvas::TransferToFloatingLayer(bool keep, QImage* src, QImage* mask, QRect src_rect)
 {
     if (!src) src= this->image;
     if (!mask) mask= &selection;
+    if (src_rect.isNull()) src_rect= GetSelectionBoundaries().normalized();
     if (mask != &selection)
-        rect_selection= GetSelectionBoundaries().normalized();
+        UpdateSelectionContentWithImage(*mask);
+    rect_selection= src_rect;
     if (rect_selection.size() == QSize(0,0))
     {
         main_window->UpdateTransformStatus(false);
@@ -75,8 +80,13 @@ void ImageCanvas::TransferToFloatingLayer(bool keep, QImage* src, QImage* mask)
 
     floating_layer= src->copy(rect_selection);
 
-    if (!keep && mask != &selection)
+    if (!keep)
+    {
         current_frame->PushNewSnapshot(new UndoSnapshot(Undocmd_DiffImage, current_layer_index, current_layer));
+        is_transfer_source_moved= true;
+    }
+    else
+        is_transfer_source_moved= false;
 
     //Mask out pixels which are not selected
     for (int iy=0; iy<floating_layer.height(); iy++)
@@ -135,7 +145,7 @@ void ImageCanvas::ApplyFloatingLayer(bool opaque, bool record)
             new UndoSnapshot(Undocmd_DiffImage, current_layer_index, current_layer));
 }
 
-void ImageCanvas::DiscardFloatingLayer(bool keep_selection)
+void ImageCanvas::DiscardFloatingLayer(bool keep_selection, bool auto_undo)
 {
     if (main_window)
         main_window->UpdateTransformStatus(false);
@@ -149,6 +159,60 @@ void ImageCanvas::DiscardFloatingLayer(bool keep_selection)
         selection.fill(0);
         rect_selection= QRect();
     }
+
+    if (auto_undo && is_transfer_source_moved)
+        current_frame->Undo();
+
+    Redraw();
+}
+
+void ImageCanvas::CopySelected()
+{
+    QRect temp_rect_selection= GetSelectionBoundaries().normalized();
+    if (temp_rect_selection.size() == QSize(0,0))
+        return;
+
+    if (current_tool->type != Tool_Transform)
+    {
+        //Take content from project layer
+        clipboard_image= this->image->copy(temp_rect_selection);
+        clipboard_mask= selection.copy(temp_rect_selection);
+    }
+    else
+    {
+        //Take content from floating layer
+        clipboard_image= floating_layer;
+        clipboard_mask= selection.copy(temp_rect_selection);
+    }
+
+    //Mask out pixels which are not selected
+    for (int iy=0; iy<clipboard_image.height(); iy++)
+    {
+        if (iy+temp_rect_selection.y() < 0 || iy+temp_rect_selection.y() >= this->image->height())
+            continue;
+
+        uint8_t* sl_dest= clipboard_image.scanLine(iy);
+        uint8_t* sl_sel= selection.scanLine(iy+temp_rect_selection.y());
+
+        for (int ix=0; ix<clipboard_image.width(); ix++)
+        {
+            if (ix+temp_rect_selection.x() < 0 || ix+temp_rect_selection.x() >= this->image->width())
+                continue;
+
+            if (!sl_sel[ix+temp_rect_selection.x()])
+                sl_dest[ix]= 0;
+        }
+    }
+}
+
+void ImageCanvas::Paste()
+{
+    if (clipboard_image.isNull() || clipboard_mask.isNull())
+        return;
+
+    ApplyFloatingLayer();
+    TransferToFloatingLayer(true, &clipboard_image, &clipboard_mask, clipboard_image.rect());
+    current_project->SetCurrentToolType(Tool_Transform);
 
     Redraw();
 }

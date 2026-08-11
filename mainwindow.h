@@ -82,6 +82,8 @@ private slots:
     void on_actionSelectAll_triggered();
     void on_actionSelectNone_triggered();
     void on_actionInvertSelection_triggered();
+    void on_actionCopy_triggered();
+    void on_actionPaste_triggered();
 };
 
 #endif // MAINWINDOW_H

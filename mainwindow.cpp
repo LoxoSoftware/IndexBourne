@@ -329,8 +329,7 @@ void MainWindow::on_actionDiscard_temp_changes_triggered()
     if (!current_project)
         return;
 
-    current_project->Canvas()->DiscardFloatingLayer();
-    on_actionUndo_triggered();
+    current_project->Canvas()->DiscardFloatingLayer(false, true);
 }
 
 void MainWindow::on_actionImportPalette_triggered()
@@ -502,5 +501,23 @@ void MainWindow::on_actionInvertSelection_triggered()
     if (!current_project->Canvas())
         return;
     current_project->Canvas()->InvertSelectionRegion();
+}
+
+void MainWindow::on_actionCopy_triggered()
+{
+    if (!current_project)
+        return;
+    if (!current_project->Canvas())
+        return;
+    current_project->Canvas()->CopySelected();
+}
+
+void MainWindow::on_actionPaste_triggered()
+{
+    if (!current_project)
+        return;
+    if (!current_project->Canvas())
+        return;
+    current_project->Canvas()->Paste();
 }
 
