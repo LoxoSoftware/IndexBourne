@@ -82,7 +82,7 @@ bool Project::SaveProject(QString filename)
     xstream.setAutoFormatting(true);
     xstream.setAutoFormattingIndent(true);
     xstream.writeStartDocument();
-    xstream.writeComment("EZGFX project file");
+    xstream.writeComment("IndexBourne project file");
     xstream.writeStartElement("", "image");
     xstream.writeAttribute("", "version", ORA_VERSION);
     xstream.writeAttribute("", "w", QString::number(this->image_size.width()));
@@ -149,7 +149,7 @@ bool Project::LoadProject(QString filename)
     buffer.open(QIODevice::ReadOnly);
     xstream.setDevice(&buffer);
 
-    // -- Handle EZGFX specific extensions --
+    // -- Handle IndexBourne specific extensions --
     izip.setCurrentFile("ezgfx.xml");
     if (!ifile.open(QIODevice::ReadOnly))
     {

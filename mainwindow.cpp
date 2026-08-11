@@ -123,7 +123,7 @@ void MainWindow::UpdateWindowTitle()
     if (project_name == QString())
         project_name= "<>";
 
-    setWindowTitle(project_name + ( notsaved ? " *" : "" ) + " - EZGFX");
+    setWindowTitle(project_name + ( notsaved ? " *" : "" ));
 }
 
 void MainWindow::on_actionZoom_in_triggered()
@@ -220,7 +220,7 @@ void MainWindow::on_actionSaveProjectAs_triggered()
 
     //QString ofile_name= QFileDialog::getSaveFileName(this, "Save project or bitmap", "", "Supported formats ("/**.gfx */"*.bmp *.png)");
     QString ofile_name= QFileDialog::getSaveFileName(this, "Save project or bitmap", "",
-                            "EZGFX project (*.ora *.gfx);;Windows bitmap (*.bmp);;Indexed PNG (*.png)");
+                            "IndexBourne project (*.ora *.gfx);;Windows bitmap (*.bmp);;Indexed PNG (*.png)");
 
     if (ofile_name == "")
         return;
@@ -271,9 +271,11 @@ void MainWindow::on_actionPaletteQuickFill_triggered()
 
 void MainWindow::on_actionAbout_triggered()
 {
-    QMessageBox::about(this, "About EZGFX", "EZGFX is a free and open source image editor aimed at "
+    QWidget tw= QWidget(this);
+    tw.setWindowIcon(QIcon(":/icons/bitmap/about-banner"));
+    QMessageBox::about(&tw, "About IndexBourne", "IndexBourne is a free and open source image editor aimed at "
                                             "game developement for retro platforms."
-                                            "\n\nCopyright (c)2026 LoxoSoftware");
+                                            "\n\nCopyright (C) 2026 LoxoSoftware");
 }
 
 void MainWindow::on_actionAboutQt_triggered()

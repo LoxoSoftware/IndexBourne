@@ -15,4 +15,8 @@
         <file alias="move">res/icons/move.svg</file>
         <file alias="magic-wand">res/icons/magic-wand.svg</file>
     </qresource>
+    <qresource prefix="/icons/bitmap">
+        <file alias="icon">res/icon.png</file>
+        <file alias="about-banner">res/about.png</file>
+    </qresource>
 </RCC>
