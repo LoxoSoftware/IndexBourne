@@ -73,7 +73,7 @@ bool Project::SaveProject(QString filename)
                 "data/frame"+QString::number(ifr)+
                 "/layer"+QString::number(il)+".png"
             ));
-            FrameAt(ifr)->LayerAt(il)->image.save(&ofile, "png", 100);
+            FrameAt(ifr)->LayerAt(il)->save(&ofile, "png", 100);
             ofile.close();
         }
     }
@@ -145,6 +145,7 @@ bool Project::LoadProject(QString filename)
     QList<Frame> new_frames;
     palette_t new_palette;
     QString new_shared_pal= "";
+    QList<LayerProps> new_layer_info;
 
     buffer.open(QIODevice::ReadOnly);
     xstream.setDevice(&buffer);
@@ -238,6 +239,7 @@ bool Project::LoadProject(QString filename)
                             }
 
                             *tframe.InsertLayerAt(0, false)= new_layer;
+                            new_layer_info.insert(0, LayerProps());
                             new_palette= new_layer.colorTable();
 
                             ifile.close();
@@ -268,12 +270,12 @@ bool Project::LoadProject(QString filename)
         return false;
     }
 
-    this->timeline.clear();
-    foreach (Frame frame, new_frames)
-        this->timeline.append(frame);
+    this->timeline= new_frames;
+    this->layer_info= new_layer_info;
     this->image_size= new_size;
     this->current_frame= 0;
     this->current_layer= 0;
+    FixLayerDB(); //Safety measure to prevent crashes. It shouldn't be necessary, but just to be safe...
     this->Canvas()->SetFrame(CurrentFrame());
     SetPalette(new_palette);
     SetSharedPalette(new_shared_pal);

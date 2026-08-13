@@ -15,41 +15,9 @@
 #define _PRJ_FOREACH_FRAME  for (int ifr=0; ifr<timeline.size(); ifr++)
 
 class Project;
-class Layer;
 
-typedef QList<Layer> layergroup_t;
+typedef QList<QImage> layergroup_t;
 typedef QList<QRgb> palette_t;
-
-class Layer
-{
-public:
-    Layer(QString name="")
-    {
-        if (name != "") this->name= name;
-        this->image= QImage(8, 8, QImage::Format_Indexed8);
-    }
-    Layer(QSize size, QString name="")
-    {
-        if (name != "") this->name= name;
-        this->image= QImage(size, QImage::Format_Indexed8);
-    }
-    Layer(QImage src, QString name="")
-    {
-        if (name != "") this->name= name;
-        this->image= src;
-    }
-    Layer(Layer* lyr)
-    {
-        this->image= lyr->image;
-        this->name= lyr->name;
-        this->opacity= lyr->opacity;
-        this->visible= lyr->visible;
-    }
-    QImage image;
-    QString name= "layer";
-    bool visible= true;
-    uchar opacity= 255;
-};
 
 typedef enum
 {
@@ -61,14 +29,15 @@ typedef enum
 class UndoSnapshot
 {
 public:
-    UndoSnapshot(undocommand_t cmd, int layer_ind, Layer* layer_data= nullptr)
+    UndoSnapshot(undocommand_t cmd, int layer_ind, QImage* layer_data= nullptr)
     {
         this->cmd= cmd;
         this->layer_ind= layer_ind;
-        this->layer_data= layer_data? *layer_data : Layer(QSize(8,8));
+        if (layer_data)
+            this->layer_data= *layer_data;
     };
 
-    Layer layer_data= Layer(QSize(8,8));
+    QImage layer_data= QImage(8, 8, QImage::Format_Indexed8);
     undocommand_t cmd;
     int layer_ind;
 };
@@ -84,14 +53,16 @@ private:
 public:
     Frame(Project* parent, QSize size);
 
-    Layer* InsertLayerAt(int pos, bool record= true);
-    Layer* InsertLayer(bool record= true) { return InsertLayerAt(this->size(), record); }
+    // ---- NOTE: Only the Project class should interface with these lower level methods ----
+    QImage* InsertLayerAt(int pos, bool record= true);
+    QImage* InsertLayer(bool record= true) { return InsertLayerAt(this->size(), record); }
     void RemoveLayer(int layer, bool record= true);
-    void ReplaceLayer(Layer img, int index);
+    // ---- ----
+    void ReplaceLayer(QImage img, int index);
     void SetPalette(palette_t palette, bool record= false);
     void SetImageSize(QSize size);
     void SwapLayers(int index_a, int index_b);
-    Layer* MergeLayerDown(int index, bool record= true);
+    QImage* MergeLayerDown(int index, bool record= true);
     void Undo();
     void Redo();
     void ClearHistory();
@@ -100,7 +71,7 @@ public:
 
     QImage RenderBitmap();
 
-    Layer* LayerAt(int layer);
+    QImage* LayerAt(int layer);
     const QSize ImageSize() const { return image_size; }
     const int LayerCount() const { return this->size(); }
     int HistorySize() { return history.size(); }
@@ -144,6 +115,13 @@ typedef enum
     Format_4bpp,
 } bppformat_t;
 
+class LayerProps
+{
+public:
+    bool visible= true;
+    QString name= ""; //Leave blank for automatic name "layer X"
+};
+
 class Project
 {
 
@@ -164,6 +142,7 @@ protected:
     QString filename= "";
     QString shared_palette_filename= "";
     bool is_saved= true;
+    QList<LayerProps> layer_info;
 
     PalettePanel* UiPalettePanel() { return dckPaletteEdit ? *dckPaletteEdit : nullptr; }
     ToolPanel* UiToolPanel() { return dckToolPanel ? *dckToolPanel : nullptr; }
@@ -180,9 +159,11 @@ public:
 
     Frame* CurrentFrame() { return (Frame*)&(timeline.at(current_frame)); }
     Frame* FrameAt(int frame) { return (Frame*)&(timeline.at(frame)); }
-    Layer* CurrentLayer() { return CurrentFrame()->LayerAt(current_layer); }
+    QImage* CurrentLayer() { return CurrentFrame()->LayerAt(current_layer); }
     const int CurrentFrameIndex() const { return current_frame; }
     const int CurrentLayerIndex() const { return current_layer; }
+    LayerProps* LayerInfo(int layer) { return &layer_info[layer]; }
+    LayerProps* CurrentLayerInfo() { return &layer_info[current_layer]; }
     const int FrameCount() const { return timeline.size(); }
     const QSize ImageSize() const { return image_size; }
     const palette_t Palette() const { return palette; }
@@ -197,7 +178,6 @@ public:
     const int PaltableAIndex() const { return paltable_Apos.x()+paltable_Apos.y()*PALETTE_W; }
     const int PaltableBIndex() const { return paltable_Bpos.x()+paltable_Bpos.y()*PALETTE_W; }
     Tool CurrentTool() { if (!UiToolPanel()) return Tool(); return UiToolPanel()->GetCurrentTool(); }
-    void SetCurrentToolType(tooltype_t type) { UiToolPanel()->SetCurrentToolType(type); }
 
     void SetCurrentFrameIndex(int frame);
     void SetCurrentLayerIndex(int layer);
@@ -212,14 +192,16 @@ public:
     void InsertFrameAt(int pos);
     void InsertFrame() { InsertFrameAt(timeline.size()); }
     void RemoveFrame(int frame);
-    void InsertLayerAt(int pos, bool record= true) { _PRJ_FOREACH_FRAME FrameAt(ifr)->InsertLayerAt(pos, record); }
-    void InsertLayer(bool record= true) { _PRJ_FOREACH_FRAME FrameAt(ifr)->InsertLayer(record); }
-    void RemoveLayer(int pos, bool record= true) { _PRJ_FOREACH_FRAME FrameAt(ifr)->RemoveLayer(pos, record); if (canvas) canvas->Redraw(); }
+    void InsertLayerAt(int pos, bool record= true);
+    void InsertLayer(bool record= true) { InsertLayerAt(current_layer, record); }
+    void RemoveLayer(int pos, bool record= true);
     void SwapColorIndex(int index_a, int index_b);
     void FillPaletteLinear(int index_a, int index_b, QRgb color);
     void FillPaletteRect(QPoint pos_a, QPoint pos_b, QRgb color);
     void UpdateLayerPanel() { UiLayerPanel()->Update(); }
     void SwapAllLayers(int index_a, int index_b) { _PRJ_FOREACH_FRAME FrameAt(ifr)->SwapLayers(index_a, index_b); SetPalette(); }
+    void SetCurrentToolType(tooltype_t type) { UiToolPanel()->SetCurrentToolType(type); }
+    void FixLayerDB();
 };
 
 #endif // PROJECT_H

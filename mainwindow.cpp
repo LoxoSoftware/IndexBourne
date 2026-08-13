@@ -481,7 +481,7 @@ void MainWindow::on_actionSelectAll_triggered()
         return;
     if (!current_project->Canvas())
         return;
-    current_project->Canvas()->RectangleSelect(current_project->CurrentLayer()->image.rect(), true);
+    current_project->Canvas()->RectangleSelect(current_project->CurrentLayer()->rect(), true);
 }
 
 void MainWindow::on_actionSelectNone_triggered()
@@ -490,7 +490,7 @@ void MainWindow::on_actionSelectNone_triggered()
         return;
     if (!current_project->Canvas())
         return;
-    current_project->Canvas()->RectangleSelect(current_project->CurrentLayer()->image.rect(), false);
+    current_project->Canvas()->RectangleSelect(current_project->CurrentLayer()->rect(), false);
 }
 
 void MainWindow::on_actionInvertSelection_triggered()

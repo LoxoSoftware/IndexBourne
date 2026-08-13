@@ -235,7 +235,7 @@ void ImageCanvas::Redraw()
     //Draw each layer
     for (int il=0; il<current_frame->LayerCount(); il++)
     {
-        if (!current_frame->LayerAt(il)->visible)
+        if (!current_project->LayerInfo(il)->visible)
         {
             if (il) continue;
             else
@@ -247,7 +247,7 @@ void ImageCanvas::Redraw()
             }
         }
         else
-            pix= QPixmap::fromImage(current_frame->LayerAt(il)->image);
+            pix= QPixmap::fromImage(*current_frame->LayerAt(il));
         // if (il == current_layer_index && floating_layer != QImage())
         // {
         //     QImage tempmask= floating_layer.copy(image->rect());
@@ -261,7 +261,7 @@ void ImageCanvas::Redraw()
         if (il == current_layer_index && floating_layer != QImage())
         {
             QImage tfl= floating_layer;
-            tfl.setColorTable(current_frame->LayerAt(current_tool->opaque_apply_mode? 0 : current_layer_index)->image.colorTable());
+            tfl.setColorTable(current_frame->LayerAt(current_tool->opaque_apply_mode? 0 : current_layer_index)->colorTable());
             pix= QPixmap::fromImage(tfl);
             QBitmap mask= QBitmap::fromImage(selection.copy(rect_selection).createMaskFromColor(0));
             pix.setMask(mask);
@@ -408,7 +408,7 @@ void ImageCanvas::SetFrame(Frame* frame)
         current_layer_index= 0;
 
     this->current_layer= frame->LayerAt(current_layer_index);
-    this->image= &current_layer->image;
+    this->image= current_layer;
     this->selection= QImage(frame->ImageSize(), QImage::Format_Indexed8);
     this->selection.setColorTable(selection_palette);
     this->current_frame= frame;
@@ -418,7 +418,7 @@ void ImageCanvas::SetFrame(Frame* frame)
 void ImageCanvas::SetCurrentLayerIndex(int index)
 {
     this->current_layer= current_frame->LayerAt(index);
-    this->image= &current_layer->image;
+    this->image= current_layer;
     this->current_layer_index= index;
 }
 
@@ -502,10 +502,10 @@ void ImageCanvas::PickColor(QPoint pos, bool primary)
     int color_picked= 0, tcol;
     for (int il=0; il<current_frame->LayerCount(); il++)
     {
-        if (!current_frame->LayerAt(il)->visible)
+        if (!current_project->LayerInfo(il)->visible)
             continue;
 
-        tcol= current_frame->LayerAt(il)->image.pixelIndex(pixx, pixy);
+        tcol= current_frame->LayerAt(il)->pixelIndex(pixx, pixy);
         if (tcol)
             color_picked= tcol;
     }

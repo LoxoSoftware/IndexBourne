@@ -79,7 +79,7 @@ void LayerTable::Redraw()
         //QListWidgetItem* item= new QListWidgetItem("Layer "+QString::number(il), ui->lstLayers);
         QPushButton* btn_visible= new QPushButton();
         btn_visible->setCheckable(true);
-        btn_visible->setChecked(frame->LayerAt(il)->visible);
+        btn_visible->setChecked(current_project->LayerInfo(il)->visible);
         btn_visible->setToolTip("Toggle layer visibility");
         btn_visible->setIconSize(QSize(32,32));
         if (IS_DARK_THEME)
@@ -88,7 +88,7 @@ void LayerTable::Redraw()
             btn_visible->setIcon(MainWindow::ColorizeIcon(":/icons/scalable/layer-invisible", "#202020", ":/icons/scalable/layer-visible"));
         connect(btn_visible, &QPushButton::clicked, this, &LayerTable::on_layerVisibilityChanged);
         QLabel* lbl_name= new QLabel("layer "+QString::number(il));
-        QIcon icn_preview= QIcon(QPixmap::fromImage(frame->LayerAt(il)->image.copy().transformed(QTransform::fromScale(48,48))));
+        QIcon icn_preview= QIcon(QPixmap::fromImage(frame->LayerAt(il)->copy().transformed(QTransform::fromScale(48,48))));
         //item->setIcon(QIcon(QPixmap::fromImage(frame->Layer(il)->copy())));
         setCellWidget(irow, 0, btn_visible);
         setCellWidget(irow, 2, lbl_name);
@@ -126,7 +126,7 @@ void LayerTable::on_layerVisibilityChanged(bool visible)
 
     int layer_index= CurrentLayerIndex();
 
-    current_project->CurrentFrame()->LayerAt(layer_index)->visible= visible;
+    current_project->LayerInfo(layer_index)->visible= visible;
     Redraw();
     if (current_project->Canvas())
         current_project->Canvas()->Redraw();
