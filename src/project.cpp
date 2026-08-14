@@ -61,7 +61,7 @@ void Frame::RemoveLayer(int pos, bool record)
 
     if (record)
         PushNewSnapshot(new UndoSnapshot(Undocmd_RmLayer, pos, LayerAt(pos)));
-    this->remove(pos);
+    this->removeAt(pos);
 
     if (current_project->CurrentLayerIndex() >= this->size())
         current_project->SetCurrentLayerIndex(this->size()-1);
@@ -514,7 +514,7 @@ void Project::InsertLayerAt(int pos, bool record)
 void Project::RemoveLayer(int pos, bool record)
 {
     _PRJ_FOREACH_FRAME FrameAt(ifr)->RemoveLayer(pos, record);
-    layer_info.remove(pos);
+    layer_info.removeAt(pos);
     FixLayerDB();
     if (canvas)
         canvas->Redraw();

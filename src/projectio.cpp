@@ -59,7 +59,7 @@ bool Project::SaveProject(QString filename)
         return false;
     }
 
-    QDir project_dir= QDir(filename.first(filename.lastIndexOf('/')));
+    QDir project_dir= QDir(filename.left(filename.lastIndexOf('/')));
 
     QuaZipFile ofile= QuaZipFile(&ozip);
     QXmlStreamWriter xstream= QXmlStreamWriter(&ofile);
@@ -157,7 +157,7 @@ bool Project::LoadProject(QString filename)
     QXmlStreamReader xstream;
     QByteArray txml;
     QBuffer buffer= QBuffer(&txml);
-    QDir project_dir= QDir(filename.first(filename.lastIndexOf('/')));
+    QDir project_dir= QDir(filename.left(filename.lastIndexOf('/')));
 
     QSize new_size= QSize(-1, -1);
     QList<Frame> new_frames;

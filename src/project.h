@@ -34,8 +34,13 @@
 
 class Project;
 
+#if QT_VERSION_MAJOR > 5
 typedef QList<QImage> layergroup_t;
 typedef QList<QRgb> palette_t;
+#else
+typedef QVector<QImage> layergroup_t;
+typedef QVector<QRgb> palette_t;
+#endif
 
 typedef enum
 {

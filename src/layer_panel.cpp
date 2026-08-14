@@ -68,7 +68,11 @@ void LayerTable::dropEvent(QDropEvent* event)
     mouse_moving= false;
     if (drag_src_index < 0)
         return;
+#if QT_VERSION_MAJOR > 5
     QTableWidgetItem* item= itemAt(event->position().toPoint());
+#else
+    QTableWidgetItem* item= itemAt(event->pos());
+#endif
     if (!item)
         return;
 

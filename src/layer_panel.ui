@@ -101,9 +101,6 @@
       <property name="rowCount">
        <number>2</number>
       </property>
-      <property name="supportedDragActions">
-       <set>Qt::DropAction::MoveAction</set>
-      </property>
       <attribute name="horizontalHeaderVisible">
        <bool>false</bool>
       </attribute>

@@ -81,7 +81,11 @@ private:
     QSize tilegrid_size= QSize(8, 8);
 
     const int max_scaling= 32;
+#if QT_VERSION_MAJOR > 5
     const QList<QRgb> selection_palette= {
+#else
+    const QVector<QRgb> selection_palette= {
+#endif
         0x00000000, 0x800080FF, 0x8000FFFF, 0xC0000000, 0xC0FFFFFF,
     };
 

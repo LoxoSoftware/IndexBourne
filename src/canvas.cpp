@@ -279,10 +279,16 @@ void ImageCanvas::Redraw()
         if (il == current_layer_index && floating_layer != QImage())
         {
             QImage tfl= floating_layer;
+#if QT_VERSION_MAJOR > 5
             tfl.setColorTable(current_frame->LayerAt(current_tool->opaque_apply_mode? 0 : current_layer_index)->colorTable());
+#else
+            tfl.setColorTable(current_frame->LayerAt(current_layer_index)->colorTable());
+#endif
             pix= QPixmap::fromImage(tfl);
+#if QT_VERSION_MAJOR > 5
             QBitmap mask= QBitmap::fromImage(selection.copy(rect_selection).createMaskFromColor(0));
             pix.setMask(mask);
+#endif
             item= new QGraphicsPixmapItem(pix);
             item->setOffset(rect_selection.x(), rect_selection.y());
             item->setScale(scaling);

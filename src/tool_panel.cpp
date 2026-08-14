@@ -49,8 +49,8 @@ ToolPanel::ToolPanel(QWidget *parent, MainWindow* main_window)
     connect(ui->btnRectangleSelect, &QToolButton::clicked, this, &ToolPanel::on_CurrentToolTypeChanged);
     connect(ui->btnTransformGfx, &QToolButton::clicked, this, &ToolPanel::on_CurrentToolTypeChanged);
     connect(ui->btnFloodSelect, &QToolButton::clicked, this, &ToolPanel::on_CurrentToolTypeChanged);
-    connect(ui->chkApplyOpaque, &QCheckBox::checkStateChanged, this, &ToolPanel::on_CanvasInvalidate);
-    connect(ui->chkForceIntegerScale, &QCheckBox::checkStateChanged, this, &ToolPanel::on_CanvasInvalidate);
+    connect(ui->chkApplyOpaque, &QCheckBox::toggled, this, &ToolPanel::on_CanvasInvalidate);
+    connect(ui->chkForceIntegerScale, &QCheckBox::toggled, this, &ToolPanel::on_CanvasInvalidate);
 }
 
 ToolPanel::~ToolPanel()
