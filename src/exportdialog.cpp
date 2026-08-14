@@ -1,5 +1,5 @@
-#include "exportdialog.h"
-#include "ui_exportdialog.h"
+#include "src/exportdialog.h"
+#include "src/ui_exportdialog.h"
 #include <QFileDialog>
 #include <QMessageBox>
 

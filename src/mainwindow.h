@@ -3,10 +3,10 @@
 
 #include <QMainWindow>
 #include <QScrollArea>
-#include "palette_panel.h"
-#include "tool_panel.h"
-#include "layer_panel.h"
-#include "ui_mainwindow.h"
+#include "src/palette_panel.h"
+#include "src/tool_panel.h"
+#include "src/layer_panel.h"
+#include "src/ui_mainwindow.h"
 
 #define IS_DARK_THEME       (this->palette().window().color().black() >= 128)
 

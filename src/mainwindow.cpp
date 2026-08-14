@@ -1,11 +1,11 @@
-#include "mainwindow.h"
-#include "./ui_mainwindow.h"
-#include "project.h"
+#include "src/mainwindow.h"
+#include "src/ui_mainwindow.h"
+#include "src/project.h"
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QProcess>
-#include "newprojectdialog.h"
-#include "resizedialog.h"
+#include "src/newprojectdialog.h"
+#include "src/resizedialog.h"
 
 Project* current_project= nullptr;
 

@@ -151,7 +151,7 @@
   <customwidget>
    <class>LayerTable</class>
    <extends>QTableWidget</extends>
-   <header>layer_panel.h</header>
+   <header>src/layer_panel.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

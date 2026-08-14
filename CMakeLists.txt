@@ -18,17 +18,17 @@ else()
 endif()
 
 set(PROJECT_SOURCES
-        main.cpp
+        src/main.cpp
         resources.qrc
-        mainwindow.cpp mainwindow.h mainwindow.ui
-        project.h project.cpp projectio.cpp
-        canvas.h canvas.cpp
-        palette_panel.cpp palette_panel.h palette_panel.ui
-        tool_panel.h tool_panel.cpp tool_panel.ui
-        newprojectdialog.h newprojectdialog.cpp newprojectdialog.ui
-        resizedialog.h resizedialog.cpp resizedialog.ui
-        layer_panel.h layer_panel.cpp layer_panel.ui
-        exportdialog.h exportdialog.cpp exportdialog.ui
+        src/mainwindow.cpp src/mainwindow.h src/mainwindow.ui
+        src/project.h src/project.cpp src/projectio.cpp
+        src/canvas.h src/canvas.cpp
+        src/palette_panel.cpp src/palette_panel.h src/palette_panel.ui
+        src/tool_panel.h src/tool_panel.cpp src/tool_panel.ui
+        src/newprojectdialog.h src/newprojectdialog.cpp src/newprojectdialog.ui
+        src/resizedialog.h src/resizedialog.cpp src/resizedialog.ui
+        src/layer_panel.h src/layer_panel.cpp src/layer_panel.ui
+        src/exportdialog.h src/exportdialog.cpp src/exportdialog.ui
 )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})

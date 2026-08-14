@@ -1,7 +1,7 @@
-#include "tool_panel.h"
-#include "ui_tool_panel.h"
-#include "mainwindow.h"
-#include "project.h"
+#include "src/tool_panel.h"
+#include "src/ui_tool_panel.h"
+#include "src/mainwindow.h"
+#include "src/project.h"
 
 #define COL_LIGHT_ICON  "#C0C0C0"
 

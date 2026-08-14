@@ -1,5 +1,5 @@
-#include "layer_panel.h"
-#include "ui_layer_panel.h"
+#include "src/layer_panel.h"
+#include "src/ui_layer_panel.h"
 #include <QMessageBox>
 #include "project.h"
 #include "mainwindow.h"

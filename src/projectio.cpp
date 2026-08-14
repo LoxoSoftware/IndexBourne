@@ -1,6 +1,6 @@
-#include "project.h"
-#include "mainwindow.h"
-#include "exportdialog.h"
+#include "src/project.h"
+#include "src/mainwindow.h"
+#include "src/exportdialog.h"
 #include <quazip/quazip.h>
 #include <quazip/quazipfile.h>
 #include <QXmlStreamWriter>

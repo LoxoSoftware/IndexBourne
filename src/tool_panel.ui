@@ -57,7 +57,7 @@
       <string/>
      </property>
      <property name="icon">
-      <iconset resource="resources.qrc">
+      <iconset resource="../resources.qrc">
        <normaloff>:/icons/scalable/pencil</normaloff>:/icons/scalable/pencil</iconset>
      </property>
      <property name="iconSize">
@@ -92,7 +92,7 @@
       <string/>
      </property>
      <property name="icon">
-      <iconset resource="resources.qrc">
+      <iconset resource="../resources.qrc">
        <normaloff>:/icons/scalable/eyedropper</normaloff>:/icons/scalable/eyedropper</iconset>
      </property>
      <property name="iconSize">
@@ -127,7 +127,7 @@
       <string/>
      </property>
      <property name="icon">
-      <iconset resource="resources.qrc">
+      <iconset resource="../resources.qrc">
        <normaloff>:/icons/scalable/pencil-select</normaloff>:/icons/scalable/pencil-select</iconset>
      </property>
      <property name="iconSize">
@@ -162,7 +162,7 @@
       <string/>
      </property>
      <property name="icon">
-      <iconset resource="resources.qrc">
+      <iconset resource="../resources.qrc">
        <normaloff>:/icons/scalable/rectangle-select</normaloff>:/icons/scalable/rectangle-select</iconset>
      </property>
      <property name="iconSize">
@@ -197,7 +197,7 @@
       <string/>
      </property>
      <property name="icon">
-      <iconset resource="resources.qrc">
+      <iconset resource="../resources.qrc">
        <normaloff>:/icons/scalable/move</normaloff>:/icons/scalable/move</iconset>
      </property>
      <property name="iconSize">
@@ -232,7 +232,7 @@
       <string/>
      </property>
      <property name="icon">
-      <iconset resource="resources.qrc">
+      <iconset resource="../resources.qrc">
        <normaloff>:/icons/scalable/magic-wand</normaloff>:/icons/scalable/magic-wand</iconset>
      </property>
      <property name="iconSize">
@@ -393,7 +393,7 @@
   </widget>
  </widget>
  <resources>
-  <include location="resources.qrc"/>
+  <include location="../resources.qrc"/>
  </resources>
  <connections/>
 </ui>

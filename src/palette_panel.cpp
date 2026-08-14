@@ -1,7 +1,7 @@
-#include "palette_panel.h"
-#include "ui_palette_panel.h"
-#include "project.h"
-#include "mainwindow.h"
+#include "src/palette_panel.h"
+#include "src/ui_palette_panel.h"
+#include "src/project.h"
+#include "src/mainwindow.h"
 #include <QMessageBox>
 
 extern Project* current_project;

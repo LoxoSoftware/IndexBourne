@@ -1,5 +1,5 @@
-#include "mainwindow.h"
-#include "project.h"
+#include "src/mainwindow.h"
+#include "src/project.h"
 
 #include <QApplication>
 #include <QMessageBox>

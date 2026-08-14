@@ -1,6 +1,6 @@
-#include "canvas.h"
-#include "project.h"
-#include "mainwindow.h"
+#include "src/canvas.h"
+#include "src/project.h"
+#include "src/mainwindow.h"
 #include <QGraphicsPixmapItem>
 #include <QMessageBox>
 #include <queue>

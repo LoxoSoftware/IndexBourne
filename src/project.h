@@ -3,10 +3,10 @@
 
 #include <QImage>
 #include <QGraphicsView>
-#include "canvas.h"
-#include "palette_panel.h"
-#include "tool_panel.h"
-#include "layer_panel.h"
+#include "src/canvas.h"
+#include "src/palette_panel.h"
+#include "src/tool_panel.h"
+#include "src/layer_panel.h"
 
 #define PALETTE_W       16
 #define PALETTE_H       16
