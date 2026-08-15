@@ -97,6 +97,7 @@ private:
     void mouseReleaseEvent(QMouseEvent* event);
     void wheelEvent(QWheelEvent* event);
     void paintEvent(QPaintEvent* event);
+    void keyPressEvent(QKeyEvent* event);
 
     void PanToMouse(QPoint mouse_global_pos);
     void MoveFloatLayerToMouse(QPoint mouse_global_pos);
@@ -104,6 +105,7 @@ private:
     void PaintGrid(QPainter* painter);
     void PaintTempSelection(QPainter* painter);
     void UpdateSelectionContentWithImage(QImage content);
+    void FloatLayerBeginTransform();
 
 public:
     ImageCanvas(QScrollArea* parent, Frame* frame);
@@ -127,6 +129,7 @@ public:
     void TransferToFloatingLayer(bool keep, QImage* src= nullptr, QImage* mask= nullptr, QRect src_rect= QRect());
     void ApplyFloatingLayer(bool opaque= true, bool record= true);
     void DiscardFloatingLayer(bool keep_selection= false, bool auto_undo= false);
+    void SetFloatLayerRect(QRect rect);
     void CopySelected();
     void Paste();
 
@@ -135,6 +138,7 @@ public:
     bool IsRectSelection() { return rect_selection.width() != 0 && rect_selection.height() != 0; }
     QRect GetSelectionBoundaries();
     QImage GetFloodMap(QImage img, QPoint pos);
+    QRect FloatLayerRect() { return rect_selection; }
 
     //void SetImage(QImage* image);
     void SetFrame(Frame* frame);

@@ -37,6 +37,7 @@ ImageCanvas::ImageCanvas(QScrollArea* parent, Frame* frame)
     setStyleSheet("background-image: linear-gradient(to bottom, aqua, navy);");
     parent->setWidget(this);
     setMouseTracking(true);
+    setFocusPolicy(Qt::StrongFocus);
     parent->setWidgetResizable(true);
 
     if (current_layer_index >= frame->LayerCount())
@@ -740,6 +741,60 @@ QRect ImageCanvas::GetSelectionBoundaries()
         return QRect(0,0,0,0);
 }
 
+void ImageCanvas::FloatLayerBeginTransform()
+{
+    //Invalidate old floating layer contents
+    if (selection_old.isNull() || floating_layer_old.isNull())
+    {
+        selection_old= selection.copy(rect_selection);
+        floating_layer_old= floating_layer;
+    }
+}
+
+void ImageCanvas::SetFloatLayerRect(QRect rect)
+{
+    if (rect_selection.size() == QSize(0,0) || floating_layer.isNull())
+        return;
+
+    FloatLayerBeginTransform();
+
+    QImage selection_scaled= selection_old;
+
+    //Scale content if needed
+    if (rect.size() != floating_layer_old.size())
+    {
+        QSize new_size;
+        if (current_tool->force_integer_scale)
+        {
+            new_size= QSize(floating_layer_old.width()*(int)(rect.width()/floating_layer_old.width()),
+                             floating_layer_old.height()*(int)(rect.height()/floating_layer_old.height()));
+            if (new_size.width() <= 0)
+                new_size.setWidth(floating_layer_old.width());
+            if (new_size.height() <= 0)
+                new_size.setHeight(floating_layer_old.height());
+        }
+        else
+            new_size= rect.size();
+        //NOTE: The copy operations below are tecnically redundant, but Qt would complain otherwise
+        floating_layer= floating_layer_old.scaled(new_size).copy(QRect(0, 0, rect.width(), rect.height()));
+        selection_scaled= selection_old.scaled(new_size).copy(QRect(0, 0, rect.width(), rect.height()));
+    }
+    else
+    {
+        floating_layer= floating_layer_old.copy(QRect(0, 0, rect.width(), rect.height()));
+        selection_scaled= selection_old.copy(QRect(0, 0, rect.width(), rect.height()));
+    }
+
+    //Update the geometry
+    rect_selection= rect;
+
+    //Update the selection area to reflect the new image
+    selection.fill(0);
+    UpdateSelectionContentWithImage(selection_scaled);
+
+    Redraw();
+}
+
 void ImageCanvas::mousePressEvent(QMouseEvent* event)
 {
     //event->accept();
@@ -791,18 +846,6 @@ void ImageCanvas::mousePressEvent(QMouseEvent* event)
     {
         RectangleSelect(image->rect(), true);
         UpdateMode();
-    }
-
-    if (mouse_down_button == Qt::LeftButton && current_tool->type == Tool_Transform)
-    {
-        //Invalidate the old selection if it has been scaled
-        if (transform_mode == TransMode_Move)
-            selection_old= QImage();
-
-        if (selection_old.isNull())
-            selection_old= selection.copy(rect_selection);
-        if (floating_layer_old.isNull())
-            floating_layer_old= floating_layer;
     }
 
     mouse_has_moved= false;
@@ -971,6 +1014,40 @@ void ImageCanvas::paintEvent(QPaintEvent* event)
     PaintTempSelection(&painter);
 }
 
+void ImageCanvas::keyPressEvent(QKeyEvent* event)
+{
+    switch(event->key())
+    {
+    case Qt::Key_Up:
+        if (event->modifiers()& Qt::ControlModifier)
+            SetFloatLayerRect(FloatLayerRect().adjusted(0,0,0,-1));
+        else
+            SetFloatLayerRect(FloatLayerRect().translated(0,-1));
+        break;
+    case Qt::Key_Down:
+        if (event->modifiers()& Qt::ControlModifier)
+            SetFloatLayerRect(FloatLayerRect().adjusted(0,0,0,1));
+        else
+            SetFloatLayerRect(FloatLayerRect().translated(0,1));
+        break;
+    case Qt::Key_Left:
+        if (event->modifiers()& Qt::ControlModifier)
+            SetFloatLayerRect(FloatLayerRect().adjusted(0,0,-1,0));
+        else
+            SetFloatLayerRect(FloatLayerRect().translated(-1,0));
+        break;
+    case Qt::Key_Right:
+        if (event->modifiers()& Qt::ControlModifier)
+            SetFloatLayerRect(FloatLayerRect().adjusted(0,0,1,0));
+        else
+            SetFloatLayerRect(FloatLayerRect().translated(1,0));
+        break;
+    default:
+        event->ignore();
+        return;
+    }
+}
+
 void ImageCanvas::PanToMouse(QPoint mouse_global_pos)
 {
     int diffx= mouse_global_pos.x()-mouse_last_global_pos.x();
@@ -991,14 +1068,7 @@ void ImageCanvas::MoveFloatLayerToMouse(QPoint mouse_global_pos)
     if (!diffy && !diffx)
         return;
 
-    rect_selection.setRect(rect_selection.x()+diffx, rect_selection.y()+diffy,
-                           rect_selection.width(), rect_selection.height());
-
-    //move the selection
-    selection.fill(0);
-    UpdateSelectionContentWithImage(selection_old);
-
-    Redraw();
+    SetFloatLayerRect(FloatLayerRect().translated(diffx, diffy));
 
     mouse_last_global_pos= mouse_global_pos;
 }
@@ -1032,28 +1102,7 @@ void ImageCanvas::ResizeFloatLayerToMouse(QPoint mouse_global_pos)
     if (new_rect_selection.height() <= 0)
         new_rect_selection.setHeight(1);
 
-    rect_selection= new_rect_selection;
-
-    //Scale the image and the selection
-    QSize new_size;
-    if (current_tool->force_integer_scale)
-    {
-        new_size= QSize(floating_layer_old.width()*(int)(rect_selection.width()/floating_layer_old.width()),
-                        floating_layer_old.height()*(int)(rect_selection.height()/floating_layer_old.height()));
-        if (new_size.width() <= 0)
-            new_size.setWidth(floating_layer_old.width());
-        if (new_size.height() <= 0)
-            new_size.setHeight(floating_layer_old.height());
-    }
-    else
-        new_size= rect_selection.size();
-    //NOTE: The copy operation below is redundant, but Qt would complain otherwise
-    floating_layer= floating_layer_old.scaled(new_size).copy(QRect(0, 0, rect_selection.width(), rect_selection.height()));
-    QImage selection_scaled= selection_old.scaled(new_size).copy(QRect(0, 0, rect_selection.width(), rect_selection.height()));
-    selection.fill(0);
-    UpdateSelectionContentWithImage(selection_scaled);
-
-    Redraw();
+    SetFloatLayerRect(new_rect_selection);
 
     mouse_last_global_pos= mouse_global_pos;
 }
