@@ -50,8 +50,6 @@ void ColorTable::dropEvent(QDropEvent* event)
     int drop_dest_index= indexAt(event->pos()).column()+
                          indexAt(event->pos()).row()*PALETTE_W;
 #endif
-    //QMessageBox::information(this, "debug", QString::number(drag_src_index)+" <---> "+QString::number(drop_dest_index));
-
     current_project->SwapColorIndex(drag_src_index, drop_dest_index);
 }
 

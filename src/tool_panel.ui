@@ -257,8 +257,8 @@
      <rect>
       <x>10</x>
       <y>200</y>
-      <width>111</width>
-      <height>161</height>
+      <width>115</width>
+      <height>141</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -274,11 +274,14 @@
      <widget class="QSpinBox" name="spbPencilDotSizeA">
       <property name="geometry">
        <rect>
-        <x>50</x>
+        <x>4</x>
         <y>30</y>
         <width>51</width>
         <height>26</height>
        </rect>
+      </property>
+      <property name="toolTip">
+       <string>Size for primary brush (A)</string>
       </property>
       <property name="minimum">
        <number>1</number>
@@ -300,17 +303,20 @@
        </rect>
       </property>
       <property name="text">
-       <string>Dot size</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Dot size&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
      </widget>
      <widget class="QSpinBox" name="spbPencilDotSizeB">
       <property name="geometry">
        <rect>
-        <x>50</x>
-        <y>60</y>
+        <x>58</x>
+        <y>30</y>
         <width>51</width>
         <height>26</height>
        </rect>
+      </property>
+      <property name="toolTip">
+       <string>Size for secondary brush (B)</string>
       </property>
       <property name="minimum">
        <number>1</number>
@@ -322,72 +328,56 @@
        <number>3</number>
       </property>
      </widget>
-     <widget class="QLabel" name="label_2">
-      <property name="geometry">
-       <rect>
-        <x>30</x>
-        <y>30</y>
-        <width>21</width>
-        <height>18</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>A</string>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_3">
-      <property name="geometry">
-       <rect>
-        <x>30</x>
-        <y>60</y>
-        <width>21</width>
-        <height>18</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>B</string>
-      </property>
-     </widget>
     </widget>
     <widget class="QWidget" name="grpToolSettings_transform">
-     <widget class="QCheckBox" name="chkApplyOpaque">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>10</y>
-        <width>101</width>
-        <height>23</height>
-       </rect>
-      </property>
-      <property name="toolTip">
-       <string>Transparent pixels will overwrite the destination</string>
-      </property>
-      <property name="text">
-       <string>Opaque</string>
-      </property>
-      <property name="checked">
-       <bool>true</bool>
-      </property>
-     </widget>
-     <widget class="QCheckBox" name="chkForceIntegerScale">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>30</y>
-        <width>101</width>
-        <height>23</height>
-       </rect>
-      </property>
-      <property name="toolTip">
-       <string>Force integer scaling</string>
-      </property>
-      <property name="text">
-       <string>Integer scale</string>
-      </property>
-      <property name="checked">
-       <bool>false</bool>
-      </property>
-     </widget>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Transf. options&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="chkApplyOpaque">
+        <property name="toolTip">
+         <string>Transparent pixels will overwrite the destination</string>
+        </property>
+        <property name="text">
+         <string>Opaque</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="chkForceIntegerScale">
+        <property name="toolTip">
+         <string>Force integer scaling</string>
+        </property>
+        <property name="text">
+         <string>Integer scale</string>
+        </property>
+        <property name="checked">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Orientation::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>74</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
     </widget>
    </widget>
   </widget>

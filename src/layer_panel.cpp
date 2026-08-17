@@ -25,6 +25,11 @@
 
 extern Project* current_project;
 
+LayerTable::LayerTable(QWidget* parent)
+{
+    this->setParent(parent);
+}
+
 void LayerTable::mousePressEvent(QMouseEvent* event)
 {
     mouse_moving= false;
@@ -100,6 +105,9 @@ void LayerTable::Redraw()
         int irow= frame->LayerCount()-il-1;
         //QListWidgetItem* item= new QListWidgetItem("Layer "+QString::number(il), ui->lstLayers);
         QPushButton* btn_visible= new QPushButton();
+        QLabel* lbl_preview= new QLabel();
+        QLabel* lbl_name= new QLabel("layer "+QString::number(il));
+
         btn_visible->setCheckable(true);
         btn_visible->setChecked(current_project->LayerInfo(il)->visible);
         btn_visible->setToolTip("Toggle layer visibility");
@@ -109,13 +117,17 @@ void LayerTable::Redraw()
         else
             btn_visible->setIcon(MainWindow::ColorizeIcon(":/icons/scalable/layer-invisible", "#202020", ":/icons/scalable/layer-visible"));
         connect(btn_visible, &QPushButton::clicked, this, &LayerTable::on_layerVisibilityChanged);
-        QLabel* lbl_name= new QLabel("layer "+QString::number(il));
-        QIcon icn_preview= QIcon(QPixmap::fromImage(frame->LayerAt(il)->copy().transformed(QTransform::fromScale(48,48))));
-        //item->setIcon(QIcon(QPixmap::fromImage(frame->Layer(il)->copy())));
+
+        lbl_preview->setPixmap(QPixmap::fromImage(frame->LayerAt(il)->copy().scaled(QSize(48,48), Qt::KeepAspectRatio)));
+
+        btn_visible->setStyleSheet("* { margin:8px; } ");
+        lbl_preview->setStyleSheet("* { margin:0px; } ");
+        lbl_name->setStyleSheet("* { margin:4px; } ");
         setCellWidget(irow, 0, btn_visible);
+        setCellWidget(irow, 1, lbl_preview);
         setCellWidget(irow, 2, lbl_name);
         setItem(irow, 0, new QTableWidgetItem());
-        setItem(irow, 1, new QTableWidgetItem(icn_preview, ""));
+        setItem(irow, 1, new QTableWidgetItem());
         setItem(irow, 2, new QTableWidgetItem());
     }
 

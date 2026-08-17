@@ -29,7 +29,7 @@ class MainWindow;
 class LayerTable : public QTableWidget
 {
 public:
-    LayerTable(QWidget* parent) { this->setParent(parent); }
+    LayerTable(QWidget* parent);
 
     void Redraw();
 

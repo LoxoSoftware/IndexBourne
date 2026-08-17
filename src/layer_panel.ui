@@ -33,7 +33,7 @@
        <string/>
       </property>
       <property name="icon">
-       <iconset theme="QIcon::ThemeIcon::ListAdd"/>
+       <iconset theme="list-add"/>
       </property>
      </widget>
     </item>
@@ -46,7 +46,7 @@
        <string/>
       </property>
       <property name="icon">
-       <iconset theme="QIcon::ThemeIcon::ListRemove"/>
+       <iconset theme="list-remove"/>
       </property>
      </widget>
     </item>
@@ -97,6 +97,15 @@
         <width>48</width>
         <height>48</height>
        </size>
+      </property>
+      <property name="showGrid">
+       <bool>true</bool>
+      </property>
+      <property name="wordWrap">
+       <bool>false</bool>
+      </property>
+      <property name="cornerButtonEnabled">
+       <bool>false</bool>
       </property>
       <property name="rowCount">
        <number>2</number>
