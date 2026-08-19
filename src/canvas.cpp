@@ -397,7 +397,8 @@ void ImageCanvas::PaintTempSelection(QPainter* painter)
         pen_sel_out.setColor(QColor(0,32,32,255));
         pen_sel_in.setColor(QColor(192,192,192,255));
         pen_sel_in.setStyle(Qt::SolidLine);
-        for (int iy=0; iy<3; iy++) for (int ix=0; ix<3; ix++)
+        for (int iy= transform_mode==TransMode_KeepAspectRatio? 2:0; iy<3; iy++)
+            for (int ix= transform_mode==TransMode_KeepAspectRatio? 2:0; ix<3; ix++)
         {
             painter->setPen(pen_sel_out);
             painter->drawRect(QRect(corners_pt[iy][ix], QSize(CANVAS_HANDLE_SZ, CANVAS_HANDLE_SZ)));
@@ -804,9 +805,11 @@ void ImageCanvas::mousePressEvent(QMouseEvent* event)
     mouse_down_button= event->button();
     mouse_last_pos= event->pos();
 #if QT_VERSION_MAJOR > 5
-    mouse_last_global_pos= event->globalPosition();
+    if (!event->globalPosition().isNull())
+        mouse_last_global_pos= event->globalPosition();
 #else
-    mouse_last_global_pos= event->globalPos();
+    if (!event->globalPos().isNull())
+        mouse_last_global_pos= event->globalPos();
 #endif
 
     if (mouse_down_button == Qt::MiddleButton)
@@ -882,6 +885,20 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent* event)
 
 void ImageCanvas::mouseMoveEvent(QMouseEvent* event)
 {
+    QPoint event_gpos;
+
+#if QT_VERSION_MAJOR > 5
+    if (!event->globalPosition().isNull())
+        event_gpos= event->globalPosition().toPoint();
+    else
+        event_gpos= mouse_last_global_pos.toPoint();
+#else
+    if (!event->globalPos().isNull())
+        event_gpos= event->globalPos();
+    else
+        event_gpos= mouse_last_global_pos.toPoint();
+#endif
+
     if (mouse_down_button & (Qt::LeftButton | Qt::RightButton))
     {
         switch(current_tool->type)
@@ -913,17 +930,23 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent* event)
             rect_selection.x()*scaling, rect_selection.y()*scaling,
             rect_selection.width()*scaling, rect_selection.height()*scaling );
 
+        if (event->modifiers()& Qt::ShiftModifier)
+            transform_mode= TransMode_KeepAspectRatio;
+
         if (mouse_down_button == Qt::NoButton)
         {
-            if (sel_rect.contains(event->pos().x(), event->pos().y()))
+            if (!(event->modifiers()& Qt::ShiftModifier))
             {
-                this->setCursor(Qt::SizeAllCursor);
-                transform_mode= TransMode_Move;
-            }
-            else
-            {
-                this->setCursor(Qt::ArrowCursor);
-                transform_mode= TransMode_None;
+                if (sel_rect.contains(event->pos().x(), event->pos().y()))
+                {
+                    this->setCursor(Qt::SizeAllCursor);
+                    transform_mode= TransMode_Move;
+                }
+                else
+                {
+                    this->setCursor(Qt::ArrowCursor);
+                    transform_mode= TransMode_None;
+                }
             }
 
             for (int iy=0; iy<3; iy++) for (int ix=0; ix<3; ix++)
@@ -932,7 +955,14 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent* event)
                 QRect corner_rect= QRect(corner_pt, QSize(CANVAS_HANDLE_SZ, CANVAS_HANDLE_SZ));
                 if (corner_rect.contains(event->pos().x(), event->pos().y()))
                 {
-                    if ((iy==0 && ix==2) || (iy==2 && ix==0))
+                    if (transform_mode == TransMode_KeepAspectRatio)
+                    {
+                        if (iy==2 && ix==2)
+                            this->setCursor(Qt::SizeFDiagCursor);
+                        else
+                            continue;
+                    }
+                    else if ((iy==0 && ix==2) || (iy==2 && ix==0))
                     {
                         this->setCursor(Qt::SizeBDiagCursor);
                         transform_mode= TransMode_AllAxis;
@@ -961,19 +991,14 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent* event)
 
         if (mouse_down_button == Qt::LeftButton)
         {
-#if QT_VERSION_MAJOR > 5
-            QPoint mouse_pos= event->globalPosition().toPoint();
-#else
-            QPoint mouse_pos= event->globalPos();
-#endif
             //Transform tool actions
             switch (transform_mode)
             {
             case TransMode_Move:
-                MoveFloatLayerToMouse(mouse_pos);
+                MoveFloatLayerToMouse(event_gpos);
                 break;
-            case TransMode_AllAxis: case TransMode_Horizontal: case TransMode_Vertical:
-                ResizeFloatLayerToMouse(mouse_pos);
+            case TransMode_AllAxis: case TransMode_Horizontal: case TransMode_Vertical: case TransMode_KeepAspectRatio:
+                ResizeFloatLayerToMouse(event_gpos);
                 break;
             default:
                 break;
@@ -983,11 +1008,7 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent* event)
 
     if (mouse_down_button == Qt::MiddleButton)
     {
-#if QT_VERSION_MAJOR > 5
-        PanToMouse(event->globalPosition().toPoint());
-#else
-        PanToMouse(event->globalPos());
-#endif
+        PanToMouse(event_gpos);
     }
 }
 
@@ -1016,6 +1037,8 @@ void ImageCanvas::paintEvent(QPaintEvent* event)
 
 void ImageCanvas::keyPressEvent(QKeyEvent* event)
 {
+    QMouseEvent* tmevent= nullptr;
+
     switch(event->key())
     {
     case Qt::Key_Up:
@@ -1042,10 +1065,43 @@ void ImageCanvas::keyPressEvent(QKeyEvent* event)
         else
             SetFloatLayerRect(FloatLayerRect().translated(1,0));
         break;
+    case Qt::Key_Shift:
+        if (current_tool->type != Tool_Transform)
+            break;
+        tmevent= new QMouseEvent(QEvent::MouseMove, QPoint(), QPoint(), Qt::NoButton, Qt::NoButton, Qt::ShiftModifier);
+        mouseMoveEvent(tmevent);
+        Redraw();
+        break;
     default:
         event->ignore();
         return;
     }
+
+    if (tmevent)
+        delete tmevent;
+}
+
+void ImageCanvas::keyReleaseEvent(QKeyEvent* event)
+{
+    QMouseEvent* tmevent= nullptr;
+
+    switch(event->key())
+    {
+    case Qt::Key_Shift:
+        if (current_tool->type != Tool_Transform)
+            break;
+        tmevent= new QMouseEvent(QEvent::MouseMove, QPoint(), QPoint(), Qt::NoButton, Qt::NoButton, Qt::NoModifier);
+        mouseMoveEvent(tmevent);
+        transform_mode= TransMode_AllAxis;
+        Redraw();
+        break;
+    default:
+        event->ignore();
+        break;
+    }
+
+    if (tmevent)
+        delete tmevent;
 }
 
 void ImageCanvas::PanToMouse(QPoint mouse_global_pos)
@@ -1079,23 +1135,40 @@ void ImageCanvas::ResizeFloatLayerToMouse(QPoint mouse_global_pos)
         return;
 
     int diffx= 0, diffy= 0;
-    if (transform_mode == TransMode_Horizontal || transform_mode == TransMode_AllAxis)
+    if (transform_mode == TransMode_Horizontal || transform_mode == TransMode_AllAxis || transform_mode == TransMode_KeepAspectRatio)
         diffx= (mouse_global_pos.x()-mouse_last_global_pos.x())/scaling;
-    if (transform_mode == TransMode_Vertical || transform_mode == TransMode_AllAxis)
+    if (transform_mode == TransMode_Vertical || transform_mode == TransMode_AllAxis || transform_mode == TransMode_KeepAspectRatio)
         diffy= (mouse_global_pos.y()-mouse_last_global_pos.y())/scaling;
+
+    QRect new_rect_selection= rect_selection;
 
     if (!diffy && !diffx)
         return;
 
-    QRect new_rect_selection= rect_selection;
-    if (transform_grabbing_right)
+    if (transform_mode == TransMode_KeepAspectRatio)
+    {
+        if (!transform_grabbing_right || !transform_grabbing_bottom)
+            return;
+        if (floating_layer_old.height() <= 0)
+            return;
+
         new_rect_selection.setRight(new_rect_selection.right()+diffx);
-    else
-        new_rect_selection.setLeft(new_rect_selection.left()+diffx);
-    if (transform_grabbing_bottom)
         new_rect_selection.setBottom(new_rect_selection.bottom()+diffy);
+        float old_ratio= (float)floating_layer_old.width()/(float)floating_layer_old.height();
+        //new_rect_selection.setWidth((float)new_rect_selection.height()*old_ratio);
+        new_rect_selection.setHeight((float)new_rect_selection.width()/old_ratio);
+    }
     else
-        new_rect_selection.setTop(new_rect_selection.top()+diffy);
+    {
+        if (transform_grabbing_right)
+            new_rect_selection.setRight(new_rect_selection.right()+diffx);
+        else
+            new_rect_selection.setLeft(new_rect_selection.left()+diffx);
+        if (transform_grabbing_bottom)
+            new_rect_selection.setBottom(new_rect_selection.bottom()+diffy);
+        else
+            new_rect_selection.setTop(new_rect_selection.top()+diffy);
+    }
 
     if (new_rect_selection.width() <= 0)
         new_rect_selection.setWidth(1);

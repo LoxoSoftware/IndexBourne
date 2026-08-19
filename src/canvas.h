@@ -50,6 +50,7 @@ private:
         TransMode_Vertical,
         TransMode_Horizontal,
         TransMode_AllAxis,
+        TransMode_KeepAspectRatio,
     } transform_mode_t;
 
     Ui::ImageCanvas* ui;
@@ -98,6 +99,7 @@ private:
     void wheelEvent(QWheelEvent* event);
     void paintEvent(QPaintEvent* event);
     void keyPressEvent(QKeyEvent* event);
+    void keyReleaseEvent(QKeyEvent* event);
 
     void PanToMouse(QPoint mouse_global_pos);
     void MoveFloatLayerToMouse(QPoint mouse_global_pos);
