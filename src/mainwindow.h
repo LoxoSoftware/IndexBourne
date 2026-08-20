@@ -103,6 +103,7 @@ private slots:
     void on_actionInvertSelection_triggered();
     void on_actionCopy_triggered();
     void on_actionPaste_triggered();
+    void on_actionBugReport_triggered();
 };
 
 #endif // MAINWINDOW_H

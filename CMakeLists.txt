@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(indexbourne VERSION 0.1 LANGUAGES CXX)
+project(indexbourne VERSION 0.1.0 LANGUAGES CXX)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -21,6 +21,7 @@ endif()
 set(PROJECT_SOURCES
         src/main.cpp
         resources.qrc
+        src/config.h.in config.h
         src/mainwindow.cpp src/mainwindow.h src/mainwindow.ui
         src/project.h src/project.cpp src/projectio.cpp
         src/canvas.h src/canvas.cpp
@@ -62,6 +63,16 @@ if(${QT_VERSION_MAJOR} EQUAL 6)
     target_link_libraries(indexbourne PRIVATE Qt${QT_VERSION_MAJOR}::OpenGLWidgets)
 endif()
 target_link_libraries(indexbourne PRIVATE QuaZip::QuaZip)
+
+configure_file(
+    src/config.h.in
+    "${CMAKE_CURRENT_BINARY_DIR}/config.h"
+    @ONLY
+)
+
+target_include_directories(indexbourne PUBLIC
+    "${CMAKE_CURRENT_BINARY_DIR}"
+)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an

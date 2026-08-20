@@ -33,7 +33,7 @@
          <x>0</x>
          <y>0</y>
          <width>778</width>
-         <height>533</height>
+         <height>555</height>
         </rect>
        </property>
       </widget>
@@ -116,6 +116,7 @@
     </property>
     <addaction name="actionAbout"/>
     <addaction name="actionAboutQt"/>
+    <addaction name="actionBugReport"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="enabled">
@@ -155,7 +156,6 @@
    <addaction name="menuView"/>
    <addaction name="menuHelp"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
   <action name="actionZoom_in">
    <property name="icon">
     <iconset theme="zoom-in"/>
@@ -558,6 +558,14 @@
    </property>
    <property name="shortcut">
     <string>Shift+Z</string>
+   </property>
+  </action>
+  <action name="actionBugReport">
+   <property name="icon">
+    <iconset theme="dialog-warning"/>
+   </property>
+   <property name="text">
+    <string>Report a bug...</string>
    </property>
   </action>
  </widget>

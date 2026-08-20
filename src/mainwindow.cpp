@@ -19,11 +19,15 @@
 #include "src/mainwindow.h"
 #include "src/ui_mainwindow.h"
 #include "src/project.h"
+#include "src/newprojectdialog.h"
+#include "src/resizedialog.h"
+#include "config.h"
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QProcess>
-#include "src/newprojectdialog.h"
-#include "src/resizedialog.h"
+#include <QDesktopServices>
+#include <QUrl>
+#include <QLabel>
 
 Project* current_project= nullptr;
 
@@ -50,6 +54,8 @@ MainWindow::MainWindow(QWidget *parent)
     dckLayerPanel->Update();
 
     UpdateWindowTitle();
+    QLabel* lbl_version= new QLabel(APP_VERSION);
+    this->menuBar()->setCornerWidget(lbl_version, Qt::TopRightCorner);
 }
 
 MainWindow::~MainWindow()
@@ -295,7 +301,7 @@ void MainWindow::on_actionAbout_triggered()
     tw.setWindowIcon(QIcon(":/icons/bitmap/about-banner"));
     QMessageBox::about(&tw, "About IndexBourne", "IndexBourne is a free and open source image editor aimed at "
                                             "game developement for retro platforms."
-                                            "\n\nCopyright (C) 2026 LoxoSoftware");
+                                            "\n\nCopyright (C) 2026 LoxoSoftware\nVersion "+QString(APP_VERSION));
 }
 
 void MainWindow::on_actionAboutQt_triggered()
@@ -543,4 +549,8 @@ void MainWindow::on_actionPaste_triggered()
     current_project->Canvas()->Paste();
 }
 
+void MainWindow::on_actionBugReport_triggered()
+{
+    QDesktopServices::openUrl(QUrl("https://github.com/LoxoSoftware/IndexBourne/issues"));
+}
 
