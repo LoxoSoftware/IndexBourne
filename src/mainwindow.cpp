@@ -274,7 +274,12 @@ bool MainWindow::_QuickSaveBitmap(QString new_fname)
 
 void MainWindow::on_actionPaletteQuickSwap_triggered()
 {
-    current_project->SwapColorIndex(current_project->PaltableAIndex(), current_project->PaltableBIndex());
+    current_project->SwapColorIndex(current_project->PaltableAIndex(), current_project->PaltableBIndex(), true);
+}
+
+void MainWindow::on_actionPaletteQuickSwapDestructive_triggered()
+{
+    current_project->SwapColorIndex(current_project->PaltableAIndex(), current_project->PaltableBIndex(), false);
 }
 
 void MainWindow::on_actionPaletteQuickFill_triggered()
@@ -537,4 +542,5 @@ void MainWindow::on_actionPaste_triggered()
         return;
     current_project->Canvas()->Paste();
 }
+
 

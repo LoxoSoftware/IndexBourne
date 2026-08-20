@@ -46,11 +46,12 @@ void ColorTable::dropEvent(QDropEvent* event)
 #if QT_VERSION_MAJOR > 5
     int drop_dest_index= indexAt(event->position().toPoint()).column()+
                          indexAt(event->position().toPoint()).row()*PALETTE_W;
+    current_project->SwapColorIndex(drag_src_index, drop_dest_index, !(event->modifiers()& Qt::ShiftModifier));
 #else
     int drop_dest_index= indexAt(event->pos()).column()+
                          indexAt(event->pos()).row()*PALETTE_W;
-#endif
     current_project->SwapColorIndex(drag_src_index, drop_dest_index);
+#endif
 }
 
 PalettePanel::PalettePanel(QWidget *parent, MainWindow* main_window)
@@ -123,10 +124,19 @@ void PalettePanel::Update()
             item->setBackground(bru_bg);
             item->setForeground(bru_fg);
 
+            QString tooltip_str= "";
+
             if (current_project->BppFormat() == Format_4bpp)
-                item->setToolTip("Pal #"+QString::number(iy)+": "+QString::number(ix));
+                tooltip_str= "Pal #"+QString::number(iy)+": "+QString::number(ix);
             else
-                item->setToolTip("Index: "+QString::number(ix+iy*PALETTE_W));
+                tooltip_str= "Index: "+QString::number(ix+iy*PALETTE_W);
+
+#if QT_VERSION_MAJOR > 5
+            tooltip_str+= "\n\n(hold Shift while dropping to swap color value)";
+#endif
+
+            item->setToolTip(tooltip_str);
+
             ui->tblPalette->setItem(iy, ix, item);
         }
     }

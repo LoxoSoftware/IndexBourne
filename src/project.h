@@ -218,7 +218,7 @@ public:
     void InsertLayerAt(int pos, bool record= true);
     void InsertLayer(bool record= true) { InsertLayerAt(current_layer, record); }
     void RemoveLayer(int pos, bool record= true);
-    void SwapColorIndex(int index_a, int index_b);
+    void SwapColorIndex(int index_a, int index_b, bool fixup= true);
     void FillPaletteLinear(int index_a, int index_b, QRgb color);
     void FillPaletteRect(QPoint pos_a, QPoint pos_b, QRgb color);
     void UpdateLayerPanel() { UiLayerPanel()->Update(); }

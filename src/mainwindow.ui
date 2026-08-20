@@ -14,7 +14,7 @@
    <string>IndexBourne</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="resources.qrc">
+   <iconset resource="../resources.qrc">
     <normaloff>:/icons/bitmap/icon</normaloff>:/icons/bitmap/icon</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
@@ -33,7 +33,7 @@
          <x>0</x>
          <y>0</y>
          <width>778</width>
-         <height>532</height>
+         <height>533</height>
         </rect>
        </property>
       </widget>
@@ -81,6 +81,7 @@
     <addaction name="actionReloadSharedPalette"/>
     <addaction name="separator"/>
     <addaction name="actionPaletteQuickSwap"/>
+    <addaction name="actionPaletteQuickSwapDestructive"/>
     <addaction name="actionPaletteQuickFill"/>
     <addaction name="separator"/>
     <addaction name="actionSwapABSelection"/>
@@ -256,7 +257,7 @@
   </action>
   <action name="actionPaletteQuickSwap">
    <property name="text">
-    <string>Quick swap colors</string>
+    <string>Quick swap color indexes</string>
    </property>
    <property name="shortcut">
     <string>Shift+S</string>
@@ -548,9 +549,20 @@
     <string>Ctrl+V</string>
    </property>
   </action>
+  <action name="actionPaletteQuickSwapDestructive">
+   <property name="text">
+    <string>Quick swap colors</string>
+   </property>
+   <property name="toolTip">
+    <string>Quick swap colors (destructive)</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+Z</string>
+   </property>
+  </action>
  </widget>
  <resources>
-  <include location="resources.qrc"/>
+  <include location="../resources.qrc"/>
  </resources>
  <connections/>
 </ui>

@@ -76,6 +76,7 @@ private slots:
     void on_actionSaveProject_triggered();
     void on_actionSaveProjectAs_triggered();
     void on_actionPaletteQuickSwap_triggered();
+    void on_actionPaletteQuickSwapDestructive_triggered();
     void on_actionPaletteQuickFill_triggered();
     void on_actionAboutQt_triggered();
     void on_actionAbout_triggered();
