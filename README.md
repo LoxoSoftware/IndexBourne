@@ -21,4 +21,7 @@ This project is still in early alpha and some features may be unstable (for exam
 - More format support, right now only R5G5B5 is supported
 - Automatic palette generation when importing an image
 
+### Building
+See [BUILDING.md](./BUILDING.md)
+
 IndexBourne is proudly 100% AI-free
