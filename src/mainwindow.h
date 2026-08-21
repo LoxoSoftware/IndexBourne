@@ -25,6 +25,7 @@
 #include "src/tool_panel.h"
 #include "src/layer_panel.h"
 #include "src/ui_mainwindow.h"
+#include "src/animation_panel.h"
 
 #define IS_DARK_THEME       (this->palette().window().color().black() >= 128)
 
@@ -44,6 +45,7 @@ private:
     PalettePanel* dckPaletteEdit= nullptr;
     ToolPanel* dckToolPanel= nullptr;
     LayerPanel* dckLayerPanel= nullptr;
+    AnimationPanel* dckAnimPanel= nullptr;
 
     bool _QuickSaveBitmap(QString new_fname);
 
@@ -58,6 +60,7 @@ public:
     PalettePanel** PalettePanelPtr() { return &dckPaletteEdit; }
     ToolPanel** ToolPanelPtr() { return &dckToolPanel; }
     LayerPanel** LayerPanelPtr() { return &dckLayerPanel; }
+    AnimationPanel** AnimationPanelPtr() { return &dckAnimPanel; }
 
     void UpdateWindowTitle();
     void SetSharedPaletteCheckStatus(bool checked) { ui->actionSharedPalette->setChecked(checked);

@@ -31,6 +31,7 @@ set(PROJECT_SOURCES
         src/resizedialog.h src/resizedialog.cpp src/resizedialog.ui
         src/layer_panel.h src/layer_panel.cpp src/layer_panel.ui
         src/exportdialog.h src/exportdialog.cpp src/exportdialog.ui
+        src/animation_panel.h src/animation_panel.cpp src/animation_panel.ui
 )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})

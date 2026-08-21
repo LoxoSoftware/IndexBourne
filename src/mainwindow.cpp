@@ -48,10 +48,13 @@ MainWindow::MainWindow(QWidget *parent)
     addDockWidget(Qt::RightDockWidgetArea, dckPaletteEdit);
     dckToolPanel= new ToolPanel(this->CentralWidget(), this);
     addDockWidget(Qt::LeftDockWidgetArea, dckToolPanel);
+    dckAnimPanel= new AnimationPanel(this->CentralWidget(), this);
+    addDockWidget(Qt::BottomDockWidgetArea, dckAnimPanel);
 
     NewProject(this);
     dckPaletteEdit->Update();
     dckLayerPanel->Update();
+    dckAnimPanel->Update();
 
     UpdateWindowTitle();
     QLabel* lbl_version= new QLabel(APP_VERSION);
