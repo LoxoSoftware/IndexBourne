@@ -575,8 +575,7 @@ void Project::SwapColorIndex(int index_a, int index_b, bool fixup)
     palette[index_a]= palette[index_b];
     palette[index_b]= tempcol;
 
-    //   v-- Swapping color 0 would break the transparency
-    if (index_a && index_b && fixup) _PRJ_FOREACH_FRAME
+    if (fixup) _PRJ_FOREACH_FRAME
         for (int il=0; il<timeline[ifr].LayerCount(); il++)
         {
             QImage* layer= timeline[ifr].LayerAt(il);
