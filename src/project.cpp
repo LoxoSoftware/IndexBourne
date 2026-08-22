@@ -32,9 +32,8 @@ Frame::Frame(Project* parent, QSize size)
     if (!current_project)
         current_project= parent;
 
-    //QImage* new_layer= InsertLayer();
+    clear();
     ClearHistory();
-    //PushNewSnapshot(new UndoSnapshot(Undocmd_AddLayer, 0, new_layer));
 }
 
 QImage* Frame::InsertLayerAt(int pos, bool record)
@@ -281,8 +280,14 @@ QImage* Frame::LayerAt(int layer)
 
 QImage Frame::RenderBitmap()
 {
+    if (LayerCount() < 1)
+    {
+        QImage nullimg= QImage(":/other/nullimg");
+        return nullimg;
+    }
+
     QImage result= QImage(this->ImageSize(), QImage::Format_Indexed8);
-    result.setColorTable(this->at(0).colorTable());
+    result.setColorTable(LayerAt(0)->colorTable());
 
     for (int il=0; il<LayerCount(); il++)
     {
@@ -331,6 +336,7 @@ Project::Project(MainWindow* parent, QSize size)
     this->dckPaletteEdit= parent->PalettePanelPtr();
     this->dckToolPanel= parent->ToolPanelPtr();
     this->dckLayerPanel= parent->LayerPanelPtr();
+    this->dckAnimPanel= parent->AnimationPanelPtr();
 
     if (!current_project)
         current_project= this;
@@ -400,12 +406,20 @@ void Project::SetCurrentLayerIndex(int layer)
 
 void Project::SetCurrentFrameIndex(int frame)
 {
-    this->current_frame= frame;
+    int old_frame= current_frame;
+    current_frame= frame;
     if (!CurrentFrame())
+    {
+        current_frame= old_frame;
         return;
-    SetPalette();
+    }
     if (Canvas())
         this->Canvas()->SetFrame(CurrentFrame());
+    if (UiLayerPanel())
+        UiLayerPanel()->Update();
+    if (UiAnimPanel())
+        UiLayerPanel()->Update();
+    SetPalette();
 }
 
 void Project::SetPalette(palette_t new_palette, bool record)
@@ -501,6 +515,35 @@ void Project::SetPaltableBPosition(QPoint pos)
 void Project::InsertFrameAt(int pos)
 {
     timeline.insert(pos, Frame(this, this->image_size));
+    FixLayerDB();
+}
+
+void Project::RemoveFrame(int pos)
+{
+    if (timeline.size() <= 1)
+        return;
+    if (pos >= timeline.size() || pos <= 0)
+        return;
+    timeline.remove(pos);
+    FixLayerDB();
+    if (pos < timeline.size())
+        SetCurrentFrameIndex(pos);
+    else
+        SetCurrentFrameIndex(timeline.size()-1);
+}
+
+void Project::CloneFrame(int pos)
+{
+    Frame copy_frame= timeline.at(pos);
+    InsertFrameAt(pos+1);
+    Frame* target_frame= FrameAt(pos+1);
+    //*FrameAt(pos+1)= tframe;
+
+    target_frame->ClearHistory();
+    for (int il=0; il<copy_frame.LayerCount(); il++)
+        *target_frame->InsertLayer(false)= *copy_frame.LayerAt(il);
+    target_frame->SetPalette(Palette());
+
     FixLayerDB();
 }
 

@@ -65,9 +65,6 @@
     </item>
     <item row="0" column="0" colspan="3">
      <widget class="LayerTable" name="lstLayers">
-      <property name="frameShape">
-       <enum>QFrame::Shape::WinPanel</enum>
-      </property>
       <property name="horizontalScrollBarPolicy">
        <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
       </property>

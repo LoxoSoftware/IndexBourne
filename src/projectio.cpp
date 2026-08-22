@@ -303,6 +303,7 @@ bool Project::LoadProject(QString filename)
     Canvas()->Redraw();
     UiLayerPanel()->Update();
     UiPalettePanel()->Update();
+    UiAnimPanel()->Update();
 
     izip.close();
 

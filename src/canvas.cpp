@@ -425,10 +425,7 @@ void ImageCanvas::SetFrame(Frame* frame)
         return;
     }
     if (frame->LayerCount() <= 0)
-    {
-        this->image= nullptr;
-        return;
-    }
+        frame->InsertLayer(false);
 
     if (current_layer_index >= frame->LayerCount())
         current_layer_index= 0;

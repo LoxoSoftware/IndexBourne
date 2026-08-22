@@ -25,6 +25,7 @@
 #include "src/palette_panel.h"
 #include "src/tool_panel.h"
 #include "src/layer_panel.h"
+#include "src/animation_panel.h"
 
 #define PALETTE_W       16
 #define PALETTE_H       16
@@ -162,6 +163,7 @@ protected:
     PalettePanel** dckPaletteEdit= nullptr;
     ToolPanel** dckToolPanel= nullptr;
     LayerPanel** dckLayerPanel= nullptr;
+    AnimationPanel** dckAnimPanel= nullptr;
     QString filename= "";
     QString shared_palette_filename= "";
     bool is_saved= true;
@@ -170,6 +172,7 @@ protected:
     PalettePanel* UiPalettePanel() { return dckPaletteEdit ? *dckPaletteEdit : nullptr; }
     ToolPanel* UiToolPanel() { return dckToolPanel ? *dckToolPanel : nullptr; }
     LayerPanel* UiLayerPanel() { return dckLayerPanel ? *dckLayerPanel : nullptr; }
+    AnimationPanel* UiAnimPanel() { return dckAnimPanel ? *dckAnimPanel : nullptr; }
 
 public:
     Project(MainWindow* parent, QSize size= QSize(64,64));
@@ -215,6 +218,7 @@ public:
     void InsertFrameAt(int pos);
     void InsertFrame() { InsertFrameAt(timeline.size()); }
     void RemoveFrame(int frame);
+    void CloneFrame(int pos);
     void InsertLayerAt(int pos, bool record= true);
     void InsertLayer(bool record= true) { InsertLayerAt(current_layer, record); }
     void RemoveLayer(int pos, bool record= true);

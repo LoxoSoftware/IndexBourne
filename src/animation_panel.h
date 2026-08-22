@@ -28,9 +28,18 @@ public:
 
     void Update();
 
+private slots:
+    void on_btnPrev_clicked();
+    void on_btnNext_clicked();
+    void on_btnAddFrame_clicked();
+    void on_lstFrames_currentRowChanged(int currentRow);
+    void on_btnRemoveFrame_clicked();
+    void on_btnDuplicateFrame_clicked();
+
 private:
     Ui::AnimationPanel *ui;
     MainWindow* main_window= nullptr;
+    bool block_index_updates= false;
 };
 
 #endif // ANIMATION_PANEL_H
