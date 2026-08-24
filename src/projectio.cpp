@@ -19,6 +19,7 @@
 #include "src/project.h"
 #include "src/mainwindow.h"
 #include "src/exportdialog.h"
+#include "config.h"
 #include <quazip/quazip.h>
 #include <quazip/quazipfile.h>
 #include <QXmlStreamWriter>
@@ -130,7 +131,7 @@ bool Project::SaveProject(QString filename)
     ofile.open(QIODevice::WriteOnly, QuaZipNewInfo("ezgfx.xml"));
     xstream.writeStartDocument();
     xstream.writeStartElement("", "ezgfx");
-    xstream.writeAttribute("", "version", "0.0.1");
+    xstream.writeAttribute("", "version", APP_VERSION);
     xstream.writeTextElement("", "shared_palette", project_dir.relativeFilePath(shared_palette_filename));
     xstream.writeEndElement();
     xstream.writeEndElement();
