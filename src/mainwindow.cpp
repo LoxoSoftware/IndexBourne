@@ -218,23 +218,30 @@ void MainWindow::on_actionSaveProject_triggered()
 {
     if (!current_project)
         return;
-    if (current_project->FileName() == "")
+
+    QString ofile_name= current_project->FileName();
+
+    if (ofile_name == "")
     {
         on_actionSaveProjectAs_triggered();
         return;
     }
 
-    if (current_project->FileName().endsWith(".png", Qt::CaseInsensitive) ||
-        current_project->FileName().endsWith(".bmp", Qt::CaseInsensitive))
+    if (!(ofile_name.endsWith(".gfx", Qt::CaseSensitive) || ofile_name.endsWith(".ora", Qt::CaseSensitive)))
     {
-        _QuickSaveBitmap(current_project->FileName());
+        QMessageBox::information(this, "Saving as new project", "Input image will be saved as a new IndexBourne project.\n"
+                                 "You can then select Image -> Export to save your image as a regular bitmap");
+        ofile_name= ofile_name.left(ofile_name.size()-4);
+        ofile_name += ".ora";
     }
-    else
-    if (!current_project->SaveProject(current_project->FileName()))
+
+    if (!current_project->SaveProject(ofile_name))
     {
         QMessageBox::critical(this, "Error", "An error occoured while saving the project");
         return;
     }
+    else
+        current_project->SetFileName(ofile_name);
 }
 
 void MainWindow::on_actionSaveProjectAs_triggered()
@@ -242,43 +249,24 @@ void MainWindow::on_actionSaveProjectAs_triggered()
     if (!current_project)
         return;
 
-    //QString ofile_name= QFileDialog::getSaveFileName(this, "Save project or bitmap", "", "Supported formats ("/**.gfx */"*.bmp *.png)");
-    QString ofile_name= QFileDialog::getSaveFileName(this, "Save project or bitmap", "",
-                            "IndexBourne project (*.ora *.gfx);;Windows bitmap (*.bmp);;Indexed PNG (*.png)");
+    QString ofile_name= QFileDialog::getSaveFileName(this, "Save project", "", "IndexBourne project (*.ora *.gfx)");
 
     if (ofile_name == "")
         return;
 
-    if (ofile_name.endsWith(".bmp", Qt::CaseInsensitive) || ofile_name.endsWith(".png", Qt::CaseInsensitive))
-        _QuickSaveBitmap(ofile_name);
-    else if (ofile_name.endsWith(".gfx", Qt::CaseSensitive) || ofile_name.endsWith(".ora", Qt::CaseSensitive))
+    if (!(ofile_name.endsWith(".gfx", Qt::CaseSensitive) || ofile_name.endsWith(".ora", Qt::CaseSensitive)))
     {
-        if (current_project->SaveProject(ofile_name))
-            current_project->SetFileName(ofile_name);
-        else
-        {
-            QMessageBox::critical(this, "Error", "An error occoured while saving the project");
-            return;
-        }
+        QMessageBox::warning(this, "Invalid format", "Output format is invalid, defaulting to ORA");
+        ofile_name += ".ora";
     }
+
+    if (current_project->SaveProject(ofile_name))
+        current_project->SetFileName(ofile_name);
     else
     {
-        QMessageBox::warning(this, "Undefined format", "Output format was not defined, defaulting to BMP");
-        _QuickSaveBitmap(ofile_name+".bmp");
+        QMessageBox::critical(this, "Error", "An error occoured while saving the project");
+        return;
     }
-}
-
-bool MainWindow::_QuickSaveBitmap(QString new_fname)
-{
-    if (!current_project->CurrentFrame()->RenderBitmap().save(new_fname, nullptr, 100))
-    {
-        QMessageBox::critical(this, "Write error", "Failed to open output file for writing");
-        return false;
-    }
-    else
-        current_project->SetFileName(new_fname);
-
-    return true;
 }
 
 void MainWindow::on_actionPaletteQuickSwap_triggered()

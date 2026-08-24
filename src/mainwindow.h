@@ -47,8 +47,6 @@ private:
     LayerPanel* dckLayerPanel= nullptr;
     AnimationPanel* dckAnimPanel= nullptr;
 
-    bool _QuickSaveBitmap(QString new_fname);
-
     void closeEvent(QCloseEvent* event) override;
 
 public:
