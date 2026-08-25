@@ -168,6 +168,8 @@ protected:
     QString shared_palette_filename= "";
     bool is_saved= true;
     QList<LayerProps> layer_info;
+    bool is_playback_running= false;
+    bool block_auto_updates= false;
 
     PalettePanel* UiPalettePanel() { return dckPaletteEdit ? *dckPaletteEdit : nullptr; }
     ToolPanel* UiToolPanel() { return dckToolPanel ? *dckToolPanel : nullptr; }
@@ -229,6 +231,7 @@ public:
     void SwapAllLayers(int index_a, int index_b) { _PRJ_FOREACH_FRAME FrameAt(ifr)->SwapLayers(index_a, index_b); SetPalette(); }
     void SetCurrentToolType(tooltype_t type) { UiToolPanel()->SetCurrentToolType(type); }
     void FixLayerDB();
+    void SetPlaybackStatus(bool playing);
 
     QImage RenderBitmap(int columns= -1);
 };

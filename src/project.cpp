@@ -416,11 +416,15 @@ void Project::SetCurrentFrameIndex(int frame)
     }
     if (Canvas())
         this->Canvas()->SetFrame(CurrentFrame());
-    if (UiLayerPanel())
-        UiLayerPanel()->Update();
-    if (UiAnimPanel())
-        UiLayerPanel()->Update();
-    SetPalette();
+    if (!block_auto_updates)
+    {
+        if (UiLayerPanel())
+            UiLayerPanel()->Update();
+        if (UiAnimPanel())
+            UiLayerPanel()->Update();
+    }
+    if (!is_playback_running)
+        SetPalette();
 }
 
 void Project::SetPalette(palette_t new_palette, bool record)
@@ -438,10 +442,13 @@ void Project::SetPalette(palette_t new_palette, bool record)
     _PRJ_FOREACH_FRAME
         FrameAt(ifr)->SetPalette(new_palette, record);
 
-    if (UiPalettePanel())
-        UiPalettePanel()->Update();
-    if (Canvas())
-        Canvas()->Redraw();
+    if (!block_auto_updates)
+    {
+        if (UiPalettePanel())
+            UiPalettePanel()->Update();
+        if (Canvas())
+            Canvas()->Redraw();
+    }
 }
 
 bool Project::SetSharedPalette(QString filename)
@@ -630,6 +637,12 @@ void Project::FixLayerDB()
             new_layers= tlayers;
         }
     }
+}
+
+void Project::SetPlaybackStatus(bool playing)
+{
+    is_playback_running= playing;
+    block_auto_updates= playing;
 }
 
 QImage Project::RenderBitmap(int columns)

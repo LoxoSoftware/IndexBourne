@@ -120,3 +120,35 @@ void AnimationPanel::on_btnDuplicateFrame_clicked()
     Update();
 }
 
+void AnimationPanel::on_btnPlayToggle_toggled(bool checked)
+{
+    if (!current_project)
+        return;
+
+    current_project->SetPlaybackStatus(checked);
+    ui->tabSettings->setEnabled(!checked);
+    ui->btnAddFrame->setEnabled(!checked);
+    ui->btnRemoveFrame->setEnabled(!checked);
+    ui->btnDuplicateFrame->setEnabled(!checked);
+    ui->btnNext->setEnabled(!checked);
+    ui->btnPrev->setEnabled(!checked);
+
+    if (checked)
+    {
+        block_index_updates= true;
+        current_project->SetCurrentFrameIndex(0);
+        playback_timer_id= startTimer(1000.0/(float)ui->spbPlaybackFPS->value());
+    }
+    else if (playback_timer_id >= 0)
+    {
+        block_index_updates= false;
+        killTimer(playback_timer_id);
+        Update();
+    }
+}
+
+void AnimationPanel::timerEvent(QTimerEvent* event)
+{
+    if (event->timerId() == playback_timer_id)
+        on_btnNext_clicked();
+}
