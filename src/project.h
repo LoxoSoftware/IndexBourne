@@ -229,6 +229,8 @@ public:
     void SwapAllLayers(int index_a, int index_b) { _PRJ_FOREACH_FRAME FrameAt(ifr)->SwapLayers(index_a, index_b); SetPalette(); }
     void SetCurrentToolType(tooltype_t type) { UiToolPanel()->SetCurrentToolType(type); }
     void FixLayerDB();
+
+    QImage RenderBitmap(int columns= -1);
 };
 
 #endif // PROJECT_H

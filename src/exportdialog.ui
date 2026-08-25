@@ -6,395 +6,446 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>500</width>
-    <height>400</height>
+    <width>480</width>
+    <height>320</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>500</width>
-    <height>400</height>
+    <width>480</width>
+    <height>320</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>500</width>
-    <height>400</height>
+    <width>480</width>
+    <height>320</height>
    </size>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Export to image or source file...</string>
   </property>
-  <widget class="QDialogButtonBox" name="buttonBox">
-   <property name="geometry">
-    <rect>
-     <x>30</x>
-     <y>348</y>
-     <width>461</width>
-     <height>30</height>
-    </rect>
-   </property>
-   <property name="orientation">
-    <enum>Qt::Orientation::Horizontal</enum>
-   </property>
-   <property name="standardButtons">
-    <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Save</set>
-   </property>
-  </widget>
-  <widget class="QGroupBox" name="grpLayoutSettings">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>80</y>
-     <width>231</width>
-     <height>151</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>Layout</string>
-   </property>
-   <widget class="QLabel" name="label_2">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>40</y>
-      <width>131</width>
-      <height>18</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Coming soon</string>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QGroupBox" name="grpGritExport">
-   <property name="geometry">
-    <rect>
-     <x>260</x>
-     <y>80</y>
-     <width>231</width>
-     <height>261</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>GRIT export</string>
-   </property>
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <layout class="QFormLayout" name="formLayout_2">
-    <item row="0" column="0">
-     <widget class="QLabel" name="label_3">
+  <layout class="QGridLayout" name="gridLayout_2">
+   <item row="1" column="0">
+    <widget class="QGroupBox" name="grpSpritesheetSettings">
+     <property name="toolTip">
+      <string>Uncheck to export each frame on its own</string>
+     </property>
+     <property name="title">
+      <string>Make spritesheet</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="1">
+       <widget class="QSpinBox" name="spbColumns">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>256</number>
+        </property>
+        <property name="value">
+         <number>1</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QSpinBox" name="spbRows">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>256</number>
+        </property>
+        <property name="value">
+         <number>1</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>Rows</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Columns</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QCheckBox" name="chkAutoColumns">
+        <property name="text">
+         <string>Auto</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="1" rowspan="2">
+    <widget class="QGroupBox" name="grpGritExport">
+     <property name="title">
+      <string>GRIT export</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+     <layout class="QFormLayout" name="formLayout_2">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Bit depth</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="cmbBitDepth">
+        <property name="currentIndex">
+         <number>1</number>
+        </property>
+        <item>
+         <property name="text">
+          <string>16 bpp</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>8 bpp</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>4 bpp</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_4">
+        <property name="text">
+         <string>Data type</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="cmbDataType">
+        <property name="currentIndex">
+         <number>1</number>
+        </property>
+        <item>
+         <property name="text">
+          <string>u32</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>u16</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>u8</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>Image format</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QComboBox" name="cmbImageFormat">
+        <item>
+         <property name="text">
+          <string>Tile</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>bitmap</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_6">
+        <property name="text">
+         <string>Map</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QComboBox" name="cmbMapFormat">
+        <item>
+         <property name="text">
+          <string>None</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Normal reduced</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Normal full</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Affine reduced</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Affine full</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_7">
+        <property name="text">
+         <string>Palette</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QComboBox" name="cmbPalette">
+        <property name="currentIndex">
+         <number>2</number>
+        </property>
+        <item>
+         <property name="text">
+          <string>None</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Selected area</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Full</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="5" column="0" colspan="2">
+       <widget class="QCheckBox" name="chkCreateHeader">
+        <property name="text">
+         <string>Create header file</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QGroupBox" name="grpBitmapExport">
+     <property name="title">
+      <string>Regular export</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+     <layout class="QFormLayout" name="formLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Format</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="cmbRegularFormat">
+        <item>
+         <property name="text">
+          <string>Indexed PNG</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Indexed BMP</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>RGB PNG</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>RGB BMP</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="2">
+       <widget class="QCheckBox" name="chk0ColorTrans">
+        <property name="text">
+         <string>Color 0 as transparent</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QCheckBox" name="chkCurrentFrameOnly">
+     <property name="text">
+      <string>Only current frame</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Orientation::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Save</set>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="2">
+    <widget class="QWidget" name="widget" native="true">
+     <widget class="QLabel" name="label1">
+      <property name="geometry">
+       <rect>
+        <x>13</x>
+        <y>-13</y>
+        <width>371</width>
+        <height>61</height>
+       </rect>
+      </property>
+      <property name="palette">
+       <palette>
+        <active>
+         <colorrole role="WindowText">
+          <brush brushstyle="SolidPattern">
+           <color alpha="255">
+            <red>255</red>
+            <green>255</green>
+            <blue>255</blue>
+           </color>
+          </brush>
+         </colorrole>
+        </active>
+        <inactive>
+         <colorrole role="WindowText">
+          <brush brushstyle="SolidPattern">
+           <color alpha="255">
+            <red>255</red>
+            <green>255</green>
+            <blue>255</blue>
+           </color>
+          </brush>
+         </colorrole>
+        </inactive>
+        <disabled/>
+       </palette>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>28</pointsize>
+        <italic>true</italic>
+        <bold>true</bold>
+       </font>
+      </property>
       <property name="text">
-       <string>Bit depth</string>
+       <string>Export image</string>
       </property>
      </widget>
-    </item>
-    <item row="0" column="1">
-     <widget class="QComboBox" name="cmbBitDepth">
-      <property name="currentIndex">
-       <number>1</number>
+     <widget class="QLabel" name="label1_shadow">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>-10</y>
+        <width>370</width>
+        <height>61</height>
+       </rect>
       </property>
-      <item>
-       <property name="text">
-        <string>16 bpp</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>8 bpp</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>4 bpp</string>
-       </property>
-      </item>
-     </widget>
-    </item>
-    <item row="1" column="0">
-     <widget class="QLabel" name="label_4">
+      <property name="palette">
+       <palette>
+        <active>
+         <colorrole role="WindowText">
+          <brush brushstyle="SolidPattern">
+           <color alpha="255">
+            <red>0</red>
+            <green>0</green>
+            <blue>0</blue>
+           </color>
+          </brush>
+         </colorrole>
+        </active>
+        <inactive>
+         <colorrole role="WindowText">
+          <brush brushstyle="SolidPattern">
+           <color alpha="255">
+            <red>0</red>
+            <green>0</green>
+            <blue>0</blue>
+           </color>
+          </brush>
+         </colorrole>
+        </inactive>
+        <disabled/>
+       </palette>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>28</pointsize>
+        <italic>true</italic>
+        <bold>true</bold>
+       </font>
+      </property>
       <property name="text">
-       <string>Data type</string>
+       <string>Export image</string>
       </property>
      </widget>
-    </item>
-    <item row="1" column="1">
-     <widget class="QComboBox" name="cmbDataType">
-      <property name="currentIndex">
-       <number>1</number>
-      </property>
-      <item>
-       <property name="text">
-        <string>u32</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>u16</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>u8</string>
-       </property>
-      </item>
-     </widget>
-    </item>
-    <item row="2" column="0">
-     <widget class="QLabel" name="label_5">
-      <property name="text">
-       <string>Image format</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="1">
-     <widget class="QComboBox" name="cmbImageFormat">
-      <item>
-       <property name="text">
-        <string>Tile</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>bitmap</string>
-       </property>
-      </item>
-     </widget>
-    </item>
-    <item row="3" column="0">
-     <widget class="QLabel" name="label_6">
-      <property name="text">
-       <string>Map</string>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="1">
-     <widget class="QComboBox" name="cmbMapFormat">
-      <item>
-       <property name="text">
-        <string>None</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Normal reduced</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Normal full</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Affine reduced</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Affine full</string>
-       </property>
-      </item>
-     </widget>
-    </item>
-    <item row="4" column="0">
-     <widget class="QLabel" name="label_7">
-      <property name="text">
-       <string>Palette</string>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="1">
-     <widget class="QComboBox" name="cmbPalette">
-      <property name="currentIndex">
-       <number>2</number>
-      </property>
-      <item>
-       <property name="text">
-        <string>None</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Selected area</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Full</string>
-       </property>
-      </item>
-     </widget>
-    </item>
-    <item row="5" column="0" colspan="2">
-     <widget class="QCheckBox" name="chkCreateHeader">
-      <property name="text">
-       <string>Create header file</string>
-      </property>
-      <property name="checked">
-       <bool>true</bool>
-      </property>
-     </widget>
-    </item>
-   </layout>
-  </widget>
-  <widget class="QLabel" name="label1_shadow">
-   <property name="geometry">
-    <rect>
-     <x>17</x>
-     <y>13</y>
-     <width>370</width>
-     <height>61</height>
-    </rect>
-   </property>
-   <property name="palette">
-    <palette>
-     <active>
-      <colorrole role="WindowText">
-       <brush brushstyle="SolidPattern">
-        <color alpha="255">
-         <red>0</red>
-         <green>0</green>
-         <blue>0</blue>
-        </color>
-       </brush>
-      </colorrole>
-     </active>
-     <inactive>
-      <colorrole role="WindowText">
-       <brush brushstyle="SolidPattern">
-        <color alpha="255">
-         <red>0</red>
-         <green>0</green>
-         <blue>0</blue>
-        </color>
-       </brush>
-      </colorrole>
-     </inactive>
-     <disabled/>
-    </palette>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>28</pointsize>
-     <italic>true</italic>
-     <bold>true</bold>
-    </font>
-   </property>
-   <property name="text">
-    <string>Export image</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label1">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>10</y>
-     <width>371</width>
-     <height>61</height>
-    </rect>
-   </property>
-   <property name="palette">
-    <palette>
-     <active>
-      <colorrole role="WindowText">
-       <brush brushstyle="SolidPattern">
-        <color alpha="255">
-         <red>255</red>
-         <green>255</green>
-         <blue>255</blue>
-        </color>
-       </brush>
-      </colorrole>
-     </active>
-     <inactive>
-      <colorrole role="WindowText">
-       <brush brushstyle="SolidPattern">
-        <color alpha="255">
-         <red>255</red>
-         <green>255</green>
-         <blue>255</blue>
-        </color>
-       </brush>
-      </colorrole>
-     </inactive>
-     <disabled/>
-    </palette>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>28</pointsize>
-     <italic>true</italic>
-     <bold>true</bold>
-    </font>
-   </property>
-   <property name="text">
-    <string>Export image</string>
-   </property>
-  </widget>
-  <widget class="QGroupBox" name="grpBitmapExport">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>240</y>
-     <width>231</width>
-     <height>101</height>
-    </rect>
-   </property>
-   <property name="title">
-    <string>Regular export</string>
-   </property>
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <layout class="QFormLayout" name="formLayout">
-    <item row="0" column="0">
-     <widget class="QLabel" name="label">
-      <property name="text">
-       <string>Format</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="1">
-     <widget class="QComboBox" name="cmbRegularFormat">
-      <item>
-       <property name="text">
-        <string>Indexed PNG</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Indexed BMP</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>RGB PNG</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>RGB BMP</string>
-       </property>
-      </item>
-     </widget>
-    </item>
-    <item row="1" column="0" colspan="2">
-     <widget class="QCheckBox" name="chk0ColorTrans">
-      <property name="text">
-       <string>Color 0 as transparent</string>
-      </property>
-     </widget>
-    </item>
-   </layout>
-  </widget>
+     <zorder>label1_shadow</zorder>
+     <zorder>label1</zorder>
+    </widget>
+   </item>
+  </layout>
  </widget>
  <resources/>
  <connections>

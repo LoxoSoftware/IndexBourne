@@ -409,7 +409,18 @@ bool Project::GoExport(QWidget* parent)
     if (ofname == "")
         return false;
 
-    QImage rendered= this->CurrentFrame()->RenderBitmap();
+    if (!exdial.IsSpritesheet() && !exdial.IsCurrentFrameOnly())
+    {
+        QMessageBox::critical(this->main_window, "Not implemented", "Exporting as multple images is not implemented yet");
+        return false;
+    }
+
+    QImage rendered;
+
+    if (exdial.IsCurrentFrameOnly())
+        rendered= CurrentFrame()->RenderBitmap();
+    else
+        rendered= this->RenderBitmap(exdial.SpritesheetColumns());
 
     if (exdial.IsExportingRegular())
     {

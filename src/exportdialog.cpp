@@ -18,18 +18,29 @@
 
 #include "src/exportdialog.h"
 #include "src/ui_exportdialog.h"
+#include "src/project.h"
 #include <QFileDialog>
 #include <QMessageBox>
+#include <cmath>
 
-ExportDialog::ExportDialog(QWidget *parent, int palindex_start, int palindex_end)
+extern Project* current_project;
+
+ExportDialog::ExportDialog(QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::ExportDialog)
 {
+    if (!current_project)
+        return;
+
     ui->setupUi(this);
 
     this->setModal(true);
-    this->palindex_start= palindex_start;
-    this->palindex_end= palindex_end;
+
+    ui->chkCurrentFrameOnly->setChecked(current_project->FrameCount() == 1);
+    on_chkCurrentFrameOnly_stateChanged(current_project->FrameCount() == 1? 2 : 0);
+    ui->chkCurrentFrameOnly->setEnabled(current_project->FrameCount() > 1);
+    ui->spbColumns->setMaximum(current_project->FrameCount());
+    on_spbColumns_valueChanged(ui->spbColumns->value());
 }
 
 ExportDialog::~ExportDialog()
@@ -40,6 +51,10 @@ ExportDialog::~ExportDialog()
 bool ExportDialog::IsExportingRegular() { return ui->grpBitmapExport->isChecked(); }
 
 bool ExportDialog::IsExportingSource() { return ui->grpGritExport->isChecked(); }
+
+bool ExportDialog::IsSpritesheet() { return ui->grpSpritesheetSettings->isChecked(); }
+
+bool ExportDialog::IsCurrentFrameOnly() { return ui->chkCurrentFrameOnly->isChecked(); }
 
 QString ExportDialog::GetOutputFileName()
 {
@@ -113,8 +128,8 @@ QList<QString> ExportDialog::GritFlags()
         result += "-p!";
         break;
     case 1: //Selected area
-        result += "-ps" + QString::number(this->palindex_start);
-        result += "-pe" + QString::number(this->palindex_end);
+        result += "-ps" + QString::number(current_project->PaltableAIndex());
+        result += "-pe" + QString::number(current_project->PaltableBIndex()+1);
         break;
     case 2: //Full
         result += "-pn256";
@@ -157,6 +172,13 @@ unsigned int ExportDialog::RegularExportSettings()
     return result;
 }
 
+int ExportDialog::SpritesheetColumns()
+{
+    if (ui->chkAutoColumns->isChecked())
+        return -1;
+    return ui->spbColumns->value();
+}
+
 void ExportDialog::on_buttonBox_accepted()
 {
     is_accepted= true;
@@ -165,5 +187,21 @@ void ExportDialog::on_buttonBox_accepted()
 void ExportDialog::on_buttonBox_rejected()
 {
     is_accepted= false;
+}
+
+void ExportDialog::on_chkAutoColumns_stateChanged(int state)
+{
+    ui->spbColumns->setEnabled(!state);
+    ui->spbRows->setEnabled(!state);
+}
+
+void ExportDialog::on_chkCurrentFrameOnly_stateChanged(int state)
+{
+    ui->grpSpritesheetSettings->setEnabled(!state);
+}
+
+void ExportDialog::on_spbColumns_valueChanged(int val)
+{
+    ui->spbRows->setValue(std::ceil((float)current_project->FrameCount()/(float)val));
 }
 

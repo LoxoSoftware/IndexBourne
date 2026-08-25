@@ -38,25 +38,30 @@ class ExportDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit ExportDialog(QWidget *parent = nullptr, int palindex_start= 0, int palindex_end= 256);
+    explicit ExportDialog(QWidget *parent = nullptr);
     ~ExportDialog();
 
     QString GetOutputFileName();
     bool IsExportingRegular();
     bool IsExportingSource();
+    bool IsSpritesheet();
+    bool IsCurrentFrameOnly();
     QList<QString> GritFlags();
     unsigned int RegularExportSettings();
+    int SpritesheetColumns(); // >0: columns, <0: auto
 
 private slots:
     void on_buttonBox_accepted();
     void on_buttonBox_rejected();
+    void on_chkAutoColumns_stateChanged(int state);
+    void on_chkCurrentFrameOnly_stateChanged(int state);
+    void on_spbColumns_valueChanged(int val);
 
 private:
     Ui::ExportDialog *ui;
 
     bool is_accepted= false;
     QString out_format= "";
-    int palindex_start, palindex_end;
 };
 
 #endif // EXPORTDIALOG_H

@@ -20,6 +20,7 @@
 #include "src/project.h"
 #include <QScrollArea>
 #include <QMessageBox>
+#include <cmath>
 
 extern Project* current_project;
 
@@ -524,7 +525,7 @@ void Project::RemoveFrame(int pos)
         return;
     if (pos >= timeline.size() || pos <= 0)
         return;
-    timeline.remove(pos);
+    timeline.removeAt(pos);
     FixLayerDB();
     if (pos < timeline.size())
         SetCurrentFrameIndex(pos);
@@ -629,4 +630,40 @@ void Project::FixLayerDB()
             new_layers= tlayers;
         }
     }
+}
+
+QImage Project::RenderBitmap(int columns)
+{
+    if (!FrameCount())
+        return QImage();
+
+    if (columns <= 0)
+        columns= std::sqrt(FrameCount());
+
+    int rows= std::ceil((float)FrameCount()/(float)columns);
+    QSize final_size= QSize(ImageSize().width()*columns, ImageSize().height()*rows);
+    QImage result= QImage(final_size, QImage::Format_Indexed8);
+
+    result.setColorTable(Palette());
+    result.fill(255);
+
+    for (int ifr=0; ifr<FrameCount(); ifr++)
+    {
+        int ifrcolumn= ifr%columns;
+        int ifrrow= ifr/columns;
+        int xport= ifrcolumn*ImageSize().width();
+        int yport= ifrrow*ImageSize().height();
+        QImage tframe= FrameAt(ifr)->RenderBitmap();
+
+        for (int iy=0; iy<ImageSize().height(); iy++)
+        {
+            uint8_t* sl_src= tframe.scanLine(iy);
+            uint8_t* sl_dest= result.scanLine(yport+iy);
+
+            for (int ix=0; ix<ImageSize().width(); ix++)
+                sl_dest[xport+ix]= sl_src[ix];
+        }
+    }
+
+    return result;
 }
