@@ -27,6 +27,7 @@ public:
     ~AnimationPanel();
 
     void Update();
+    void SetPlaybackStatus(bool playing);
 
 private slots:
     void on_btnPrev_clicked();

@@ -56,6 +56,12 @@ void AnimationPanel::Update()
     block_index_updates= false;
 }
 
+void AnimationPanel::SetPlaybackStatus(bool playing)
+{
+    ui->btnPlayToggle->setChecked(playing);
+    //on_btnPlayToggle_toggled(playing);
+}
+
 void AnimationPanel::on_lstFrames_currentRowChanged(int currentRow)
 {
     if (!current_project || block_index_updates)

@@ -326,6 +326,7 @@ void MainWindow::on_actionProjectProperties_triggered()
 {
     if (!current_project)
         return;
+    dckAnimPanel->SetPlaybackStatus(false);
 
     ProjectSettingsDialog dial= ProjectSettingsDialog(this,
                                                        current_project->ImageSize(), current_project->AnimationFPS());
