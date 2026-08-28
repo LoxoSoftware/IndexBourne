@@ -52,7 +52,7 @@
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>File</string>
+     <string>&amp;File</string>
     </property>
     <addaction name="actionNewProject"/>
     <addaction name="actionOpenProject"/>
@@ -63,7 +63,7 @@
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
-     <string>View</string>
+     <string>&amp;View</string>
     </property>
     <addaction name="actionZoom_in"/>
     <addaction name="actionZoom_out"/>
@@ -72,7 +72,7 @@
    </widget>
    <widget class="QMenu" name="menuPalette">
     <property name="title">
-     <string>Palette</string>
+     <string>&amp;Palette</string>
     </property>
     <addaction name="actionImportPalette"/>
     <addaction name="actionExportPalette"/>
@@ -94,7 +94,7 @@
      <string>Coming soon</string>
     </property>
     <property name="title">
-     <string>Project</string>
+     <string>Pro&amp;ject</string>
     </property>
     <widget class="QMenu" name="menuSet_mode">
      <property name="enabled">
@@ -112,7 +112,7 @@
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
-     <string>Help</string>
+     <string>&amp;Help</string>
     </property>
     <addaction name="actionAbout"/>
     <addaction name="actionAboutQt"/>
@@ -123,7 +123,7 @@
      <bool>true</bool>
     </property>
     <property name="title">
-     <string>Edit</string>
+     <string>&amp;Edit</string>
     </property>
     <addaction name="actionUndo"/>
     <addaction name="actionRedo"/>
@@ -142,7 +142,7 @@
    </widget>
    <widget class="QMenu" name="menuSelection">
     <property name="title">
-     <string>Selection</string>
+     <string>&amp;Selection</string>
     </property>
     <addaction name="actionSelectAll"/>
     <addaction name="actionSelectNone"/>

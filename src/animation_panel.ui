@@ -151,13 +151,16 @@
        <item row="2" column="0">
         <widget class="QPushButton" name="btnPrev">
          <property name="toolTip">
-          <string>Previous frame</string>
+          <string>Previous frame (alt+left)</string>
          </property>
          <property name="text">
           <string/>
          </property>
          <property name="icon">
           <iconset theme="go-previous"/>
+         </property>
+         <property name="shortcut">
+          <string>Alt+Left</string>
          </property>
         </widget>
        </item>
@@ -180,13 +183,16 @@
        <item row="2" column="3">
         <widget class="QPushButton" name="btnNext">
          <property name="toolTip">
-          <string>Next frame</string>
+          <string>Next frame (alt+right)</string>
          </property>
          <property name="text">
           <string/>
          </property>
          <property name="icon">
           <iconset theme="go-next"/>
+         </property>
+         <property name="shortcut">
+          <string>Alt+Right</string>
          </property>
         </widget>
        </item>
