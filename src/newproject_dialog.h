@@ -16,34 +16,34 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef RESIZEDIALOG_H
-#define RESIZEDIALOG_H
+#ifndef NEWPROJECT_DIALOG_H
+#define NEWPROJECT_DIALOG_H
 
 #include <QDialog>
 
 namespace Ui {
-class ResizeDialog;
+class NewProjectDialog;
 }
 
-class ResizeDialog : public QDialog
+class NewProjectDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit ResizeDialog(QWidget *parent = nullptr, QSize default_size = QSize(64, 64));
-    ~ResizeDialog();
+    explicit NewProjectDialog(QWidget *parent = nullptr);
+    ~NewProjectDialog();
 
     bool GetAccepted();
-    QSize NewSize();
+    QSize CanvasSize();
 
 private slots:
     void on_buttonBox_accepted();
     void on_buttonBox_rejected();
 
 private:
-    Ui::ResizeDialog *ui;
+    Ui::NewProjectDialog *ui;
 
     bool is_accepted= false;
 };
 
-#endif // RESIZEDIALOG_H
+#endif // NEWPROJECT_DIALOG_H

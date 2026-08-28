@@ -18,7 +18,7 @@
 
 #include "src/project.h"
 #include "src/mainwindow.h"
-#include "src/exportdialog.h"
+#include "src/export_dialog.h"
 #include "config.h"
 #include <quazip/quazip.h>
 #include <quazip/quazipfile.h>

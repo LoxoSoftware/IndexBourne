@@ -85,7 +85,7 @@ private slots:
     void on_actionRedo_triggered();
     void on_actionTogglePixelGrid_triggered(bool checked);
     void on_actionToggleTileGrid_triggered(bool checked);
-    void on_actionResize_triggered();
+    void on_actionProjectProperties_triggered();
     void on_actionApply_transform_triggered();
     void on_actionDiscard_temp_changes_triggered();
     void on_actionImportPalette_triggered();

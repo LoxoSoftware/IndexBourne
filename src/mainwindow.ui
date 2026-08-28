@@ -94,7 +94,7 @@
      <string>Coming soon</string>
     </property>
     <property name="title">
-     <string>Image</string>
+     <string>Project</string>
     </property>
     <widget class="QMenu" name="menuSet_mode">
      <property name="enabled">
@@ -107,7 +107,7 @@
      <addaction name="actionMode4bpp"/>
     </widget>
     <addaction name="menuSet_mode"/>
-    <addaction name="actionResize"/>
+    <addaction name="actionProjectProperties"/>
     <addaction name="actionExport"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -381,9 +381,9 @@
     <string>Use a shared palette</string>
    </property>
   </action>
-  <action name="actionResize">
+  <action name="actionProjectProperties">
    <property name="text">
-    <string>Resize canvas</string>
+    <string>Properties...</string>
    </property>
   </action>
   <action name="actionApply_transform">

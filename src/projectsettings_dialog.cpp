@@ -16,41 +16,50 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "src/newprojectdialog.h"
-#include "src/ui_newprojectdialog.h"
+#include "src/projectsettings_dialog.h"
+#include "src/ui_projectsettings_dialog.h"
 
-NewProjectDialog::NewProjectDialog(QWidget *parent)
+ProjectSettingsDialog::ProjectSettingsDialog(QWidget *parent,
+                                             QSize default_size, int default_fps)
     : QDialog(parent)
-    , ui(new Ui::NewProjectDialog)
+    , ui(new Ui::ProjectSettingsDialog)
 {
     ui->setupUi(this);
 
     this->setModal(true);
+
+    ui->spbWidth->setValue(default_size.width());
+    ui->spbHeight->setValue(default_size.height());
+    ui->spbFramerate->setValue(default_fps);
 }
 
-NewProjectDialog::~NewProjectDialog()
+ProjectSettingsDialog::~ProjectSettingsDialog()
 {
     delete ui;
 }
 
-bool NewProjectDialog::GetAccepted()
+bool ProjectSettingsDialog::GetAccepted()
 {
     exec();
-
     return is_accepted;
 }
 
-QSize NewProjectDialog::CanvasSize()
+QSize ProjectSettingsDialog::NewSize()
 {
     return QSize(ui->spbWidth->value(), ui->spbHeight->value());
 }
 
-void NewProjectDialog::on_buttonBox_accepted()
+int ProjectSettingsDialog::AnimationFPS()
+{
+    return ui->spbFramerate->value();
+}
+
+void ProjectSettingsDialog::on_buttonBox_accepted()
 {
     is_accepted= true;
 }
 
-void NewProjectDialog::on_buttonBox_rejected()
+void ProjectSettingsDialog::on_buttonBox_rejected()
 {
     is_accepted= false;
 }

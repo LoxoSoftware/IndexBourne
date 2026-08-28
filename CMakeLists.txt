@@ -27,10 +27,10 @@ set(PROJECT_SOURCES
         src/canvas.h src/canvas.cpp
         src/palette_panel.cpp src/palette_panel.h src/palette_panel.ui
         src/tool_panel.h src/tool_panel.cpp src/tool_panel.ui
-        src/newprojectdialog.h src/newprojectdialog.cpp src/newprojectdialog.ui
-        src/resizedialog.h src/resizedialog.cpp src/resizedialog.ui
+        src/newproject_dialog.h src/newproject_dialog.cpp src/newproject_dialog.ui
+        src/projectsettings_dialog.h src/projectsettings_dialog.cpp src/projectsettings_dialog.ui
         src/layer_panel.h src/layer_panel.cpp src/layer_panel.ui
-        src/exportdialog.h src/exportdialog.cpp src/exportdialog.ui
+        src/export_dialog.h src/export_dialog.cpp src/export_dialog.ui
         src/animation_panel.h src/animation_panel.cpp src/animation_panel.ui
 )
 

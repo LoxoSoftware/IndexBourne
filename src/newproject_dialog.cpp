@@ -16,43 +16,41 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "src/resizedialog.h"
-#include "src/ui_resizedialog.h"
+#include "src/newproject_dialog.h"
+#include "src/ui_newproject_dialog.h"
 
-ResizeDialog::ResizeDialog(QWidget *parent, QSize default_size)
+NewProjectDialog::NewProjectDialog(QWidget *parent)
     : QDialog(parent)
-    , ui(new Ui::ResizeDialog)
+    , ui(new Ui::NewProjectDialog)
 {
     ui->setupUi(this);
 
     this->setModal(true);
-
-    ui->spbWidth->setValue(default_size.width());
-    ui->spbHeight->setValue(default_size.height());
 }
 
-ResizeDialog::~ResizeDialog()
+NewProjectDialog::~NewProjectDialog()
 {
     delete ui;
 }
 
-bool ResizeDialog::GetAccepted()
+bool NewProjectDialog::GetAccepted()
 {
     exec();
+
     return is_accepted;
 }
 
-QSize ResizeDialog::NewSize()
+QSize NewProjectDialog::CanvasSize()
 {
     return QSize(ui->spbWidth->value(), ui->spbHeight->value());
 }
 
-void ResizeDialog::on_buttonBox_accepted()
+void NewProjectDialog::on_buttonBox_accepted()
 {
     is_accepted= true;
 }
 
-void ResizeDialog::on_buttonBox_rejected()
+void NewProjectDialog::on_buttonBox_rejected()
 {
     is_accepted= false;
 }

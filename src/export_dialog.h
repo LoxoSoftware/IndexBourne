@@ -16,34 +16,52 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef NEWPROJECTDIALOG_H
-#define NEWPROJECTDIALOG_H
+#ifndef EXPORT_DIALOG_H
+#define EXPORT_DIALOG_H
 
 #include <QDialog>
 
+typedef enum
+{
+    Regfmt_PNG = 1,
+    Regfmt_BMP = 2,
+    Regfmt_RGBAMode = 0x40,
+    Regfmt_0Trans = 0x80,
+} export_regular_setings_t;
+
 namespace Ui {
-class NewProjectDialog;
+class ExportDialog;
 }
 
-class NewProjectDialog : public QDialog
+class ExportDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit NewProjectDialog(QWidget *parent = nullptr);
-    ~NewProjectDialog();
+    explicit ExportDialog(QWidget *parent = nullptr);
+    ~ExportDialog();
 
-    bool GetAccepted();
-    QSize CanvasSize();
+    QString GetOutputFileName();
+    bool IsExportingRegular();
+    bool IsExportingSource();
+    bool IsSpritesheet();
+    bool IsCurrentFrameOnly();
+    QList<QString> GritFlags();
+    unsigned int RegularExportSettings();
+    int SpritesheetColumns(); // >0: columns, <0: auto
 
 private slots:
     void on_buttonBox_accepted();
     void on_buttonBox_rejected();
+    void on_chkAutoColumns_stateChanged(int state);
+    void on_chkCurrentFrameOnly_stateChanged(int state);
+    void on_spbColumns_valueChanged(int val);
 
 private:
-    Ui::NewProjectDialog *ui;
+    Ui::ExportDialog *ui;
 
     bool is_accepted= false;
+    QString out_format= "";
 };
 
-#endif // NEWPROJECTDIALOG_H
+#endif // EXPORT_DIALOG_H

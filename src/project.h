@@ -170,6 +170,7 @@ protected:
     QList<LayerProps> layer_info;
     bool is_playback_running= false;
     bool block_auto_updates= false;
+    int animation_fps= 5;
 
     PalettePanel* UiPalettePanel() { return dckPaletteEdit ? *dckPaletteEdit : nullptr; }
     ToolPanel* UiToolPanel() { return dckToolPanel ? *dckToolPanel : nullptr; }
@@ -206,6 +207,7 @@ public:
     const int PaltableAIndex() const { return paltable_Apos.x()+paltable_Apos.y()*PALETTE_W; }
     const int PaltableBIndex() const { return paltable_Bpos.x()+paltable_Bpos.y()*PALETTE_W; }
     Tool CurrentTool() { if (!UiToolPanel()) return Tool(); return UiToolPanel()->GetCurrentTool(); }
+    int AnimationFPS() { return animation_fps; }
 
     void SetCurrentFrameIndex(int frame);
     void SetCurrentLayerIndex(int layer);
@@ -232,6 +234,7 @@ public:
     void SetCurrentToolType(tooltype_t type) { UiToolPanel()->SetCurrentToolType(type); }
     void FixLayerDB();
     void SetPlaybackStatus(bool playing);
+    void SetAnimationFPS(int fps) { animation_fps= fps; }
 
     QImage RenderBitmap(int columns= -1);
 };

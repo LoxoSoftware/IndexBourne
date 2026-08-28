@@ -126,7 +126,6 @@ void AnimationPanel::on_btnPlayToggle_toggled(bool checked)
         return;
 
     current_project->SetPlaybackStatus(checked);
-    ui->tabSettings->setEnabled(!checked);
     ui->btnAddFrame->setEnabled(!checked);
     ui->btnRemoveFrame->setEnabled(!checked);
     ui->btnDuplicateFrame->setEnabled(!checked);
@@ -137,7 +136,7 @@ void AnimationPanel::on_btnPlayToggle_toggled(bool checked)
     {
         block_index_updates= true;
         current_project->SetCurrentFrameIndex(0);
-        playback_timer_id= startTimer(1000.0/(float)ui->spbPlaybackFPS->value());
+        playback_timer_id= startTimer(1000.0/(float)current_project->AnimationFPS());
     }
     else if (playback_timer_id >= 0)
     {

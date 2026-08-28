@@ -16,8 +16,8 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "src/exportdialog.h"
-#include "src/ui_exportdialog.h"
+#include "src/export_dialog.h"
+#include "src/ui_export_dialog.h"
 #include "src/project.h"
 #include <QFileDialog>
 #include <QMessageBox>

@@ -19,8 +19,8 @@
 #include "src/mainwindow.h"
 #include "src/ui_mainwindow.h"
 #include "src/project.h"
-#include "src/newprojectdialog.h"
-#include "src/resizedialog.h"
+#include "src/newproject_dialog.h"
+#include "src/projectsettings_dialog.h"
 #include "config.h"
 #include <QMessageBox>
 #include <QFileDialog>
@@ -322,16 +322,23 @@ void MainWindow::on_actionToggleTileGrid_triggered(bool checked)
     current_project->Canvas()->EnableTileGrid(checked);
 }
 
-void MainWindow::on_actionResize_triggered()
+void MainWindow::on_actionProjectProperties_triggered()
 {
     if (!current_project)
         return;
 
-    ResizeDialog dial= ResizeDialog(this, current_project->ImageSize());
+    ProjectSettingsDialog dial= ProjectSettingsDialog(this,
+                                                       current_project->ImageSize(), current_project->AnimationFPS());
 
     if (dial.GetAccepted())
     {
-        current_project->SetImageSize(dial.NewSize());
+        if (dial.NewSize() != current_project->ImageSize())
+        {
+            if (QMessageBox::question(this, "Resize canvas", "Do you wish to resize the project canvas?\nThis cannot be undone",
+                                      QMessageBox::Yes | QMessageBox::Cancel) == QMessageBox::Yes)
+                current_project->SetImageSize(dial.NewSize());
+        }
+        current_project->SetAnimationFPS(dial.AnimationFPS());
     }
 }
 

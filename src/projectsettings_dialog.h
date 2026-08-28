@@ -16,52 +16,36 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef EXPORTDIALOG_H
-#define EXPORTDIALOG_H
+#ifndef PROJECTSETTINGS_DIALOG_H
+#define PROJECTSETTINGS_DIALOG_H
 
 #include <QDialog>
 
-typedef enum
-{
-    Regfmt_PNG = 1,
-    Regfmt_BMP = 2,
-    Regfmt_RGBAMode = 0x40,
-    Regfmt_0Trans = 0x80,
-} export_regular_setings_t;
-
 namespace Ui {
-class ExportDialog;
+class ProjectSettingsDialog;
 }
 
-class ExportDialog : public QDialog
+class ProjectSettingsDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit ExportDialog(QWidget *parent = nullptr);
-    ~ExportDialog();
+    explicit ProjectSettingsDialog(QWidget *parent = nullptr,
+                                   QSize default_size= QSize(64, 64), int default_fps= 5);
+    ~ProjectSettingsDialog();
 
-    QString GetOutputFileName();
-    bool IsExportingRegular();
-    bool IsExportingSource();
-    bool IsSpritesheet();
-    bool IsCurrentFrameOnly();
-    QList<QString> GritFlags();
-    unsigned int RegularExportSettings();
-    int SpritesheetColumns(); // >0: columns, <0: auto
+    bool GetAccepted();
+    QSize NewSize();
+    int AnimationFPS();
 
 private slots:
     void on_buttonBox_accepted();
     void on_buttonBox_rejected();
-    void on_chkAutoColumns_stateChanged(int state);
-    void on_chkCurrentFrameOnly_stateChanged(int state);
-    void on_spbColumns_valueChanged(int val);
 
 private:
-    Ui::ExportDialog *ui;
+    Ui::ProjectSettingsDialog *ui;
 
     bool is_accepted= false;
-    QString out_format= "";
 };
 
-#endif // EXPORTDIALOG_H
+#endif // PROJECTSETTINGS_DIALOG_H
