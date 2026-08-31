@@ -63,6 +63,7 @@ public:
     void UpdateWindowTitle();
     void SetSharedPaletteCheckStatus(bool checked) { ui->actionSharedPalette->setChecked(checked);
         ui->actionReloadSharedPalette->setEnabled(checked); }
+    void SetTileGridCheckStatus(bool checked) { ui->actionToggleTileGrid->setChecked(checked); }
     void UpdateTransformStatus(bool present) { ui->actionApply_transform->setEnabled(present);
         ui->actionDiscard_temp_changes->setEnabled(present); }
 

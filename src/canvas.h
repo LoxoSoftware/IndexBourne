@@ -141,8 +141,9 @@ public:
     QRect GetSelectionBoundaries();
     QImage GetFloodMap(QImage img, QPoint pos);
     QRect FloatLayerRect() { return rect_selection; }
+    bool IsTileGridEnabled() { return show_tilegrid; }
+    QSize TileGridSize() { return tilegrid_size; }
 
-    //void SetImage(QImage* image);
     void SetFrame(Frame* frame);
     void SetCurrentLayerIndex(int index);
     void SetTileGridSize(QSize size) { tilegrid_size= size; }

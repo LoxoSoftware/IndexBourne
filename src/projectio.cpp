@@ -133,6 +133,21 @@ bool Project::SaveProject(QString filename)
     xstream.writeStartElement("", "ezgfx");
     xstream.writeAttribute("", "version", APP_VERSION);
     xstream.writeTextElement("", "shared_palette", project_dir.relativeFilePath(shared_palette_filename));
+    xstream.writeTextElement("", "animation_fps", QString::number(animation_fps));
+    xstream.writeStartElement("", "tile_grid");
+    {
+        bool ena= true;
+        QSize sz= QSize(8,8);
+        if (Canvas())
+        {
+            ena= Canvas()->IsTileGridEnabled();
+            sz= Canvas()->TileGridSize();
+        }
+        xstream.writeAttribute("", "visibility",  ena? "visible" : "invisible");
+        xstream.writeAttribute("", "w", QString::number(sz.width()));
+        xstream.writeAttribute("", "h", QString::number(sz.height()));
+        xstream.writeEndElement();
+    }
     xstream.writeEndElement();
     xstream.writeEndElement();
     xstream.writeEndDocument();
@@ -190,6 +205,27 @@ bool Project::LoadProject(QString filename)
                     QString tfname= xstream.readElementText();
                     if (tfname != "")
                         new_shared_pal= project_dir.absoluteFilePath(tfname);
+                    continue;
+                }
+                if (xstream.name() == "animation_fps")
+                {
+                    int fps= xstream.readElementText().toInt();
+                    animation_fps= fps;
+                    continue;
+                }if (xstream.name() == "tile_grid")
+                {
+                    bool ena= xstream.attributes().contains(QXmlStreamAttribute("visibility","visible"));
+                    QSize sz= QSize(8,8);
+                    if (xstream.attributes().hasAttribute("w"))
+                        sz.setWidth(xstream.attributes().value("w").toInt());
+                    if (xstream.attributes().hasAttribute("h"))
+                        sz.setHeight(xstream.attributes().value("h").toInt());
+                    if (Canvas())
+                    {
+                        Canvas()->EnableTileGrid(ena);
+                        main_window->SetTileGridCheckStatus(ena);
+                        Canvas()->SetTileGridSize(sz);
+                    }
                     continue;
                 }
             }
