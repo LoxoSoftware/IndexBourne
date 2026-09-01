@@ -329,7 +329,8 @@ void MainWindow::on_actionProjectProperties_triggered()
     dckAnimPanel->SetPlaybackStatus(false);
 
     ProjectSettingsDialog dial= ProjectSettingsDialog(this,
-                                                       current_project->ImageSize(), current_project->AnimationFPS());
+                                                       current_project->ImageSize(), current_project->AnimationFPS(),
+                                                       current_project->Canvas()? current_project->Canvas()->TileGridSize() : QSize(6,9));
 
     if (dial.GetAccepted())
     {
@@ -340,6 +341,8 @@ void MainWindow::on_actionProjectProperties_triggered()
                 current_project->SetImageSize(dial.NewSize());
         }
         current_project->SetAnimationFPS(dial.AnimationFPS());
+        if (current_project->Canvas())
+            current_project->Canvas()->SetTileGridSize(dial.NewTGSize());
     }
 }
 

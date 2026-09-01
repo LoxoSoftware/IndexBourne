@@ -31,12 +31,14 @@ class ProjectSettingsDialog : public QDialog
 
 public:
     explicit ProjectSettingsDialog(QWidget *parent = nullptr,
-                                   QSize default_size= QSize(64, 64), int default_fps= 5);
+                                   QSize default_size= QSize(64, 64), int default_fps= 5,
+                                   QSize default_tg_size= QSize(8,8));
     ~ProjectSettingsDialog();
 
     bool GetAccepted();
     QSize NewSize();
     int AnimationFPS();
+    QSize NewTGSize();
 
 private slots:
     void on_buttonBox_accepted();

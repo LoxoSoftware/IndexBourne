@@ -20,7 +20,8 @@
 #include "src/ui_projectsettings_dialog.h"
 
 ProjectSettingsDialog::ProjectSettingsDialog(QWidget *parent,
-                                             QSize default_size, int default_fps)
+                                             QSize default_size, int default_fps,
+                                             QSize default_tg_size)
     : QDialog(parent)
     , ui(new Ui::ProjectSettingsDialog)
 {
@@ -31,6 +32,8 @@ ProjectSettingsDialog::ProjectSettingsDialog(QWidget *parent,
     ui->spbWidth->setValue(default_size.width());
     ui->spbHeight->setValue(default_size.height());
     ui->spbFramerate->setValue(default_fps);
+    ui->spbTGWidth->setValue(default_tg_size.width());
+    ui->spbTGHeight->setValue(default_tg_size.height());
 }
 
 ProjectSettingsDialog::~ProjectSettingsDialog()
@@ -45,14 +48,13 @@ bool ProjectSettingsDialog::GetAccepted()
 }
 
 QSize ProjectSettingsDialog::NewSize()
-{
-    return QSize(ui->spbWidth->value(), ui->spbHeight->value());
-}
+{ return QSize(ui->spbWidth->value(), ui->spbHeight->value()); }
+
+QSize ProjectSettingsDialog::NewTGSize()
+{ return QSize(ui->spbTGWidth->value(), ui->spbTGHeight->value()); }
 
 int ProjectSettingsDialog::AnimationFPS()
-{
-    return ui->spbFramerate->value();
-}
+{ return ui->spbFramerate->value(); }
 
 void ProjectSettingsDialog::on_buttonBox_accepted()
 {
