@@ -66,3 +66,15 @@ void ProjectSettingsDialog::on_buttonBox_rejected()
     is_accepted= false;
 }
 
+void ProjectSettingsDialog::on_spbTGWidth_valueChanged(int val)
+{
+    ui->spbWidth->setMinimum(val);
+    ui->spbWidth->setSingleStep(val);
+}
+
+void ProjectSettingsDialog::on_spbTGHeight_valueChanged(int val)
+{
+    ui->spbHeight->setMinimum(val);
+    ui->spbHeight->setSingleStep(val);
+}
+

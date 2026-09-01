@@ -43,6 +43,8 @@ public:
 private slots:
     void on_buttonBox_accepted();
     void on_buttonBox_rejected();
+    void on_spbTGWidth_valueChanged(int val);
+    void on_spbTGHeight_valueChanged(int val);
 
 private:
     Ui::ProjectSettingsDialog *ui;
