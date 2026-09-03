@@ -555,6 +555,40 @@ void Project::CloneFrame(int pos)
     FixLayerDB();
 }
 
+void Project::SwapFrames(int index_a, int index_b)
+{
+    if (index_a < 0 || index_b < 0 || index_a >= timeline.size() || index_b >= timeline.size())
+        return;
+    if (index_a == index_b)
+        return;
+
+    timeline.swapItemsAt(index_a, index_b);
+    if (!block_auto_updates)
+    {
+        if (Canvas()) Canvas()->Redraw();
+        if (UiAnimPanel()) UiAnimPanel()->Update();
+    }
+}
+
+void Project::MoveFrame(int ind_src, int ind_dest)
+{
+    if (ind_src < 0 || ind_dest < 0 || ind_src >= timeline.size() || ind_dest > timeline.size())
+        return;
+    if (ind_src == ind_dest)
+        return;
+
+    timeline.insert(ind_dest, timeline.at(ind_src));
+    timeline.removeAt(ind_src>ind_dest? ind_src+1 : ind_src);
+    if (ind_dest == timeline.size())
+        ind_dest--;
+    if (!block_auto_updates)
+    {
+        SetCurrentFrameIndex(ind_dest);
+        if (Canvas()) Canvas()->Redraw();
+        if (UiAnimPanel()) UiAnimPanel()->Update();
+    }
+}
+
 void Project::InsertLayerAt(int pos, bool record)
 {
     _PRJ_FOREACH_FRAME FrameAt(ifr)->InsertLayerAt(pos, record);

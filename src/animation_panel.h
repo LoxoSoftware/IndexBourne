@@ -8,6 +8,15 @@ class MainWindow;
 
 class FrameList : public QListWidget
 {
+private:
+    int drag_src_index= -1;
+    bool mouse_moving= false;
+
+    void mousePressEvent(QMouseEvent* event);
+    void mouseReleaseEvent(QMouseEvent* event);
+    void mouseMoveEvent(QMouseEvent* event);
+    void dropEvent(QDropEvent* event);
+
 public:
     FrameList(QWidget* parent);
 

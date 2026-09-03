@@ -231,6 +231,8 @@ public:
     void FillPaletteRect(QPoint pos_a, QPoint pos_b, QRgb color);
     void UpdateLayerPanel() { UiLayerPanel()->Update(); }
     void SwapAllLayers(int index_a, int index_b) { _PRJ_FOREACH_FRAME FrameAt(ifr)->SwapLayers(index_a, index_b); SetPalette(); }
+    void SwapFrames(int index_a, int index_b);
+    void MoveFrame(int ind_src, int ind_dest);
     void SetCurrentToolType(tooltype_t type) { UiToolPanel()->SetCurrentToolType(type); }
     void FixLayerDB();
     void SetPlaybackStatus(bool playing);

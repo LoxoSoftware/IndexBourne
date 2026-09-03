@@ -10,6 +10,69 @@ FrameList::FrameList(QWidget* parent)
     this->setParent(parent);
 }
 
+void FrameList::mousePressEvent(QMouseEvent* event)
+{
+    mouse_moving= false;
+}
+
+void FrameList::mouseReleaseEvent(QMouseEvent* event)
+{
+    QListWidgetItem* item= itemAt(event->pos());
+    if (!item)
+        return;
+
+    if (!mouse_moving)
+    {
+        //current_project->SetCurrentLayerIndex(LayerIndex(item->row()));
+        setCurrentRow(indexFromItem(item).row());
+    }
+
+    mouse_moving= false;
+}
+
+void FrameList::mouseMoveEvent(QMouseEvent* event)
+{
+    // if (event->button() != Qt::LeftButton)
+    //     return;
+
+    QListWidgetItem* item= itemAt(event->pos());
+    if (!item)
+        return;
+
+    if (!mouse_moving)
+    {
+        drag_src_index= indexFromItem(item).row();
+        setCurrentRow(indexFromItem(item).row());
+        startDrag(Qt::MoveAction);
+        mouse_moving= true;
+    }
+}
+
+void FrameList::dropEvent(QDropEvent* event)
+{
+    mouse_moving= false;
+    if (drag_src_index < 0)
+        return;
+#if QT_VERSION_MAJOR > 5
+    QListWidgetItem* item= itemAt(event->position().toPoint());
+#else
+    QListWidgetItem* item= itemAt(event->pos());
+#endif
+    if (!item)
+        return;
+
+    int dest_ind= indexFromItem(item).row();
+    if (dropIndicatorPosition() == QAbstractItemView::BelowItem)
+        dest_ind++; //Fix the destination index to point where the user expects, after the drop indicator
+
+    //QMessageBox::information(this, "deb", QString::number(drag_src_index)+" --> "+QString::number(dest_ind));
+
+    //current_project->SwapFrames(dest_ind, drag_src_index);
+    current_project->MoveFrame(drag_src_index, dest_ind);
+
+    //setCurrentRow(current_project->CurrentFrameIndex());
+}
+
 void FrameList::Redraw()
 {
     clear();
@@ -67,7 +130,7 @@ void AnimationPanel::on_lstFrames_currentRowChanged(int currentRow)
     if (!current_project || block_index_updates)
         return;
 
-    current_project->SetCurrentFrameIndex(ui->lstFrames->currentRow());
+    current_project->SetCurrentFrameIndex(currentRow);
     Update();
 }
 
