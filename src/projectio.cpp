@@ -445,18 +445,15 @@ bool Project::GoExport(QWidget* parent)
     if (ofname == "")
         return false;
 
-    if (!exdial.IsSpritesheet() && !exdial.IsCurrentFrameOnly())
-    {
-        QMessageBox::critical(this->main_window, "Not implemented", "Exporting as multple images is not implemented yet");
-        return false;
-    }
+    QList<QImage> rendered;
 
-    QImage rendered;
-
-    if (exdial.IsCurrentFrameOnly())
-        rendered= CurrentFrame()->RenderBitmap();
-    else
-        rendered= this->RenderBitmap(exdial.SpritesheetColumns());
+    if (exdial.IsCurrentFrameOnly() || FrameCount() == 1)
+        rendered += CurrentFrame()->RenderBitmap();
+    else if (exdial.IsSpritesheet())
+        rendered += this->RenderBitmap(exdial.SpritesheetColumns());
+    else //Export as multiple images
+        foreach(Frame tfr, timeline)
+            rendered += tfr.RenderBitmap();
 
     if (exdial.IsExportingRegular())
     {
@@ -466,45 +463,60 @@ bool Project::GoExport(QWidget* parent)
         if (exflags & Regfmt_0Trans)
             tpal[0]= 0x00000000;
 
-        QImage output= rendered;
-        output.setColorTable(tpal);
+        if (ofname.endsWith(".png", Qt::CaseInsensitive) || ofname.endsWith(".bmp", Qt::CaseInsensitive))
+            ofname= ofname.left(ofname.length()-4); //Prevent the final filename having the file extension twice
 
-        if (exflags & Regfmt_RGBAMode)
-            output= output.convertToFormat(QImage::Format_ARGB32);
-
-        switch (exflags&0x0F)
+        int ifr= 0;
+        foreach (QImage oimg, rendered)
         {
-        case Regfmt_PNG:
-            output.save(ofname + ".png");
-            break;
-        case Regfmt_BMP:
-            output.save(ofname + ".bmp");
-            break;
-        default:
-            break;
+            oimg.setColorTable(tpal);
+
+            if (exflags & Regfmt_RGBAMode)
+                oimg= oimg.convertToFormat(QImage::Format_ARGB32);
+
+            QString newname = rendered.size()>1? ofname+"_"+QString::number(++ifr) : ofname;
+
+            switch (exflags&0x0F)
+            {
+            case Regfmt_PNG:
+                oimg.save(newname + ".png");
+                break;
+            case Regfmt_BMP:
+                oimg.save(newname + ".bmp");
+                break;
+            default:
+                break;
+            }
         }
     }
 
     if (exdial.IsExportingSource())
     {
-        //Make temporary bitmap to input
-        if (!rendered.save(".tempgfx.bmp"))
-            return false;
+        int ifr= 0;
+        foreach (QImage oimg, rendered)
+        {
+            //Make temporary bitmap to input
+            if (!oimg.save(".tempgfx.bmp"))
+                return false;
 
-        QProcess proc;
-        proc.start("grit", QList<QString>{ ".tempgfx.bmp", "-o"+ofname } + exdial.GritFlags());
+            QProcess proc;
+            QString newname = ofname;
+            if (rendered.size() > 1)
+                newname.insert(ofname.lastIndexOf('.'), "_"+QString::number(++ifr));
+            proc.start("grit", QList<QString>{ ".tempgfx.bmp", "-o"+newname } + exdial.GritFlags());
 
-        if (!proc.waitForFinished(5000))
-            QMessageBox::critical(parent, "Export error", "GRIT timed out after 5 seconds");
-        if (proc.exitCode() == 255)
-            QMessageBox::critical(parent, "Export error", "Cannot find \"grit\", please make sure it is in PATH");
-        else if (proc.exitCode())
-            QMessageBox::critical(parent, "Export error", "GRIT returned error code "+QString::number(proc.exitCode()));
-        else
-            QMessageBox::information(parent, "Export complete", "Done!");
+            if (!proc.waitForFinished(5000))
+                QMessageBox::critical(parent, "Export error", "GRIT timed out after 5 seconds");
+            if (proc.exitCode() == 255)
+                QMessageBox::critical(parent, "Export error", "Cannot find \"grit\", please make sure it is in PATH");
+            else if (proc.exitCode())
+                QMessageBox::critical(parent, "Export error", "GRIT returned error code "+QString::number(proc.exitCode()));
 
-        if (proc.exitCode())
-            return false;
+            if (proc.exitCode())
+                return false;
+        }
+
+        QMessageBox::information(parent, "Export complete", "Done!");
     }
 
     return true;
