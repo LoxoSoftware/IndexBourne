@@ -661,7 +661,7 @@ void ImageCanvas::FlipSelection(bool horizontal, bool vertical)
 
     selection_old= selection.copy(rect_selection);
 
-#if QT_VERSION_MAJOR > 5
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
     if (horizontal)
     {
         dest->flip(Qt::Horizontal);
