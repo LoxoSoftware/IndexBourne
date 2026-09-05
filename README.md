@@ -8,13 +8,13 @@ This project is still in early alpha and some features may be unstable (for exam
 ### Features
 - Easy palette management with non destructive color index swapping*
 - Shared palette: multiple projects can share the same palette file, no need to adjust the colors for every image that needs it
-- Quick export to GRIT with a GUI to select the export options (GRIT must be installed)
+- Quick export to [GRIT](https://github.com/devkitPro/grit) with a GUI to select the export options (GRIT must be installed)
 - Basic layer support, IB projects can open in some other editors too!
+- Animation support with spritesheet export
 
 (*) For technical reasons, non destructive palette index swapping does not work correctly when using a shared palette
 
 ### Planned features
-- Animation support with spritesheet export
 - More palette editing and generation tools
 - More brushes
 - More painting tools
