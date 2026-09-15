@@ -29,13 +29,13 @@ _WARING: THIS GUIDE MAY NOT WORK_
 **It's suggested to install all the prerequisites (minus Qt) from chocolatey**
 _(donwload Qt from the online installer, donwloadable from Qt website)_
 
-!(Download from here)[https://chocolatey.org/]
+(Download from here)[https://chocolatey.org/]
 
 # First Step: compiling Zlib
 
 Download zlib source from the offical website.
 
-!(Download from here)[https://zlib.net/]
+(Download from here)[https://zlib.net/]
 
 Unpack it
 
@@ -78,7 +78,7 @@ git clone https://github.com/stachenov/quazip.git
 
 ```
 
-Or !(Download from here)[https://github.com/stachenov/quazip]
+Or (Download from here)[https://github.com/stachenov/quazip]
 
 Make build folder wherever you want.
 
@@ -121,7 +121,7 @@ git clone https://github.com/LoxoSoftware/IndexBourne.git
 
 ```
 
-Or !(Download from here)[https://github.com/LoxoSoftware/IndexBourne]
+Or (Download from here)[https://github.com/LoxoSoftware/IndexBourne]
 
 
 Rename the quazip folder in QuaZip-Qt6 and move it in _qt installation path\x.x.x\compiler\cmake_.
