@@ -40,7 +40,11 @@ You should download Qt from the online installer, downloadable from Qt website.
 1. [Download Zlib source](https://zlib.net/) from the offical website.  
 2. Unpack the tarball  
 3. Make a build folder  
-4. Go in the Zlib folder with Powershell, then run  
+4. Go in the Zlib folder with Powershell, then run
+```
+cmake -B path-to-the-build-folder -G "MinGW Makefiles"
+``` 
+ 5. To compile run
 ```
 cmake --build path-to-the-build-folder
 ```  
