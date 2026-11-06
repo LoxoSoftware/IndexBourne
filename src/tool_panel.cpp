@@ -41,6 +41,7 @@ ToolPanel::ToolPanel(QWidget *parent, MainWindow* main_window)
         ui->btnRectangleSelect->setIcon(MainWindow::ColorizeIcon(":/icons/scalable/rectangle-select", COL_LIGHT_ICON));
         ui->btnTransformGfx->setIcon(MainWindow::ColorizeIcon(":/icons/scalable/move", COL_LIGHT_ICON));
         ui->btnFloodSelect->setIcon(MainWindow::ColorizeIcon(":/icons/scalable/magic-wand", COL_LIGHT_ICON));
+        ui->btnLine->setIcon(MainWindow::ColorizeIcon(":/icons/scalable/line", COL_LIGHT_ICON));
     }
 
     connect(ui->btnPencil, &QToolButton::clicked, this, &ToolPanel::on_CurrentToolTypeChanged);
@@ -49,6 +50,7 @@ ToolPanel::ToolPanel(QWidget *parent, MainWindow* main_window)
     connect(ui->btnRectangleSelect, &QToolButton::clicked, this, &ToolPanel::on_CurrentToolTypeChanged);
     connect(ui->btnTransformGfx, &QToolButton::clicked, this, &ToolPanel::on_CurrentToolTypeChanged);
     connect(ui->btnFloodSelect, &QToolButton::clicked, this, &ToolPanel::on_CurrentToolTypeChanged);
+    connect(ui->btnLine, &QToolButton::clicked, this, &ToolPanel::on_CurrentToolTypeChanged);
     connect(ui->chkApplyOpaque, &QCheckBox::toggled, this, &ToolPanel::on_CanvasInvalidate);
     connect(ui->chkForceIntegerScale, &QCheckBox::toggled, this, &ToolPanel::on_CanvasInvalidate);
 }
@@ -90,6 +92,10 @@ Tool ToolPanel::GetCurrentTool()
     if (ui->btnFloodSelect->isChecked())
     {
         new_tool.type= Tool_FloodSelect;
+        ui->grpToolSettings->setCurrentWidget(ui->grpToolSettings_pencil);
+    }if (ui->btnLine->isChecked())
+    {
+        new_tool.type= Tool_Line;
         ui->grpToolSettings->setCurrentWidget(ui->grpToolSettings_pencil);
     }
 

@@ -118,10 +118,11 @@ public:
     void ZoomIn();
     void ZoomOut();
 
-    void Plot(int x, int y, int color, int radius=1);
+    void Plot(QImage* dest, int x, int y, int color, int radius=1);
     void PlotSelection(int x, int y, bool include, int radius=1);
     void DrawPencil(QPoint pos, bool primary= true);
     void DrawSelectionPencil(QPoint pos, bool include);
+    void SetupTempLine(QPoint pos_a, QPoint pos_b, bool primary= true);
     void PickColor(QPoint pos, bool primary= true);
     void RectangleSelect(QRect rect, bool include= true); //Call on mouse release
     void FloodSelect(QPoint pos);
@@ -143,6 +144,9 @@ public:
     QRect FloatLayerRect() { return rect_selection; }
     bool IsTileGridEnabled() { return show_tilegrid; }
     QSize TileGridSize() { return tilegrid_size; }
+
+    int PenSize(bool primary=true);
+    int PenColorIndex(bool primary=true);
 
     void SetFrame(Frame* frame);
     void SetCurrentLayerIndex(int index);

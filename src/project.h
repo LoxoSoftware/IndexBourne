@@ -113,6 +113,7 @@ typedef enum
     Tool_RectSelect     = (1<<6),
     Tool_PencilSelect   = (1<<7),
     Tool_Transform      = (1<<8),
+    Tool_Line           = (1<<9),
 } tooltype_t;
 
 typedef struct Tool

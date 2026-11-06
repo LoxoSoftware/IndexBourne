@@ -463,15 +463,15 @@ void ImageCanvas::ZoomOut()
     }
 }
 
-void ImageCanvas::Plot(int x, int y, int color, int radius)
+void ImageCanvas::Plot(QImage* dest, int x, int y, int color, int radius)
 {   
     for (int iy=-radius/2.f; iy<radius/2.f; iy++)
         for (int ix=-radius/2.f; ix<radius/2.f; ix++)
         {
-            if (x+ix < 0 || x+ix >= image->width()
-                || y+iy < 0 || y+iy >= image->height())
+            if (x+ix < 0 || x+ix >= dest->width()
+                || y+iy < 0 || y+iy >= dest->height())
                 continue;
-            image->setPixel(x+ix, y+iy, color);
+            dest->setPixel(x+ix, y+iy, color);
         }
 }
 
@@ -495,10 +495,7 @@ void ImageCanvas::DrawPencil(QPoint pos, bool primary)
     int pixx= TILECANVASX_TO_PIXEL(pos.x());
     int pixy= TILECANVASY_TO_PIXEL(pos.y());
 
-    if (primary)
-        Plot(pixx, pixy, current_project->PaltableAIndex(), current_tool->diameter_a);
-    else
-        Plot(pixx, pixy, current_project->PaltableBIndex(), current_tool->diameter_b);
+    Plot(image, pixx, pixy, PenColorIndex(primary), PenSize(primary));
 
     Redraw();
 }
@@ -512,6 +509,129 @@ void ImageCanvas::DrawSelectionPencil(QPoint pos, bool include)
 
     Redraw();
 }
+
+void ImageCanvas::SetupTempLine(QPoint pos_a, QPoint pos_b, bool primary)
+{
+    QRect raster_rect= QRect(pos_a, pos_b).normalized();
+    QLine line= QLine(raster_rect.topLeft(), raster_rect.bottomRight());
+
+    DiscardFloatingLayer(true);
+    QImage line_raster= QImage(raster_rect.size(), QImage::Format_Indexed8);
+    line_raster.setColorTable(current_project->Palette());
+    line_raster.fill(0);
+
+    //Draw line using Bresenham's algorithm
+    int dx= pos_b.x()-pos_a.x();
+    int dy= pos_b.y()-pos_a.y();
+    float dx_a= line.p2().x() - line.p1().x();
+    float dy_a= line.p2().y() - line.p1().y();
+    float slope;
+    if(dx >= dy)
+        slope= dx;
+    else
+        slope= dy;
+    dx_a /= slope;
+    dy_a /= slope;
+    float ix= line.p1().x();
+    float iy= line.p1().y();
+    int i= 1;
+    while (i<=slope)
+    {
+        Plot(&line_raster, ix-line.p1().x(), iy-line.p1().y(),
+            PenColorIndex(primary), PenSize(primary));
+        ix+= dx_a;
+        iy+= dy_a;
+        i++;
+    }
+
+    selection.fill(0);
+    RectangleSelect(raster_rect, true);
+    rect_selection= raster_rect;
+
+    //Transfer the image flipped based on the angle of the vector
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+    if (dx<0)
+    {
+        line_raster.flip(Qt::Horizontal);
+        //selection.flip(Qt::Horizontal);
+    }
+    if (dy<0)
+    {
+        line_raster.flip(Qt::Vertical);
+        //selection.flip(Qt::Vertical);
+    }
+    floating_layer= line_raster;
+#else
+    floating_layer= line_raster.mirrored(dx<0, dy<0);
+    //selection= selection.mirrored(x_positive, y_positive);
+#endif
+}
+
+// void ImageCanvas::SetupTempLine(QPoint pos_a, QPoint pos_b, bool primary)
+// {
+//     int dx= pos_b.x()-pos_a.x();
+//     int dy= pos_b.y()-pos_a.y();
+
+//     QRect raster_rect= QRect(pos_a, pos_b).normalized();
+//     QLine line= QLine(raster_rect.topLeft(), raster_rect.bottomRight());
+
+//     DiscardFloatingLayer(true);
+//     QImage line_raster= QImage(raster_rect.size(), QImage::Format_Indexed8);
+//     line_raster.setColorTable(current_project->Palette());
+//     line_raster.fill(0);
+
+//     //Draw line using Bresenham's algorithm
+//     int d, slope_error_new;
+//     int dx_n= line.p2().x() - line.p1().x();
+//     int dy_n= line.p2().y() - line.p1().y();
+
+//     d = 2 * dy_n;
+//     slope_error_new = d - dx_n;
+//     for (int x = line.p1().x(), y = line.p1().y(); x <= line.p2().x(); x++)
+//     {
+//         Plot(&line_raster, x-line.p1().x(), y-line.p1().y(),
+//              PenColorIndex(primary), PenSize(primary));
+
+//         slope_error_new += d;
+
+//         if (dx_n <= dy_n)
+//         {
+//             if (slope_error_new >= 0)
+//             {
+//                 y++;
+//                 slope_error_new -= 2 * dx_n;
+//             }
+//         }
+//         else
+//         {
+//             slope_error_new -= 2 * dy_n;
+//         }
+//     }
+
+//     selection.fill(0);
+//     RectangleSelect(raster_rect, true);
+//     rect_selection= raster_rect;
+
+//     //Transfer the image flipped based on the angle of the vector
+
+// #if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
+//     if (dx<0)
+//     {
+//         line_raster.flip(Qt::Horizontal);
+//         //selection.flip(Qt::Horizontal);
+//     }
+//     if (dy<0)
+//     {
+//         line_raster.flip(Qt::Vertical);
+//         //selection.flip(Qt::Vertical);
+//     }
+//     floating_layer= line_raster;
+// #else
+//     floating_layer= line_raster.mirrored(dx<0, dy<0);
+//     //selection= selection.mirrored(x_positive, y_positive);
+// #endif
+// }
 
 void ImageCanvas::PickColor(QPoint pos, bool primary)
 {
@@ -896,25 +1016,36 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent* event)
         event_gpos= mouse_last_global_pos.toPoint();
 #endif
 
+    QPoint canvas_mouse_pos= QPoint(
+        TILECANVASX_TO_PIXEL(event->pos().x()), TILECANVASY_TO_PIXEL(event->pos().y()));
+    QPoint canvas_mouse_last_pos= QPoint(
+        TILECANVASX_TO_PIXEL(mouse_last_pos.x()), TILECANVASY_TO_PIXEL(mouse_last_pos.y()));
+
     if (mouse_down_button & (Qt::LeftButton | Qt::RightButton))
     {
+        bool is_primary= (mouse_down_button == Qt::LeftButton);
+
         switch(current_tool->type)
         {
         case Tool_Pencil:
-            DrawPencil(event->pos(), mouse_down_button == Qt::LeftButton);
+            DrawPencil(event->pos(), is_primary);
             break;
         case Tool_Eyedropper:
-            PickColor(event->pos(), mouse_down_button == Qt::LeftButton);
+            PickColor(event->pos(), is_primary);
             break;
         case Tool_PencilSelect:
-            DrawSelectionPencil(event->pos(), mouse_down_button == Qt::LeftButton);
+            DrawSelectionPencil(event->pos(), is_primary);
             break;
         case Tool_RectSelect:
-            rect_selection.setX(TILECANVASX_TO_PIXEL(mouse_last_pos.x()));
-            rect_selection.setY(TILECANVASY_TO_PIXEL(mouse_last_pos.y()));
+            rect_selection.setTopLeft(canvas_mouse_last_pos);
             rect_selection.setWidth(TILECANVASX_TO_PIXEL(event->pos().x())-rect_selection.x());
             rect_selection.setHeight(TILECANVASY_TO_PIXEL(event->pos().y())-rect_selection.y());
             this->repaint();
+            break;
+        case Tool_Line:
+            //QMessageBox::information(this, "deb", "line");
+            SetupTempLine(canvas_mouse_last_pos, canvas_mouse_pos, is_primary);
+            Redraw();
             break;
         default:
             break;
@@ -1189,4 +1320,20 @@ void ImageCanvas::UpdateSelectionContentWithImage(QImage content)
             if (sl_src[ix])
                 PlotSelection(rect_selection.x()+ix, rect_selection.y()+iy, true);
     }
+}
+
+int ImageCanvas::PenSize(bool primary)
+{
+    if (primary)
+        return current_tool->diameter_a;
+    else
+        return current_tool->diameter_b;
+}
+
+int ImageCanvas::PenColorIndex(bool primary)
+{
+    if (primary)
+        return current_project->PaltableAIndex();
+    else
+        return current_project->PaltableBIndex();
 }
