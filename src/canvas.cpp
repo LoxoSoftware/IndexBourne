@@ -517,13 +517,14 @@ void ImageCanvas::SetupTempLine(QPoint pos_a, QPoint pos_b, bool primary)
 
     QRect raster_rect= QRect(pos_a, pos_b).normalized();
     QLine line= QLine(raster_rect.topLeft(), raster_rect.bottomRight());
-    //raster_rect.adjust(-PenSize(primary)/2, -PenSize(primary)/2, PenSize(primary)/2+1, PenSize(primary)/2+1);
+    raster_rect.adjust(-PenSize(primary)/2, -PenSize(primary)/2, PenSize(primary)/2+1, PenSize(primary)/2+1);
 
     DiscardFloatingLayer(true);
     QImage line_raster= QImage(raster_rect.size(), QImage::Format_Indexed8);
     line_raster.setColorTable(current_project->Palette());
     line_raster.fill(0);
     selection.fill(0);
+    floating_layer= line_raster; //Floating layer has to be set up before being filled
 
     //Draw line using Bresenham's algorithm
     int dx_n= line.p2().x() - line.p1().x(); //NOTE: Normalized points
@@ -539,7 +540,7 @@ void ImageCanvas::SetupTempLine(QPoint pos_a, QPoint pos_b, bool primary)
              ix++)
         {
             Plot(&line_raster, ix-line.p1().x(), iy-line.p1().y(),
-                 PenColorIndex(primary), PenSize(primary));
+                 1, PenSize(primary));
 
             if (d < 0)
                 d += 2*dy_n;
@@ -558,7 +559,7 @@ void ImageCanvas::SetupTempLine(QPoint pos_a, QPoint pos_b, bool primary)
              iy++)
         {
             Plot(&line_raster, ix-line.p1().x(), iy-line.p1().y(),
-                 PenColorIndex(primary), PenSize(primary));
+                 1, PenSize(primary));
 
             if (d < 0)
                 d += 2*dx_n;
@@ -568,20 +569,20 @@ void ImageCanvas::SetupTempLine(QPoint pos_a, QPoint pos_b, bool primary)
         }
     }
 
-    //Transfer the image flipped based on the angle of the vector
+    //Flip the final image based on the angle of the vector
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
     if (dx<0)
         line_raster.flip(Qt::Horizontal);
     if (dy<0)
         line_raster.flip(Qt::Vertical);
-    floating_layer= line_raster;
 #else
-    floating_layer= line_raster.mirrored(dx<0, dy<0);
+    line_raster.mirror(dx<0, dy<0);
 #endif
 
     UpdateSelectionContentWithImage(line_raster);
     rect_selection= raster_rect;
+    FillSelection(PenColorIndex(primary));
 }
 
 void ImageCanvas::PickColor(QPoint pos, bool primary)
@@ -690,7 +691,9 @@ void ImageCanvas::FloodSelect(QPoint pos)
 
 void ImageCanvas::FillSelection(int color)
 {
-    if (current_tool->type == Tool_Transform && !floating_layer.isNull())
+    if (( current_tool->type == Tool_Transform ||
+         current_tool->type == Tool_Line )
+         && !floating_layer.isNull())
         //Fill only the floating layer being transformed (non destructive)
         for (int iy=0; iy<rect_selection.height(); iy++)
         {
