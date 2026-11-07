@@ -73,6 +73,7 @@ private:
     QList<UndoSnapshot> history;
     layergroup_t init_state;
     int history_index= 0;
+    bool is_mrecent_state_saved= false;
 
 public:
     Frame(Project* parent, QSize size);

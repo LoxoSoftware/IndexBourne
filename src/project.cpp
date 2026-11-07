@@ -164,12 +164,21 @@ void Frame::PushNewSnapshot(UndoSnapshot* snap)
     history.insert(history_index-1, *snap);
 
     current_project->SetSaved(false);
+    is_mrecent_state_saved= false;
 }
 
 // NOTE: Undo() and Redo() should NOT update the project's layer database, because it is global.
 
 void Frame::Undo()
 {
+    //Push a new snapshot for the most recent change so we can undo it later
+    if (history_index == HistorySize() && !is_mrecent_state_saved)
+    {
+        PushNewSnapshot(new UndoSnapshot(Undocmd_DiffImage, current_project->CurrentLayerIndex(), LayerAt(current_project->CurrentLayerIndex())));
+        is_mrecent_state_saved= true;
+        history_index--;
+    }
+
     if (history_index <= 1)
     {
         RestoreInitialState();
