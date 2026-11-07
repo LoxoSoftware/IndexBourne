@@ -512,8 +512,12 @@ void ImageCanvas::DrawSelectionPencil(QPoint pos, bool include)
 
 void ImageCanvas::SetupTempLine(QPoint pos_a, QPoint pos_b, bool primary)
 {
+    int dx= pos_b.x()-pos_a.x();
+    int dy= pos_b.y()-pos_a.y();
+
     QRect raster_rect= QRect(pos_a, pos_b).normalized();
     QLine line= QLine(raster_rect.topLeft(), raster_rect.bottomRight());
+    raster_rect.adjust(-PenSize(primary)/2, -PenSize(primary)/2, PenSize(primary)/2+1, PenSize(primary)/2+1);
 
     DiscardFloatingLayer(true);
     QImage line_raster= QImage(raster_rect.size(), QImage::Format_Indexed8);
@@ -521,28 +525,40 @@ void ImageCanvas::SetupTempLine(QPoint pos_a, QPoint pos_b, bool primary)
     line_raster.fill(0);
 
     //Draw line using Bresenham's algorithm
-    int dx= pos_b.x()-pos_a.x();
-    int dy= pos_b.y()-pos_a.y();
-    float dx_a= line.p2().x() - line.p1().x();
-    float dy_a= line.p2().y() - line.p1().y();
-    float slope;
-    if(dx >= dy)
-        slope= dx;
+    int dx_n= line.p2().x() - line.p1().x(); //NOTE: Normalized points
+    int dy_n= line.p2().y() - line.p1().y(); //        " "
+    int d = abs(2 * dy_n - dx_n);
+
+    if (dx_n >= dy_n)
+        for (int ix = line.p1().x(),
+                 iy = line.p1().y();
+             ix <= line.p2().x();
+             ix++)
+        {
+            Plot(&line_raster, ix-line.p1().x(), iy-line.p1().y(),
+                PenColorIndex(primary), PenSize(primary));
+
+            if (d < 0)
+                d += 2*dy_n;
+            else
+                d += 2*(dy_n-dx_n),
+                iy++;
+        }
     else
-        slope= dy;
-    dx_a /= slope;
-    dy_a /= slope;
-    float ix= line.p1().x();
-    float iy= line.p1().y();
-    int i= 1;
-    while (i<=slope)
-    {
-        Plot(&line_raster, ix-line.p1().x(), iy-line.p1().y(),
-            PenColorIndex(primary), PenSize(primary));
-        ix+= dx_a;
-        iy+= dy_a;
-        i++;
-    }
+        for (int ix = line.p1().x(),
+                 iy = line.p1().y();
+             iy <= line.p2().y();
+             iy++)
+        {
+            Plot(&line_raster, ix-line.p1().x()-1, iy-line.p1().y(),
+                PenColorIndex(primary), PenSize(primary));
+
+            if (d < 0)
+                d += 2*dx_n;
+            else
+                d += 2*(dx_n-dy_n),
+                ix++;
+        }
 
     selection.fill(0);
     RectangleSelect(raster_rect, true);
@@ -567,71 +583,6 @@ void ImageCanvas::SetupTempLine(QPoint pos_a, QPoint pos_b, bool primary)
     //selection= selection.mirrored(x_positive, y_positive);
 #endif
 }
-
-// void ImageCanvas::SetupTempLine(QPoint pos_a, QPoint pos_b, bool primary)
-// {
-//     int dx= pos_b.x()-pos_a.x();
-//     int dy= pos_b.y()-pos_a.y();
-
-//     QRect raster_rect= QRect(pos_a, pos_b).normalized();
-//     QLine line= QLine(raster_rect.topLeft(), raster_rect.bottomRight());
-
-//     DiscardFloatingLayer(true);
-//     QImage line_raster= QImage(raster_rect.size(), QImage::Format_Indexed8);
-//     line_raster.setColorTable(current_project->Palette());
-//     line_raster.fill(0);
-
-//     //Draw line using Bresenham's algorithm
-//     int d, slope_error_new;
-//     int dx_n= line.p2().x() - line.p1().x();
-//     int dy_n= line.p2().y() - line.p1().y();
-
-//     d = 2 * dy_n;
-//     slope_error_new = d - dx_n;
-//     for (int x = line.p1().x(), y = line.p1().y(); x <= line.p2().x(); x++)
-//     {
-//         Plot(&line_raster, x-line.p1().x(), y-line.p1().y(),
-//              PenColorIndex(primary), PenSize(primary));
-
-//         slope_error_new += d;
-
-//         if (dx_n <= dy_n)
-//         {
-//             if (slope_error_new >= 0)
-//             {
-//                 y++;
-//                 slope_error_new -= 2 * dx_n;
-//             }
-//         }
-//         else
-//         {
-//             slope_error_new -= 2 * dy_n;
-//         }
-//     }
-
-//     selection.fill(0);
-//     RectangleSelect(raster_rect, true);
-//     rect_selection= raster_rect;
-
-//     //Transfer the image flipped based on the angle of the vector
-
-// #if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
-//     if (dx<0)
-//     {
-//         line_raster.flip(Qt::Horizontal);
-//         //selection.flip(Qt::Horizontal);
-//     }
-//     if (dy<0)
-//     {
-//         line_raster.flip(Qt::Vertical);
-//         //selection.flip(Qt::Vertical);
-//     }
-//     floating_layer= line_raster;
-// #else
-//     floating_layer= line_raster.mirrored(dx<0, dy<0);
-//     //selection= selection.mirrored(x_positive, y_positive);
-// #endif
-// }
 
 void ImageCanvas::PickColor(QPoint pos, bool primary)
 {
