@@ -517,26 +517,29 @@ void ImageCanvas::SetupTempLine(QPoint pos_a, QPoint pos_b, bool primary)
 
     QRect raster_rect= QRect(pos_a, pos_b).normalized();
     QLine line= QLine(raster_rect.topLeft(), raster_rect.bottomRight());
-    raster_rect.adjust(-PenSize(primary)/2, -PenSize(primary)/2, PenSize(primary)/2+1, PenSize(primary)/2+1);
+    //raster_rect.adjust(-PenSize(primary)/2, -PenSize(primary)/2, PenSize(primary)/2+1, PenSize(primary)/2+1);
 
     DiscardFloatingLayer(true);
     QImage line_raster= QImage(raster_rect.size(), QImage::Format_Indexed8);
     line_raster.setColorTable(current_project->Palette());
     line_raster.fill(0);
+    selection.fill(0);
 
     //Draw line using Bresenham's algorithm
     int dx_n= line.p2().x() - line.p1().x(); //NOTE: Normalized points
     int dy_n= line.p2().y() - line.p1().y(); //        " "
-    int d = abs(2 * dy_n - dx_n);
 
     if (dx_n >= dy_n)
+    {
+        int d = 2 * dy_n - dx_n;
+
         for (int ix = line.p1().x(),
                  iy = line.p1().y();
              ix <= line.p2().x();
              ix++)
         {
             Plot(&line_raster, ix-line.p1().x(), iy-line.p1().y(),
-                PenColorIndex(primary), PenSize(primary));
+                 PenColorIndex(primary), PenSize(primary));
 
             if (d < 0)
                 d += 2*dy_n;
@@ -544,14 +547,18 @@ void ImageCanvas::SetupTempLine(QPoint pos_a, QPoint pos_b, bool primary)
                 d += 2*(dy_n-dx_n),
                 iy++;
         }
+    }
     else
+    {
+        int d = 2 * dx_n - dy_n;
+
         for (int ix = line.p1().x(),
                  iy = line.p1().y();
              iy <= line.p2().y();
              iy++)
         {
-            Plot(&line_raster, ix-line.p1().x()-1, iy-line.p1().y(),
-                PenColorIndex(primary), PenSize(primary));
+            Plot(&line_raster, ix-line.p1().x(), iy-line.p1().y(),
+                 PenColorIndex(primary), PenSize(primary));
 
             if (d < 0)
                 d += 2*dx_n;
@@ -559,29 +566,22 @@ void ImageCanvas::SetupTempLine(QPoint pos_a, QPoint pos_b, bool primary)
                 d += 2*(dx_n-dy_n),
                 ix++;
         }
-
-    selection.fill(0);
-    RectangleSelect(raster_rect, true);
-    rect_selection= raster_rect;
+    }
 
     //Transfer the image flipped based on the angle of the vector
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 9, 0)
     if (dx<0)
-    {
         line_raster.flip(Qt::Horizontal);
-        //selection.flip(Qt::Horizontal);
-    }
     if (dy<0)
-    {
         line_raster.flip(Qt::Vertical);
-        //selection.flip(Qt::Vertical);
-    }
     floating_layer= line_raster;
 #else
     floating_layer= line_raster.mirrored(dx<0, dy<0);
-    //selection= selection.mirrored(x_positive, y_positive);
 #endif
+
+    UpdateSelectionContentWithImage(line_raster);
+    rect_selection= raster_rect;
 }
 
 void ImageCanvas::PickColor(QPoint pos, bool primary)
@@ -903,6 +903,11 @@ void ImageCanvas::mousePressEvent(QMouseEvent* event)
     {
         switch (current_tool->type)
         {
+        case Tool_Pencil:
+        case Tool_Line:
+            current_project->CurrentFrame()->PushNewSnapshot(new UndoSnapshot(Undocmd_DiffImage, current_layer_index, current_layer));
+            mouseMoveEvent(event);
+            break;
         case Tool_FloodSelect:
             selection.fill(0);
             FloodSelect(event->pos());
@@ -928,8 +933,8 @@ void ImageCanvas::mouseReleaseEvent(QMouseEvent* event)
     {
         switch (current_tool->type)
         {
-        case Tool_Pencil:
-            current_project->CurrentFrame()->PushNewSnapshot(new UndoSnapshot(Undocmd_DiffImage, current_layer_index, current_layer));
+        case Tool_Line:
+            ApplyFloatingLayer(true, false);
             break;
         case Tool_RectSelect:
             if (!(event->modifiers()&Qt::ControlModifier))
