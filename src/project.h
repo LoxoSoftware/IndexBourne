@@ -115,6 +115,7 @@ typedef enum
     Tool_PencilSelect   = (1<<7),
     Tool_Transform      = (1<<8),
     Tool_Line           = (1<<9),
+    Tool_EllipseSelect  = (1<<10),
 } tooltype_t;
 
 typedef struct Tool

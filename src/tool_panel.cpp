@@ -42,6 +42,7 @@ ToolPanel::ToolPanel(QWidget *parent, MainWindow* main_window)
         ui->btnTransformGfx->setIcon(MainWindow::ColorizeIcon(":/icons/scalable/move", COL_LIGHT_ICON));
         ui->btnFloodSelect->setIcon(MainWindow::ColorizeIcon(":/icons/scalable/magic-wand", COL_LIGHT_ICON));
         ui->btnLine->setIcon(MainWindow::ColorizeIcon(":/icons/scalable/line", COL_LIGHT_ICON));
+        ui->btnEllipseSelect->setIcon(MainWindow::ColorizeIcon(":/icons/scalable/ellipse-select", COL_LIGHT_ICON));
     }
 
     connect(ui->btnPencil, &QToolButton::clicked, this, &ToolPanel::on_CurrentToolTypeChanged);
@@ -51,6 +52,7 @@ ToolPanel::ToolPanel(QWidget *parent, MainWindow* main_window)
     connect(ui->btnTransformGfx, &QToolButton::clicked, this, &ToolPanel::on_CurrentToolTypeChanged);
     connect(ui->btnFloodSelect, &QToolButton::clicked, this, &ToolPanel::on_CurrentToolTypeChanged);
     connect(ui->btnLine, &QToolButton::clicked, this, &ToolPanel::on_CurrentToolTypeChanged);
+    connect(ui->btnEllipseSelect, &QToolButton::clicked, this, &ToolPanel::on_CurrentToolTypeChanged);
     connect(ui->chkApplyOpaque, &QCheckBox::toggled, this, &ToolPanel::on_CanvasInvalidate);
     connect(ui->chkForceIntegerScale, &QCheckBox::toggled, this, &ToolPanel::on_CanvasInvalidate);
 }
@@ -93,9 +95,15 @@ Tool ToolPanel::GetCurrentTool()
     {
         new_tool.type= Tool_FloodSelect;
         ui->grpToolSettings->setCurrentWidget(ui->grpToolSettings_pencil);
-    }if (ui->btnLine->isChecked())
+    }
+    if (ui->btnLine->isChecked())
     {
         new_tool.type= Tool_Line;
+        ui->grpToolSettings->setCurrentWidget(ui->grpToolSettings_pencil);
+    }
+    if (ui->btnEllipseSelect->isChecked())
+    {
+        new_tool.type= Tool_EllipseSelect;
         ui->grpToolSettings->setCurrentWidget(ui->grpToolSettings_pencil);
     }
 
@@ -130,6 +138,12 @@ void ToolPanel::SetCurrentToolType(int type)
         break;
     case Tool_FloodSelect:
         ui->btnFloodSelect->setChecked(true);
+        break;
+    case Tool_Line:
+        ui->btnLine->setChecked(true);
+        break;
+    case Tool_EllipseSelect:
+        ui->btnEllipseSelect->setChecked(true);
         break;
     default:
         break;

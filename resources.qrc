@@ -14,6 +14,7 @@
         <file alias="pencil-select">res/icons/pencil-select.svg</file>
         <file alias="move">res/icons/move.svg</file>
         <file alias="magic-wand">res/icons/magic-wand.svg</file>
+        <file alias="ellipse-select">res/icons/ellipse-select.svg</file>
     </qresource>
     <qresource prefix="/icons/bitmap">
         <file alias="icon">res/icon.png</file>
