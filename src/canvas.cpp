@@ -22,6 +22,7 @@
 #include <QGraphicsPixmapItem>
 #include <QMessageBox>
 #include <queue>
+#include "algo.h"
 
 #define CANVAS_BORDER_W                 2
 #define CANVAS_HANDLE_SZ                16
@@ -689,6 +690,19 @@ void ImageCanvas::FloodSelect(QPoint pos)
     Redraw();
 }
 
+void ImageCanvas::EllipseSelect(QRect rect, bool include)
+{
+    selection.fill(0);
+
+    DrawEllipseToSurface(&selection,
+                         TILECANVASX_TO_PIXEL(rect.left()),
+                         TILECANVASY_TO_PIXEL(rect.top()),
+                         TILECANVASX_TO_PIXEL(rect.right()),
+                         TILECANVASY_TO_PIXEL(rect.bottom()), false, -1);
+
+    Redraw();
+}
+
 void ImageCanvas::FillSelection(int color)
 {
     if (( current_tool->type == Tool_Transform ||
@@ -1004,6 +1018,10 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent* event)
         case Tool_Line:
             //QMessageBox::information(this, "deb", "line");
             SetupTempLine(canvas_mouse_last_pos, canvas_mouse_pos, is_primary);
+            Redraw();
+            break;
+        case Tool_EllipseSelect:
+            EllipseSelect(QRect(mouse_last_pos.toPoint(), event->pos()), is_primary);
             Redraw();
             break;
         default:

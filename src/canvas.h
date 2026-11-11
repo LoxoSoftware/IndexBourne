@@ -126,6 +126,7 @@ public:
     void PickColor(QPoint pos, bool primary= true);
     void RectangleSelect(QRect rect, bool include= true); //Call on mouse release
     void FloodSelect(QPoint pos);
+    void EllipseSelect(QRect rect, bool include= true);
     void FillSelection(int color);
     void FlipSelection(bool horizontal, bool vertical);
     void InvertSelectionRegion();

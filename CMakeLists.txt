@@ -21,6 +21,7 @@ endif()
 set(PROJECT_SOURCES
         src/main.cpp
         resources.qrc
+        src/algo.h
         src/config.h.in config.h
         src/mainwindow.cpp src/mainwindow.h src/mainwindow.ui
         src/project.h src/project.cpp src/projectio.cpp
