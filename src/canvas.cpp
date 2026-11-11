@@ -690,14 +690,17 @@ void ImageCanvas::FloodSelect(QPoint pos)
     Redraw();
 }
 
-void ImageCanvas::EllipseSelect(QRect rect, bool include)
+void ImageCanvas::EllipseSelect(QRect rect, bool centered, bool include)
 {
     selection.fill(0);
+    int x1= TILECANVASX_TO_PIXEL(rect.left()), y1= TILECANVASY_TO_PIXEL(rect.top());
+    int x2= TILECANVASX_TO_PIXEL(rect.right()), y2= TILECANVASY_TO_PIXEL(rect.bottom());
+    int w= abs(x2-x1), h= abs(y2-y1);
 
-    DrawEllipseSelection(TILECANVASX_TO_PIXEL(rect.left()),
-                         TILECANVASY_TO_PIXEL(rect.top()),
-                         TILECANVASX_TO_PIXEL(rect.right()),
-                         TILECANVASY_TO_PIXEL(rect.bottom()), false, include, PenSize(include));
+    if (!centered)
+        DrawEllipseSelection(x1, y1, x2, y2, false, include, PenSize(include));
+    else
+        DrawEllipseSelection(x1-w, y1-h, x1+w, y1+h, false, include, PenSize(include));
 
     Redraw();
 }
@@ -976,6 +979,12 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent* event)
 {
     QPoint event_gpos;
 
+    if (invalidate_last_mouse_pos)
+    {
+        mouse_last_pos= event->pos();
+        invalidate_last_mouse_pos= false;
+    }
+
 #if QT_VERSION_MAJOR > 5
     if (!event->globalPosition().isNull())
         event_gpos= event->globalPosition().toPoint();
@@ -1020,7 +1029,7 @@ void ImageCanvas::mouseMoveEvent(QMouseEvent* event)
             Redraw();
             break;
         case Tool_EllipseSelect:
-            EllipseSelect(QRect(mouse_last_pos.toPoint(), event->pos()), is_primary);
+            EllipseSelect(QRect(mouse_last_pos.toPoint(), event->pos()), event->modifiers()& Qt::ShiftModifier, is_primary);
             Redraw();
             break;
         default:
@@ -1170,11 +1179,19 @@ void ImageCanvas::keyPressEvent(QKeyEvent* event)
             SetFloatLayerRect(FloatLayerRect().translated(1,0));
         break;
     case Qt::Key_Shift:
-        if (current_tool->type != Tool_Transform)
+        switch (current_tool->type)
+        {
+        case Tool_Transform:
+            tmevent= new QMouseEvent(QEvent::MouseMove, QPoint(), QPoint(), Qt::NoButton, Qt::NoButton, Qt::ShiftModifier);
+            mouseMoveEvent(tmevent);
+            Redraw();
             break;
-        tmevent= new QMouseEvent(QEvent::MouseMove, QPoint(), QPoint(), Qt::NoButton, Qt::NoButton, Qt::ShiftModifier);
-        mouseMoveEvent(tmevent);
-        Redraw();
+        case Tool_EllipseSelect:
+            invalidate_last_mouse_pos= true;
+            break;
+        default:
+            break;
+        }
         break;
     default:
         event->ignore();

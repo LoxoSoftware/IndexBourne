@@ -92,6 +92,7 @@ private:
 
     bool show_tilegrid= true;
     bool show_pixelgrid= false;
+    bool invalidate_last_mouse_pos= false;
 
     void mousePressEvent(QMouseEvent* event);
     void mouseMoveEvent(QMouseEvent* event);
@@ -126,7 +127,7 @@ public:
     void PickColor(QPoint pos, bool primary= true);
     void RectangleSelect(QRect rect, bool include= true); //Call on mouse release
     void FloodSelect(QPoint pos);
-    void EllipseSelect(QRect rect, bool include= true);
+    void EllipseSelect(QRect rect, bool centered= false, bool include= true);
     void FillSelection(int color);
     void FlipSelection(bool horizontal, bool vertical);
     void InvertSelectionRegion();
