@@ -2,10 +2,9 @@
 #define ALGO_H
 
 #include <QImage>
+#include "src/project.h"
 
-#define __ALGO__SETPIXEL(dest, x, y, col) \
-    { if (col>=0) dest->setPixel(x, y, col); else dest->setPixel(x, y, 1+(x+y&1)); }
-    //^ draws the selection checkerboard if col is <0
+extern Project* current_project;
 
 void FillScanline(unsigned char* sl, int xleft, int xright, unsigned char col)
 {
@@ -13,9 +12,19 @@ void FillScanline(unsigned char* sl, int xleft, int xright, unsigned char col)
         sl[ix]= col;
 }
 
-void DrawEllipseToSurface(QImage* dest, int x0, int y0, int x1, int y1, bool fill, int col)
+void SelectRow(int y, int xleft, int xright, bool include)
+{
+    for (int ix=xleft; ix<xright; ix++)
+        current_project->Canvas()->PlotSelection(ix, y, include);
+}
+
+void DrawEllipseSelection(int x0, int y0, int x1, int y1, bool fill, bool include, int pensz)
 {
     //Credit: https://stackoverflow.com/a/54488533
+
+    ImageCanvas* canvas= current_project->Canvas();
+    if (!canvas) return;
+
     int xb, yb, xc, yc;
 
     // Calculate height
@@ -46,15 +55,15 @@ void DrawEllipseToSurface(QImage* dest, int x0, int y0, int x1, int y1, bool fil
         // Draw the new points
         if (!fill)
         {
-            __ALGO__SETPIXEL(dest, xb-dx, yb-dy, col)
+            canvas->PlotSelection(xb-dx, yb-dy, include, pensz);
             if (dx != 0 || xb != xc)
             {
-                __ALGO__SETPIXEL(dest, xc+dx, yb-dy, col)
+                canvas->PlotSelection(xc+dx, yb-dy, include, pensz);
                 if (dy != 0 || yb != yc)
-                    __ALGO__SETPIXEL(dest, xc+dx, yc+dy, col)
+                    canvas->PlotSelection(xc+dx, yc+dy, include, pensz);
             }
             if (dy != 0 || yb != yc)
-                __ALGO__SETPIXEL(dest, xb-dx, yc+dy, col)
+                canvas->PlotSelection(xb-dx, yc+dy, include, pensz);
         }
 
         // If a (+1, 0) step stays inside the ellipse, do it
@@ -70,21 +79,22 @@ void DrawEllipseToSurface(QImage* dest, int x0, int y0, int x1, int y1, bool fil
         {
             if (fill)
             {
-                FillScanline(dest->scanLine(yc+dy), xb-dx, xc+dx, col);
+                SelectRow(yc+dy, xb-dx, xc+dx, include);
                 if (dy != 0 || yb != yc)
-                    FillScanline(dest->scanLine(yb-dy), xb-dx, xc+dx, col);
+                    SelectRow(yb-dy, xb-dx, xc+dx, include);
             }
             qt += 8L*qa*qa - 4L*qa*qa*qy;
             dy--;
             qy -= 2;
             // Else step (+1, -1)
-        } else
+        }
+        else
         {
             if (fill)
             {
-                FillScanline(dest->scanLine(yc+dy), xb-dx, xc+dx, col);
+                SelectRow(yc+dy, xb-dx, xc+dx, include);
                 if (dy != 0 || yb != yc)
-                    FillScanline(dest->scanLine(yb-dy), xb-dx, xc+dx, col);
+                    SelectRow(yb-dy, xb-dx, xc+dx, include);
             }
             qt += 8L*qb*qb + 4L*qb*qb*qx + 8L*qa*qa - 4L*qa*qa*qy;
             dx++;

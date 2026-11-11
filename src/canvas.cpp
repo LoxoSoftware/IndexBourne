@@ -694,11 +694,10 @@ void ImageCanvas::EllipseSelect(QRect rect, bool include)
 {
     selection.fill(0);
 
-    DrawEllipseToSurface(&selection,
-                         TILECANVASX_TO_PIXEL(rect.left()),
+    DrawEllipseSelection(TILECANVASX_TO_PIXEL(rect.left()),
                          TILECANVASY_TO_PIXEL(rect.top()),
                          TILECANVASX_TO_PIXEL(rect.right()),
-                         TILECANVASY_TO_PIXEL(rect.bottom()), false, -1);
+                         TILECANVASY_TO_PIXEL(rect.bottom()), false, include, PenSize(include));
 
     Redraw();
 }
