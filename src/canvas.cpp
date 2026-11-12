@@ -616,7 +616,17 @@ void ImageCanvas::RectangleSelect(QRect rect, bool include)
 {
     for (int iy=rect.y(); iy<=rect.bottom(); iy++)
         for (int ix=rect.x(); ix<=rect.right(); ix++)
-            PlotSelection(ix, iy, include, 1);
+        {
+            if (!current_tool->fill)
+            {
+                if (ix>rect.x() && ix<rect.right()
+                    && !(iy==rect.y() || iy==rect.bottom()))
+                    continue;
+                PlotSelection(ix, iy, include, PenSize());
+            }
+            else
+                PlotSelection(ix, iy, include, 1);
+        }
 
     Redraw();
 }
@@ -697,10 +707,14 @@ void ImageCanvas::EllipseSelect(QRect rect, bool centered, bool include)
     int x2= TILECANVASX_TO_PIXEL(rect.right()), y2= TILECANVASY_TO_PIXEL(rect.bottom());
     int w= abs(x2-x1), h= abs(y2-y1);
 
+    int pensz= current_tool->fill? 1 : PenSize(include);
+
     if (!centered)
-        DrawEllipseSelection(x1, y1, x2, y2, false, include, PenSize(include));
+        DrawEllipseSelection(x1+pensz/2, y1+pensz/2, x2, y2,
+                             current_tool->fill, include, pensz);
     else
-        DrawEllipseSelection(x1-w, y1-h, x1+w, y1+h, false, include, PenSize(include));
+        DrawEllipseSelection(x1-w+pensz/2, y1-h+pensz/2, x1+w, y1+h,
+                             current_tool->fill, include, pensz);
 
     Redraw();
 }

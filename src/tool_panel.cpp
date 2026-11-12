@@ -55,6 +55,7 @@ ToolPanel::ToolPanel(QWidget *parent, MainWindow* main_window)
     connect(ui->btnEllipseSelect, &QToolButton::clicked, this, &ToolPanel::on_CurrentToolTypeChanged);
     connect(ui->chkApplyOpaque, &QCheckBox::toggled, this, &ToolPanel::on_CanvasInvalidate);
     connect(ui->chkForceIntegerScale, &QCheckBox::toggled, this, &ToolPanel::on_CanvasInvalidate);
+    connect(ui->chkFillShape, &QCheckBox::toggled, this, &ToolPanel::on_CanvasInvalidate);
 }
 
 ToolPanel::~ToolPanel()
@@ -111,6 +112,7 @@ Tool ToolPanel::GetCurrentTool()
     new_tool.diameter_b= ui->spbPencilDotSizeB->value();
     new_tool.opaque_apply_mode= ui->chkApplyOpaque->isChecked();
     new_tool.force_integer_scale= ui->chkForceIntegerScale->isChecked();
+    new_tool.fill= ui->chkFillShape->isChecked();
 
     return new_tool;
 }
