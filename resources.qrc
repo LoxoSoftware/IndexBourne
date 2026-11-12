@@ -22,5 +22,7 @@
     </qresource>
     <qresource prefix="/other">
         <file alias="nullimg">res/nullimg.png</file>
+        <file alias="clipbg">res/clipbg.png</file>
+        <file alias="clipbg_dark">res/clipbg_dark.png</file>
     </qresource>
 </RCC>

@@ -56,6 +56,11 @@ MainWindow::MainWindow(QWidget *parent)
     dckLayerPanel->Update();
     dckAnimPanel->Update();
 
+    if (IS_DARK_THEME)
+        ui->centralwidget->setStyleSheet("QScrollArea { background-image: url(\":/other/clipbg_dark\"); }");
+    else
+        ui->centralwidget->setStyleSheet("QScrollArea { background-image: url(\":/other/clipbg\"); }");
+
     UpdateWindowTitle();
     QLabel* lbl_version= new QLabel(APP_VERSION);
     this->menuBar()->setCornerWidget(lbl_version, Qt::TopRightCorner);
