@@ -925,9 +925,6 @@ void ImageCanvas::mousePressEvent(QMouseEvent* event)
             if (mouse_down_button & (Qt::LeftButton | Qt::RightButton))
                 PickColor(event->pos(), mouse_down_button == Qt::LeftButton);
             break;
-        case Tool_FloodSelect:
-            FloodSelect(event->pos());
-            break;
         default:
             break;
         }
@@ -938,10 +935,14 @@ void ImageCanvas::mousePressEvent(QMouseEvent* event)
         {
         case Tool_Pencil:
         case Tool_Line:
+            if (mouse_down_button == Qt::MiddleButton)
+                break;
             current_project->CurrentFrame()->PushNewSnapshot(new UndoSnapshot(Undocmd_DiffImage, current_layer_index, current_layer));
             mouseMoveEvent(event);
             break;
         case Tool_FloodSelect:
+            if (mouse_down_button == Qt::MiddleButton)
+                break;
             selection.fill(0);
             FloodSelect(event->pos());
             break;
@@ -962,7 +963,7 @@ void ImageCanvas::mousePressEvent(QMouseEvent* event)
 
 void ImageCanvas::mouseReleaseEvent(QMouseEvent* event)
 {
-    if (mouse_down_button | (Qt::LeftButton | Qt::RightButton))
+    if (mouse_down_button & (Qt::LeftButton | Qt::RightButton))
     {
         switch (current_tool->type)
         {
